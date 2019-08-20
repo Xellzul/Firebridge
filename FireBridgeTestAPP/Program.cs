@@ -10,6 +10,7 @@ using System.CodeDom.Compiler;
 using Microsoft.CSharp;
 using System.Reflection;
 using FirebridgeShared.Networking;
+using System.Net;
 
 namespace FireBridgeTestAPP
 {
@@ -51,13 +52,36 @@ namespace FireBridgeTestAPP
 
             Server s = new Server();
             s.ClientConnected += S_ClientConnected;
-            s.Start();
+            s.Start(new IPEndPoint(IPAddress.Any, 6969));
             Console.ReadKey();
         }
 
         private static void S_ClientConnected(object sender, EventArgs e)
         {
-            ((ServerConnectionEventArgs)e).Client.Run();
+            var client = ((ServerConnectionEventArgs)e).Connection;
+            client.SendPacket(new Packet() { Id = 0, Data = "Ahoj, pripojil ses ke mne, ODESLANO OD ZOMBIE" });
+            client.MessageRecieved += Client_MessageRecieved;
+        }
+
+        private static void Client_MessageRecieved(object sender, EventArgs e)
+        {
+            var ea = (MessageEventArgs)e;
+            var se = (Connection)sender;
+            se.SendPacket(new Packet() { Id = 0, Data = "prisla mi zprava, ODESLANO OD ZOMBIE" });
+
+            switch (ea.Packet.Id)
+            {
+                case 0: //Message
+                    Console.WriteLine((string)ea.Packet.Data);
+                    se.SendPacket(new Packet() { Id = 0, Data = "GOT " + ea.Packet.Data });
+                    break;
+                case 1: //Run Code
+                    break;
+                default:
+                    Console.WriteLine("Unknown Packet of " + ea.Packet.Id);
+                    se.SendPacket(new Packet() { Id = 0, Data = "Unknown Packet of " + ea.Packet.Id });
+                    break;
+            }
         }
     }
 }

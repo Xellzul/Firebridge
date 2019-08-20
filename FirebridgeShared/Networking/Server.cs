@@ -11,14 +11,14 @@ namespace FirebridgeShared.Networking
     public class Server
     {
         TcpListener TcpListener;
-        ConcurrentDictionary<ServerConnection, bool> Connections = new ConcurrentDictionary<ServerConnection, bool>();
+        ConcurrentDictionary<Connection, bool> Connections = new ConcurrentDictionary<Connection, bool>();
         public Server()
         {
         }
 
-        public void Start()
+        public void Start(IPEndPoint endpoint)
         {
-            TcpListener = new TcpListener(new IPEndPoint(IPAddress.Any, 6969));
+            TcpListener = new TcpListener(endpoint);
             TcpListener.Start();
             TcpListener.BeginAcceptTcpClient(new AsyncCallback(AcceptTcpClientCallback), TcpListener);
         }
@@ -31,10 +31,9 @@ namespace FirebridgeShared.Networking
         private void AcceptTcpClientCallback(IAsyncResult ar)
         {
             var TcpListener = (TcpListener)ar.AsyncState;
-            var client2 = TcpListener.AcceptTcpClient();
             TcpListener.BeginAcceptTcpClient(new AsyncCallback(AcceptTcpClientCallback), TcpListener);
             TcpClient client = TcpListener.EndAcceptTcpClient(ar);
-            var newConnection = new ServerConnection(client);
+            var newConnection = new Connection(client);
             Connections.TryAdd(newConnection, true);
             OnClientConnected(new ServerConnectionEventArgs(newConnection));
             bool connected;
@@ -51,10 +50,10 @@ namespace FirebridgeShared.Networking
 
     public class ServerConnectionEventArgs : EventArgs
     {
-        public ServerConnection Client { get; set; }
-        public ServerConnectionEventArgs(ServerConnection client)
+        public Connection Connection { get; set; }
+        public ServerConnectionEventArgs(Connection connection)
         {
-            Client = client;
+            Connection = connection;
         }
     }
 }

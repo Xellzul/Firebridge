@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,15 +14,15 @@ namespace FirebridgeClient
 {
     public partial class Form1 : Form
     {
-        Client c = new Client();
+        Connection c;
         Random r = new Random();
         int num;
         public Form1()
         {
             num = r.Next();
             InitializeComponent();
+            c = new Connection(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
             c.MessageRecieved += C_MessageRecieved;
-            c.Connect();
             this.timer1.Enabled = true;
         }
 
