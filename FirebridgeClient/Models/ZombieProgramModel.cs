@@ -9,7 +9,7 @@ namespace FirebridgeClient.Models
 {
     class ZombieProgramModel
     {
-        public MimiProgramModel Program { get; set; }
+        public MiniProgramModel Program { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
     }

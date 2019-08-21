@@ -21,12 +21,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_304254E9FC43463EBBE4F1652FD33D2B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_32F855DEB041ADFD5DDB479EFE67111D"
         "OwnerKey" = "8:_38345A1C7EA415232570B2414A6ABEB1"
         "MsmSig" = "8:_UNDEFINED"
@@ -46,7 +40,7 @@
         "Entry"
         {
         "MsmKey" = "8:_383E8C37E7BEF2238D115FE5EC13EF2B"
-        "OwnerKey" = "8:_304254E9FC43463EBBE4F1652FD33D2B"
+        "OwnerKey" = "8:_965F51D499F54E7283D4F17032DDE5A1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -64,13 +58,13 @@
         "Entry"
         {
         "MsmKey" = "8:_3D8D4D03F430BD3C696861D6095F358C"
-        "OwnerKey" = "8:_304254E9FC43463EBBE4F1652FD33D2B"
+        "OwnerKey" = "8:_965F51D499F54E7283D4F17032DDE5A1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_7795236298947FA2F1AC8CD9CDB750B8"
-        "OwnerKey" = "8:_304254E9FC43463EBBE4F1652FD33D2B"
+        "OwnerKey" = "8:_965F51D499F54E7283D4F17032DDE5A1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -87,6 +81,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_965F51D499F54E7283D4F17032DDE5A1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_07385E39A1CA46559818E9EDF1802E62"
         "MsmSig" = "8:_UNDEFINED"
@@ -94,7 +94,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_304254E9FC43463EBBE4F1652FD33D2B"
+        "OwnerKey" = "8:_965F51D499F54E7283D4F17032DDE5A1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -190,6 +190,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.6.1"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.6.1 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.6.1"
+                    }
+                }
             }
         }
     }
@@ -550,7 +558,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FirebridgeInstaller"
         "ProductCode" = "8:{869535E7-FAA9-41B9-8DC6-9B057F27AED2}"
-        "PackageCode" = "8:{8F41D56A-912D-4653-9CEE-787633D702F3}"
+        "PackageCode" = "8:{09165CE6-B428-40F6-B206-07FC2D94287E}"
         "UpgradeCode" = "8:{31762832-EF08-47AD-BAF6-50187DD04129}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1097,9 +1105,9 @@
                 {
                 }
             }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_304254E9FC43463EBBE4F1652FD33D2B"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_965F51D499F54E7283D4F17032DDE5A1"
             {
-            "SourcePath" = "8:..\\FireBridgeTestAPP\\obj\\Debug\\FireBridgeTestAPP.exe"
+            "SourcePath" = "8:..\\FireBridgeZombie\\obj\\Debug\\FireBridgeZombie.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5F1859DB85234484AD74E50ED7F7E326"
@@ -1119,7 +1127,7 @@
             "ProjectOutputGroupRegister" = "3:1"
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{63FF04F1-6279-452F-A5D0-326E6D903BCE}"
+            "OutputProjectGuid" = "8:{9EDBB417-F31F-4627-84C5-DAA27255971E}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

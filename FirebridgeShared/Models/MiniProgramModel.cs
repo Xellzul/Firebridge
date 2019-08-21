@@ -4,10 +4,10 @@ using System.Text;
 
 namespace FirebridgeShared.Models
 {
-
-    public class MimiProgramModel
+    public class MiniProgramModel
     {
         public List<string> References { get; set; }
+        public string EntryPoint { get; set; }
         public string Code { get; set; }
     }
 }

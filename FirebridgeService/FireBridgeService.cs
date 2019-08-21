@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
@@ -33,10 +34,14 @@ namespace FirebridgeService
 
         private void StartApp()
         {
-            if(!process.HasExited)
-                process?.Kill();
+            if(process != null)
+                if(!process.HasExited)
+                    process?.Kill();
             process = new Process();
-            process.StartInfo.FileName = "FireBridgeTestAPP.exe";
+            //process.StartInfo.Verb = "runas";
+            process.StartInfo.FileName = "FireBridgeZombie.exe";
+            process.StartInfo.UserName = "admin";
+            process.StartInfo.Domain = "";
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.UseShellExecute = false;
@@ -50,6 +55,8 @@ namespace FirebridgeService
             if (process.ExitCode == 69)
             {
                 eventLog.WriteEntry("Update Requsted");
+                File.Delete("FireBridgeZombie.exe");
+                File.Move("FireBridgeZombie.exe.new", "FireBridgeZombie.exe");
             }
             else if (process.ExitCode == 70)
             {

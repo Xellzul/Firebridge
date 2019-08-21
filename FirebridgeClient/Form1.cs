@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -23,11 +24,17 @@ namespace FirebridgeClient
             InitializeComponent();
             c = new Connection(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
             c.MessageRecieved += C_MessageRecieved;
-            this.timer1.Enabled = true;
+            //this.timer1.Enabled = true;
         }
 
         private void C_MessageRecieved(object sender, EventArgs e)
         {
+            var packet = ((MessageEventArgs)e).Packet;
+            if(packet.Id == 3)
+            {
+                panel1.BackgroundImage = (Bitmap)packet.Data;
+                return;
+            }
             Console.WriteLine(((MessageEventArgs)e).Packet.Data.ToString());
             if (this.InvokeRequired)
                 this.Invoke(new Action(() => _textBoxConsole.Text += ((MessageEventArgs)e).Packet.Data.ToString() + Environment.NewLine));
@@ -38,7 +45,7 @@ namespace FirebridgeClient
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
-           
+            c.SendPacket(new Packet() { Id = 3, Data = "" });
         }
 
         private void _buttonConsoleSubmit_Click(object sender, EventArgs e)
@@ -50,6 +57,21 @@ namespace FirebridgeClient
         {
             _textBoxConsole.SelectionStart = _textBoxConsole.Text.Length;
             _textBoxConsole.ScrollToCaret();
+        }
+
+        private void Button2_Click(object sender, EventArgs e)
+        {
+            var f = new OpenFileDialog();
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                c.SendPacket(new Packet() { Id = 4, Data = File.ReadAllBytes(f.FileName) });
+            }
+
+        }
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            c.SendPacket(new Packet() { Id = 2 });
         }
     }
 }

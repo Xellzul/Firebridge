@@ -31,8 +31,16 @@ namespace FirebridgeShared.Networking
 
         private void AcceptConenction()
         {
-            while (true) { 
-                var client = TcpListener.AcceptTcpClient();
+            while (true) {
+                TcpClient client;
+                try { 
+                  client = TcpListener.AcceptTcpClient();
+                }
+                catch (SocketException e) {
+                    if(e.ErrorCode == 10004)
+                        return;
+                    throw;
+                }
                 var newConnection = new Connection(client);
                 newConnection.Disconnected += NewConnection_Disconnected;
                 Connections.TryAdd(newConnection, true);

@@ -56,28 +56,7 @@ namespace FireBridgeTestAPP
             s.Start(new IPEndPoint(IPAddress.Any, 6969));
 
 
-            //CSharpCodeProvider provider = new CSharpCodeProvider();
-            //CompilerParameters parameters = new CompilerParameters();
-            //parameters.GenerateInMemory = true;
-            //parameters.ReferencedAssemblies.Add("System.dll");
-            //parameters.ReferencedAssemblies.Add("System.Core.dll");
-            //parameters.ReferencedAssemblies.Add("System.Data.dll");
-            //parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
-            //parameters.ReferencedAssemblies.Add("System.Data.DataSetExtensions.dll");
-            //parameters.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
-            //parameters.ReferencedAssemblies.Add("System.Deployment.dll");
-            //parameters.ReferencedAssemblies.Add("System.Drawing.dll");
-            //parameters.ReferencedAssemblies.Add("System.Windows.Forms.dll");
-            //parameters.ReferencedAssemblies.Add("System.Xml.dll");
-            //parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
-            //parameters.ReferencedAssemblies.Add("FirebridgeShared.dll");
-            //parameters.ReferencedAssemblies.Add("netstandard.dll");
-            //CompilerResults results = provider.CompileAssemblyFromSource(parameters, GetCode());
-            //results.Errors.Cast<CompilerError>().ToList().ForEach(error => Console.WriteLine(error.ErrorText));
 
-            //var cls = results.CompiledAssembly.GetType("FireBridgeTestAPP.DynamicCode");
-            //var method = cls.GetMethod("Main", BindingFlags.Static | BindingFlags.Public);
-            //method.Invoke(null, new[] { s });
 
             Console.ReadKey();
         }
