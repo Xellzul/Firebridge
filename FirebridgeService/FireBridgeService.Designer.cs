@@ -1,6 +1,6 @@
 ﻿namespace FirebridgeService
 {
-    partial class Service1
+    partial class FireBridgeService
     {
         /// <summary> 
         /// Required designer variable.
