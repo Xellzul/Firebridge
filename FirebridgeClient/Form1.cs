@@ -30,15 +30,26 @@ namespace FirebridgeClient
         {
             Console.WriteLine(((MessageEventArgs)e).Packet.Data.ToString());
             if (this.InvokeRequired)
-                this.Invoke(new Action(() => this.Text = this.Text = ((MessageEventArgs)e).Packet.Data.ToString()));
+                this.Invoke(new Action(() => _textBoxConsole.Text += ((MessageEventArgs)e).Packet.Data.ToString() + Environment.NewLine));
             else
-                this.Text = this.Text = ((MessageEventArgs)e).Packet.Data.ToString();
+                _textBoxConsole.Text += ((MessageEventArgs)e).Packet.Data.ToString() + Environment.NewLine;
 
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
-            c.SendPacket(new Packet() { Id = 0, Data = "Ahoj" + num + r.Next(500).ToString()});
+           
+        }
+
+        private void _buttonConsoleSubmit_Click(object sender, EventArgs e)
+        {
+            c.SendPacket(new Packet() { Id = 0, Data = _textBoxSubmitText.Text+ num + r.Next(500).ToString() });
+        }
+
+        private void _textBoxConsole_TextChanged(object sender, EventArgs e)
+        {
+            _textBoxConsole.SelectionStart = _textBoxConsole.Text.Length;
+            _textBoxConsole.ScrollToCaret();
         }
     }
 }
