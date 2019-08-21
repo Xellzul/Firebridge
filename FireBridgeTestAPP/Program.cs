@@ -52,12 +52,23 @@ namespace FireBridgeTestAPP
 
             Server s = new Server();
             s.ClientConnected += S_ClientConnected;
+            s.ConnectionDisconnected += S_ConnectionDisconnected;
             s.Start(new IPEndPoint(IPAddress.Any, 6969));
             Console.ReadKey();
         }
 
+        private static void S_ConnectionDisconnected(object sender, EventArgs e)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("CLIENT DISCONNECTED");
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
         private static void S_ClientConnected(object sender, EventArgs e)
         {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("CLIENT CONNECTED");
+            Console.ForegroundColor = ConsoleColor.White;
             var client = ((ServerConnectionEventArgs)e).Connection;
             client.SendPacket(new Packet() { Id = 0, Data = "Ahoj, pripojil ses ke mne, ODESLANO OD ZOMBIE" });
             client.MessageRecieved += Client_MessageRecieved;

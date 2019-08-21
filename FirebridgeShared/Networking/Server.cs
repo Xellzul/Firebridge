@@ -34,10 +34,16 @@ namespace FirebridgeShared.Networking
             TcpListener.BeginAcceptTcpClient(new AsyncCallback(AcceptTcpClientCallback), TcpListener);
             TcpClient client = TcpListener.EndAcceptTcpClient(ar);
             var newConnection = new Connection(client);
+            newConnection.Disconnected += NewConnection_Disconnected;
             Connections.TryAdd(newConnection, true);
             OnClientConnected(new ServerConnectionEventArgs(newConnection));
+        }
+
+        private void NewConnection_Disconnected(object sender, EventArgs e)
+        {
             bool connected;
-            Connections.TryRemove(newConnection, out connected);
+            Connections.TryRemove((Connection)sender, out connected);
+            OnConnectionDisconnected(new ServerConnectionEventArgs((Connection)sender));
         }
 
         protected virtual void OnClientConnected(ServerConnectionEventArgs e)
@@ -46,14 +52,13 @@ namespace FirebridgeShared.Networking
         }
 
         public event EventHandler ClientConnected;
-    }
 
-    public class ServerConnectionEventArgs : EventArgs
-    {
-        public Connection Connection { get; set; }
-        public ServerConnectionEventArgs(Connection connection)
+
+        protected virtual void OnConnectionDisconnected(ServerConnectionEventArgs e)
         {
-            Connection = connection;
+            ConnectionDisconnected?.Invoke(this, e);
         }
+
+        public event EventHandler ConnectionDisconnected;
     }
 }

@@ -2,11 +2,6 @@
 
 namespace FirebridgeShared.Networking
 {
-    /*
-        
-         
-         
-        */
     [Serializable]
     public class Packet
     {

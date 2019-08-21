@@ -17,15 +17,18 @@ namespace FirebridgeShared.Networking
         public Connection(TcpClient client)
         {
             tcpClient = client;
-            bf = new BinaryFormatter();
-            stream = tcpClient.GetStream();
-            Task.Run(() => Read(stream));
+            init();
         }
 
         public Connection(IPEndPoint iPEndPoint)
         {
             tcpClient = new TcpClient();
             tcpClient.Connect(iPEndPoint);
+            init();
+        }
+
+        private void init()
+        {
             bf = new BinaryFormatter();
             stream = tcpClient.GetStream();
             Task.Run(() => Read(stream));
@@ -46,7 +49,10 @@ namespace FirebridgeShared.Networking
                 catch (IOException e)
                 {
                     if (((SocketException)e.InnerException)?.ErrorCode == 10054)
-                        return; //TODO: 
+                    {
+                        OnDisconnected(EventArgs.Empty);
+                        return; //TODO:
+                    }
                     throw;
                 }
                 OnMessageRecievedConnected(new MessageEventArgs(p));
@@ -55,7 +61,19 @@ namespace FirebridgeShared.Networking
 
         public void SendPacket(Packet p)
         {
-            bf.Serialize(stream, p);
+            try
+            {
+                bf.Serialize(stream, p);
+            }
+            catch (IOException e)
+            {
+                if (((SocketException)e.InnerException)?.ErrorCode == 10054)
+                {
+                    OnDisconnected(EventArgs.Empty);
+                    return; //TODO:
+                } 
+                throw;
+            }
         }
 
         protected virtual void OnMessageRecievedConnected(MessageEventArgs e)
@@ -63,6 +81,12 @@ namespace FirebridgeShared.Networking
             MessageRecieved?.Invoke(this, e);
         }
 
+        protected virtual void OnDisconnected(EventArgs e)
+        {
+            Disconnected?.Invoke(this, e);
+        }
+
+        public event EventHandler Disconnected;
         public event EventHandler MessageRecieved;
     }
 }

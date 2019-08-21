@@ -28,6 +28,7 @@ namespace FirebridgeClient
 
         private void C_MessageRecieved(object sender, EventArgs e)
         {
+            Console.WriteLine(((MessageEventArgs)e).Packet.Data.ToString());
             if (this.InvokeRequired)
                 this.Invoke(new Action(() => this.Text = this.Text = ((MessageEventArgs)e).Packet.Data.ToString()));
             else
