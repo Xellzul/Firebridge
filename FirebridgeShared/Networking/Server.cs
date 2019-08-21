@@ -20,7 +20,8 @@ namespace FirebridgeShared.Networking
         {
             TcpListener = new TcpListener(endpoint);
             TcpListener.Start();
-            TcpListener.BeginAcceptTcpClient(new AsyncCallback(AcceptTcpClientCallback), TcpListener);
+            AcceptConenction();
+            //TcpListener.BeginAcceptTcpClient(new AsyncCallback(AcceptTcpClientCallback), TcpListener);
         }
 
         public void Stop()
@@ -28,16 +29,27 @@ namespace FirebridgeShared.Networking
             TcpListener.Stop();
         }
 
-        private void AcceptTcpClientCallback(IAsyncResult ar)
+        private void AcceptConenction()
         {
-            var TcpListener = (TcpListener)ar.AsyncState;
-            TcpListener.BeginAcceptTcpClient(new AsyncCallback(AcceptTcpClientCallback), TcpListener);
-            TcpClient client = TcpListener.EndAcceptTcpClient(ar);
-            var newConnection = new Connection(client);
-            newConnection.Disconnected += NewConnection_Disconnected;
-            Connections.TryAdd(newConnection, true);
-            OnClientConnected(new ServerConnectionEventArgs(newConnection));
+            while (true) { 
+                var client = TcpListener.AcceptTcpClient();
+                var newConnection = new Connection(client);
+                newConnection.Disconnected += NewConnection_Disconnected;
+                Connections.TryAdd(newConnection, true);
+                OnClientConnected(new ServerConnectionEventArgs(newConnection));
+            }
         }
+
+        //private void AcceptTcpClientCallback(IAsyncResult ar)
+        //{
+        //    var TcpListener = (TcpListener)ar.AsyncState;
+        //    TcpListener.BeginAcceptTcpClient(new AsyncCallback(AcceptTcpClientCallback), TcpListener);
+        //    TcpClient client = TcpListener.EndAcceptTcpClient(ar);
+        //    var newConnection = new Connection(client);
+        //    newConnection.Disconnected += NewConnection_Disconnected;
+        //    Connections.TryAdd(newConnection, true);
+        //    OnClientConnected(new ServerConnectionEventArgs(newConnection));
+        //}
 
         private void NewConnection_Disconnected(object sender, EventArgs e)
         {
@@ -58,7 +70,6 @@ namespace FirebridgeShared.Networking
         {
             ConnectionDisconnected?.Invoke(this, e);
         }
-
         public event EventHandler ConnectionDisconnected;
     }
 }

@@ -11,7 +11,9 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "FirebridgeInstaller", "Fire
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireBridgeTestAPP", "FireBridgeTestAPP\FireBridgeTestAPP.csproj", "{63FF04F1-6279-452F-A5D0-326E6D903BCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirebridgeShared", "FirebridgeShared\FirebridgeShared.csproj", "{24C21BB3-3157-40A5-9457-254BB9C1B535}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirebridgeShared", "FirebridgeShared\FirebridgeShared.csproj", "{24C21BB3-3157-40A5-9457-254BB9C1B535}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireBridgeZombie", "FireBridgeZombie\FireBridgeZombie.csproj", "{9EDBB417-F31F-4627-84C5-DAA27255971E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{24C21BB3-3157-40A5-9457-254BB9C1B535}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24C21BB3-3157-40A5-9457-254BB9C1B535}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24C21BB3-3157-40A5-9457-254BB9C1B535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EDBB417-F31F-4627-84C5-DAA27255971E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EDBB417-F31F-4627-84C5-DAA27255971E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EDBB417-F31F-4627-84C5-DAA27255971E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EDBB417-F31F-4627-84C5-DAA27255971E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

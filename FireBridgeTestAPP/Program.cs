@@ -11,6 +11,7 @@ using Microsoft.CSharp;
 using System.Reflection;
 using FirebridgeShared.Networking;
 using System.Net;
+using System.Threading;
 
 namespace FireBridgeTestAPP
 {
@@ -48,34 +49,35 @@ namespace FireBridgeTestAPP
 
         static void Main(string[] args)
         {
-            Console.WriteLine("TEST");
+            Console.WriteLine("START" + Thread.CurrentThread.ManagedThreadId);
             Server s = new Server();
             s.ClientConnected += S_ClientConnected;
             s.ConnectionDisconnected += S_ConnectionDisconnected;
             s.Start(new IPEndPoint(IPAddress.Any, 6969));
 
-            CSharpCodeProvider provider = new CSharpCodeProvider();
-            CompilerParameters parameters = new CompilerParameters();
-            parameters.GenerateInMemory = true;
-            parameters.ReferencedAssemblies.Add("System.dll");
-            parameters.ReferencedAssemblies.Add("System.Core.dll");
-            parameters.ReferencedAssemblies.Add("System.Data.dll");
-            parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
-            parameters.ReferencedAssemblies.Add("System.Data.DataSetExtensions.dll");
-            parameters.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
-            parameters.ReferencedAssemblies.Add("System.Deployment.dll");
-            parameters.ReferencedAssemblies.Add("System.Drawing.dll");
-            parameters.ReferencedAssemblies.Add("System.Windows.Forms.dll");
-            parameters.ReferencedAssemblies.Add("System.Xml.dll");
-            parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
-            parameters.ReferencedAssemblies.Add("FirebridgeShared.dll");
-            parameters.ReferencedAssemblies.Add("netstandard.dll");
-            CompilerResults results = provider.CompileAssemblyFromSource(parameters, GetCode());
-            results.Errors.Cast<CompilerError>().ToList().ForEach(error => Console.WriteLine(error.ErrorText));
 
-            var cls = results.CompiledAssembly.GetType("FireBridgeTestAPP.DynamicCode");
-            var method = cls.GetMethod("Main", BindingFlags.Static | BindingFlags.Public);
-            method.Invoke(null, new[] { s });
+            //CSharpCodeProvider provider = new CSharpCodeProvider();
+            //CompilerParameters parameters = new CompilerParameters();
+            //parameters.GenerateInMemory = true;
+            //parameters.ReferencedAssemblies.Add("System.dll");
+            //parameters.ReferencedAssemblies.Add("System.Core.dll");
+            //parameters.ReferencedAssemblies.Add("System.Data.dll");
+            //parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
+            //parameters.ReferencedAssemblies.Add("System.Data.DataSetExtensions.dll");
+            //parameters.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
+            //parameters.ReferencedAssemblies.Add("System.Deployment.dll");
+            //parameters.ReferencedAssemblies.Add("System.Drawing.dll");
+            //parameters.ReferencedAssemblies.Add("System.Windows.Forms.dll");
+            //parameters.ReferencedAssemblies.Add("System.Xml.dll");
+            //parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
+            //parameters.ReferencedAssemblies.Add("FirebridgeShared.dll");
+            //parameters.ReferencedAssemblies.Add("netstandard.dll");
+            //CompilerResults results = provider.CompileAssemblyFromSource(parameters, GetCode());
+            //results.Errors.Cast<CompilerError>().ToList().ForEach(error => Console.WriteLine(error.ErrorText));
+
+            //var cls = results.CompiledAssembly.GetType("FireBridgeTestAPP.DynamicCode");
+            //var method = cls.GetMethod("Main", BindingFlags.Static | BindingFlags.Public);
+            //method.Invoke(null, new[] { s });
 
             Console.ReadKey();
         }
@@ -83,14 +85,14 @@ namespace FireBridgeTestAPP
         private static void S_ConnectionDisconnected(object sender, EventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("CLIENT DISCONNECTED");
+            Console.WriteLine("CLIENT DISCONNECTED" + Thread.CurrentThread.ManagedThreadId);
             Console.ForegroundColor = ConsoleColor.White;
         }
 
         private static void S_ClientConnected(object sender, EventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine("CLIENT CONNECTED");
+            Console.WriteLine("CLIENT CONNECTED" + Thread.CurrentThread.ManagedThreadId);
             Console.ForegroundColor = ConsoleColor.White;
             var client = ((ServerConnectionEventArgs)e).Connection;
             client.SendPacket(new Packet() { Id = 0, Data = "Ahoj, pripojil ses ke mne, ODESLANO OD ZOMBIE" });
@@ -101,6 +103,7 @@ namespace FireBridgeTestAPP
         {
             var ea = (MessageEventArgs)e;
             var se = (Connection)sender;
+            Console.WriteLine("GOT MSG" + Thread.CurrentThread.ManagedThreadId);
             se.SendPacket(new Packet() { Id = 0, Data = "prisla mi zprava, ODESLANO OD ZOMBIE" });
 
             switch (ea.Packet.Id)
