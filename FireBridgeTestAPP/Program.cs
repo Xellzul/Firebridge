@@ -21,39 +21,62 @@ namespace FireBridgeTestAPP
             return new string[]
             {
                 @"using System;
+                using FirebridgeShared.Networking;
  
-                namespace DynamicNS
+                namespace FireBridgeTestAPP
                 {
                     public static class DynamicCode
                     {
-                        public static void Main()
+                        public static void Main(Server s)
                         {
+
+                            s.ClientConnected += S_ClientConnected;
                             Console.WriteLine(""Hello, world!"");
+                            Console.ReadKey();
+
+                        }
+                        private static void S_ClientConnected(object sender, EventArgs e)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Blue;
+                            Console.WriteLine(""CLIENT CONNECTED FROM COMPILED CODE"");
+                            Console.ForegroundColor = ConsoleColor.White;
                         }
                     }
-                }"
+    }"
             };
         }
 
         static void Main(string[] args)
         {
-            //CSharpCodeProvider provider = new CSharpCodeProvider();
-            //CompilerParameters parameters = new CompilerParameters();
-            //parameters.GenerateInMemory = true;
-            //parameters.ReferencedAssemblies.Add("System.dll");
-            //CompilerResults results = provider.CompileAssemblyFromSource(parameters, GetCode());
-            //results.Errors.Cast<CompilerError>().ToList().ForEach(error => Console.WriteLine(error.ErrorText));
-
-            //var cls = results.CompiledAssembly.GetType("DynamicNS.DynamicCode");
-            //var method = cls.GetMethod("Main", BindingFlags.Static | BindingFlags.Public);
-            //method.Invoke(null, null);
-
-
-
+            Console.WriteLine("TEST");
             Server s = new Server();
             s.ClientConnected += S_ClientConnected;
             s.ConnectionDisconnected += S_ConnectionDisconnected;
             s.Start(new IPEndPoint(IPAddress.Any, 6969));
+
+            CSharpCodeProvider provider = new CSharpCodeProvider();
+            CompilerParameters parameters = new CompilerParameters();
+            parameters.GenerateInMemory = true;
+            parameters.ReferencedAssemblies.Add("System.dll");
+            parameters.ReferencedAssemblies.Add("System.Core.dll");
+            parameters.ReferencedAssemblies.Add("System.Data.dll");
+            parameters.ReferencedAssemblies.Add("System.Net.Http.dll");
+            parameters.ReferencedAssemblies.Add("System.Data.DataSetExtensions.dll");
+            parameters.ReferencedAssemblies.Add("Microsoft.CSharp.dll");
+            parameters.ReferencedAssemblies.Add("System.Deployment.dll");
+            parameters.ReferencedAssemblies.Add("System.Drawing.dll");
+            parameters.ReferencedAssemblies.Add("System.Windows.Forms.dll");
+            parameters.ReferencedAssemblies.Add("System.Xml.dll");
+            parameters.ReferencedAssemblies.Add("System.Xml.Linq.dll");
+            parameters.ReferencedAssemblies.Add("FirebridgeShared.dll");
+            parameters.ReferencedAssemblies.Add("netstandard.dll");
+            CompilerResults results = provider.CompileAssemblyFromSource(parameters, GetCode());
+            results.Errors.Cast<CompilerError>().ToList().ForEach(error => Console.WriteLine(error.ErrorText));
+
+            var cls = results.CompiledAssembly.GetType("FireBridgeTestAPP.DynamicCode");
+            var method = cls.GetMethod("Main", BindingFlags.Static | BindingFlags.Public);
+            method.Invoke(null, new[] { s });
+
             Console.ReadKey();
         }
 
