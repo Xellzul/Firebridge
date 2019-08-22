@@ -29,6 +29,7 @@ namespace FirebridgeClient
             panel1.GetType()
             .GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
             ?.SetValue(panel1, true);
+            this.Text = ip;
 
         }
 
@@ -42,6 +43,7 @@ namespace FirebridgeClient
             var packet = ((MessageEventArgs)e).Packet;
             if(packet.Id == 3)
             {
+                panel1.BackgroundImage?.Dispose();
                 panel1.BackgroundImage = (Bitmap)packet.Data;
                 return;
             }
@@ -56,6 +58,7 @@ namespace FirebridgeClient
         private void Timer1_Tick(object sender, EventArgs e)
         {
             c.SendPacket(new Packet() { Id = 3, Data = "" });
+            //GC.Collect();
         }
 
         private void _buttonConsoleSubmit_Click(object sender, EventArgs e)
@@ -94,6 +97,15 @@ namespace FirebridgeClient
         {
 
             c.SendPacket(new Packet() { Id = 50, Data = 71 });
+        }
+
+        private void Button5_Click(object sender, EventArgs e)
+        {
+            var f = new OpenFileDialog();
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                c.SendPacket(new Packet() { Id = 6, Data = File.ReadAllBytes(f.FileName) });
+            }
         }
     }
 }

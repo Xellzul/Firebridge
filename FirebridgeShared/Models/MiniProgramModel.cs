@@ -4,6 +4,7 @@ using System.Text;
 
 namespace FirebridgeShared.Models
 {
+    [Serializable]
     public class MiniProgramModel
     {
         public List<string> References { get; set; }

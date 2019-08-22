@@ -21,7 +21,7 @@ namespace FirebridgeClient
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Form1());
+            Application.Run(new Form1("10.10.60.29"));
 
             DiscoveryClient DiscoveryClient = new DiscoveryClient();
             DiscoveryClient.ClientResponded += DiscoveryClient_ClientResponded;

@@ -43,6 +43,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.button5 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -51,7 +52,7 @@
             // 
             // timer1
             // 
-            this.timer1.Interval = 500;
+            this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.Timer1_Tick);
             // 
             // tabControl1
@@ -135,6 +136,7 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.button5);
             this.tabPage3.Controls.Add(this.button4);
             this.tabPage3.Controls.Add(this.button3);
             this.tabPage3.Controls.Add(this.button2);
@@ -195,6 +197,16 @@
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(205, 82);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(75, 23);
+            this.button5.TabIndex = 4;
+            this.button5.Text = "UPDATE_LIB";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.Button5_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -231,6 +243,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button5;
     }
 }
 
