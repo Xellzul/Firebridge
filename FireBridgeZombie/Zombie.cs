@@ -82,6 +82,9 @@ namespace FireBridgeZombie
                     Application.Exit();
                     s.Stop();
                     break;
+                case 5:
+                    connection.SendPacket(new Packet() { Id = 5, Data = Environment.MachineName });
+                    break;
                 default:
                     Console.WriteLine("Unknown Packet of " + packet.Id);
                     connection.SendPacket(new Packet() { Id = 0, Data = "Unknown Packet of " + packet.Id });
