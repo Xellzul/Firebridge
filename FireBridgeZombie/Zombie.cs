@@ -21,29 +21,22 @@ namespace FireBridgeZombie
     class Zombie
     {
         Server s;
-
-        EventLog eventLog;
+        DiscoveryServer DiscoveryServer;
         public Zombie()
         {
-
-            eventLog = new EventLog();
-            eventLog.Source = "ZOMBIE";
-            eventLog.Log = "FireBridgeLog";
-            eventLog.WriteEntry("ZOMBIE Starting");
             s = new Server();
+            DiscoveryServer = new DiscoveryServer();
             s.ClientConnected += S_ClientConnected;
             s.ConnectionDisconnected += S_ConnectionDisconnected;
         }
 
         private void S_ConnectionDisconnected(object sender, EventArgs e)
         {
-            eventLog.WriteEntry("ZOMBIE DIS");
             var e2 = (ServerConnectionEventArgs)e;
         }
 
         private void Connection_MessageRecieved(object sender, EventArgs e)
         {
-            eventLog.WriteEntry("ZOMBIE MES");
             var packet = ((MessageEventArgs)e).Packet;
             var connection = (Connection)sender;
             switch (packet.Id)
@@ -66,6 +59,7 @@ namespace FireBridgeZombie
                     break;
                 case 2: //Restart
                     s.Stop();
+                    DiscoveryServer.Stop();
                     Environment.ExitCode = (int)packet.Data;
                     Application.Exit();
                     break;
@@ -83,6 +77,7 @@ namespace FireBridgeZombie
                 case 4: //Update
                     File.WriteAllBytes("FireBridgeZombie.exe.new", (byte[])packet.Data);
                     s.Stop();
+                    DiscoveryServer.Stop();
                     Environment.ExitCode = 69;
                     Application.Exit();
                     s.Stop();
@@ -96,16 +91,15 @@ namespace FireBridgeZombie
 
         private void S_ClientConnected(object sender, EventArgs e)
         {
-            eventLog.WriteEntry("ZOMBIE CON");
             var e2 = (ServerConnectionEventArgs)e;
             e2.Connection.MessageRecieved += Connection_MessageRecieved;
         }
 
         internal void Start()
         {
-            eventLog.WriteEntry("ZOMBIE START");
+            DiscoveryServer.Run();
             s.Start(new IPEndPoint(IPAddress.Any, 6969));
-            eventLog.WriteEntry("ZOMBIE STARTSTOP");
+            DiscoveryServer.Stop();
         }
     }
 }
