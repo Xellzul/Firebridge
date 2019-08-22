@@ -100,10 +100,6 @@ namespace FirebridgeClient
             c.SendPacket(new Packet() { Id = 50, Data = 71 });
         }
 
-        private void Button5_Click(object sender, EventArgs e)
-        {
-            c.SendPacket(new Packet() { Id = 5 });
-        }
 
         private void Button6_Click(object sender, EventArgs e)
         {
@@ -156,6 +152,11 @@ namespace TestApp
             {
                 c.SendPacket(new Packet() { Id = 6, Data = File.ReadAllBytes(f.FileName) });
             }
+        }
+
+        private void Button7_Click(object sender, EventArgs e)
+        {
+            c.SendPacket(new Packet() { Id = 5 });
         }
     }
 }
