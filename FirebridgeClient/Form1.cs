@@ -19,16 +19,21 @@ namespace FirebridgeClient
         Connection c;
         Random r = new Random();
         int num;
-        public Form1()
+        public Form1(string ip)
         {
             num = r.Next();
             InitializeComponent();
-            c = new Connection(new IPEndPoint(IPAddress.Parse("10.10.60.20"), 6969));
+            c = new Connection(new IPEndPoint(IPAddress.Parse(ip), 6969));
             c.MessageRecieved += C_MessageRecieved;
             this.timer1.Enabled = true;
             panel1.GetType()
             .GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
             ?.SetValue(panel1, true);
+
+        }
+
+        private void DiscoveryClient_ClientResponded(object sender, EventArgs e)
+        {
 
         }
 
