@@ -21,18 +21,8 @@ namespace FirebridgeClient
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1("10.10.60.29"));
+            Application.Run(new MainView());
 
-            DiscoveryClient DiscoveryClient = new DiscoveryClient();
-            DiscoveryClient.ClientResponded += DiscoveryClient_ClientResponded;
-            DiscoveryClient.Run();
-            Console.ReadKey();
-        }
-
-        private static void DiscoveryClient_ClientResponded(object sender, EventArgs e)
-        {
-            var a = (ClientRespondedEventArgs)e;
-            new Form1(a.Ip).ShowDialog();
         }
     }
 }
