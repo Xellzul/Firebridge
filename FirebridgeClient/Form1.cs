@@ -24,7 +24,7 @@ namespace FirebridgeClient
             InitializeComponent();
             c = new Connection(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
             c.MessageRecieved += C_MessageRecieved;
-            //this.timer1.Enabled = true;
+            this.timer1.Enabled = true;
         }
 
         private void C_MessageRecieved(object sender, EventArgs e)
@@ -71,7 +71,13 @@ namespace FirebridgeClient
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            c.SendPacket(new Packet() { Id = 2 });
+            c.SendPacket(new Packet() { Id = 2, Data = 70 });
+        }
+
+        private void Button3_Click(object sender, EventArgs e)
+        {
+            c.SendPacket(new Packet() { Id = 2, Data = 71});
+
         }
     }
 }

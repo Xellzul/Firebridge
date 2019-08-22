@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FirebridgeService")]
+[assembly: AssemblyTitle("FireBridgeWatchDog")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("FirebridgeService")]
+[assembly: AssemblyProduct("FireBridgeWatchDog")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("cb781dde-3798-435f-bd46-847b260b4db0")]
+[assembly: Guid("d054fb0b-8393-45ed-a360-552473f3debb")]
 
 // Version information for an assembly consists of the following four values:
 //
