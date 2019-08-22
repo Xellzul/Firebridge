@@ -42,7 +42,7 @@ namespace FireBridgeWatchDog
                 process.ErrorDataReceived += Process_ErrorDataReceived;
                 Console.WriteLine("Firebridge Started");
                 process.Start();
-                process.WaitForExit();
+                while (!process.WaitForExit(20)) { }
                 Console.WriteLine("Firebridge Stopping with exit code: " + process.ExitCode);
 
                 if (process.ExitCode == 69)

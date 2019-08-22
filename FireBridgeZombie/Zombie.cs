@@ -82,7 +82,7 @@ namespace FireBridgeZombie
                     Application.Exit();
                     s.Stop();
                     break;
-                case 5:
+                case 5: //Identification
                     connection.SendPacket(new Packet() { Id = 5, Data = Environment.MachineName });
                     break;
                 default:

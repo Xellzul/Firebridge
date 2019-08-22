@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,9 +23,13 @@ namespace FirebridgeClient
         {
             num = r.Next();
             InitializeComponent();
-            c = new Connection(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 6969));
+            c = new Connection(new IPEndPoint(IPAddress.Parse("10.10.60.20"), 6969));
             c.MessageRecieved += C_MessageRecieved;
             this.timer1.Enabled = true;
+            panel1.GetType()
+            .GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?.SetValue(panel1, true);
+
         }
 
         private void C_MessageRecieved(object sender, EventArgs e)
@@ -78,6 +83,12 @@ namespace FirebridgeClient
         {
             c.SendPacket(new Packet() { Id = 2, Data = 71});
 
+        }
+
+        private void Button4_Click(object sender, EventArgs e)
+        {
+
+            c.SendPacket(new Packet() { Id = 50, Data = 71 });
         }
     }
 }
