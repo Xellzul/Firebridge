@@ -19,29 +19,20 @@ namespace FirebridgeClient
         [STAThread]
         static void Main()
         {
-            var Client = new UdpClient();
-            var RequestData = Encoding.ASCII.GetBytes("FireBridge Ping");
-            var ServerEp = new IPEndPoint(IPAddress.Any, 0);
-
-            Client.EnableBroadcast = true;
-            Client.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Broadcast, 8888));
-
-            Thread.Sleep(500);
-            int count = 0;
-            while(Client.Available > 0)
-            {
-                var ServerResponseData = Client.Receive(ref ServerEp);
-                var ServerResponse = Encoding.ASCII.GetString(ServerResponseData);
-                Console.WriteLine("Recived {0} from {1}", ServerResponse, ServerEp.Address.ToString());
-                count++;
-            }
-            Console.WriteLine(count);
-
-            Client.Close();
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new Form1("10.10.60.29"));
+
+            DiscoveryClient DiscoveryClient = new DiscoveryClient();
+            DiscoveryClient.ClientResponded += DiscoveryClient_ClientResponded;
+            DiscoveryClient.Run();
+            Console.ReadKey();
+        }
+
+        private static void DiscoveryClient_ClientResponded(object sender, EventArgs e)
+        {
+            var a = (ClientRespondedEventArgs)e;
+            new Form1(a.Ip).ShowDialog();
         }
     }
 }

@@ -20,16 +20,22 @@ namespace FirebridgeClient
         Connection c;
         Random r = new Random();
         int num;
-        public Form1()
+        public Form1(string ip)
         {
             num = r.Next();
             InitializeComponent();
-            c = new Connection(new IPEndPoint(IPAddress.Parse("10.10.60.29"), 6969));
+            c = new Connection(new IPEndPoint(IPAddress.Parse(ip), 6969));
             c.MessageRecieved += C_MessageRecieved;
             this.timer1.Enabled = true;
             panel1.GetType()
             .GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
             ?.SetValue(panel1, true);
+            this.Text = ip;
+
+        }
+
+        private void DiscoveryClient_ClientResponded(object sender, EventArgs e)
+        {
 
         }
 
@@ -38,6 +44,7 @@ namespace FirebridgeClient
             var packet = ((MessageEventArgs)e).Packet;
             if (packet.Id == 3)
             {
+                panel1.BackgroundImage?.Dispose();
                 panel1.BackgroundImage = (Bitmap)packet.Data;
                 return;
             }
@@ -52,6 +59,7 @@ namespace FirebridgeClient
         private void Timer1_Tick(object sender, EventArgs e)
         {
             c.SendPacket(new Packet() { Id = 3, Data = "" });
+            //GC.Collect();
         }
 
         private void _buttonConsoleSubmit_Click(object sender, EventArgs e)
@@ -139,6 +147,15 @@ namespace TestApp
                     },
                 }
             });
+        }
+
+        private void Button5_Click(object sender, EventArgs e)
+        {
+            var f = new OpenFileDialog();
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                c.SendPacket(new Packet() { Id = 6, Data = File.ReadAllBytes(f.FileName) });
+            }
         }
     }
 }
