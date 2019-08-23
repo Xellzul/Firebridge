@@ -18,6 +18,7 @@ namespace FirebridgeClient
 {
     public partial class MainView : Form
     {
+        private DiscoveryClient discoveryClient;
         public MainView()
         {
             InitializeComponent();
@@ -26,7 +27,7 @@ namespace FirebridgeClient
             _devices.ForeColor = ColorTranslator.FromHtml("#f7f1e3");
             this.BackColor = ColorTranslator.FromHtml("#2c2c54");
 
-            DiscoveryClient discoveryClient = new DiscoveryClient();
+            discoveryClient = new DiscoveryClient();
             discoveryClient.ClientResponded += DiscoveryClient_ClientResponded;
             discoveryClient.Run();
 
@@ -36,9 +37,11 @@ namespace FirebridgeClient
         private const int margin = 30;
         private int posX = margin;
         private int posY = margin;
+
+
         private void DiscoveryClient_ClientResponded(object sender, EventArgs e)
         {
-            if (posX > 500)
+            if (posX > this.Width)
             {
                 posX = margin;
                 posY += margin + ZombieView.Height;
@@ -54,12 +57,13 @@ namespace FirebridgeClient
                     this.Controls.Add(control);
 
 
-
+                posX += margin*2 + ZombieView.Width;
             }
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
+            discoveryClient.SendPing();
             foreach (Control control in this.Controls)
             {
                 switch (control)
