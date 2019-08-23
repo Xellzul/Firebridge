@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FirebridgeShared.Networking;
+using System.IO;
+using FirebridgeShared.Models;
 
 namespace FirebridgeClient.Controls
 {
@@ -94,5 +96,21 @@ namespace FirebridgeClient.Controls
         public static int Width = 199;
         public static int Height = 248;
 
+        private void Todo_delete_this_Click(object sender, EventArgs e)
+        {
+            var f = new OpenFileDialog();
+            f.Multiselect = true;
+            if (f.ShowDialog() == DialogResult.OK)
+            {
+                var update = new UpdateModel() { Names = new List<string>(),  Data = new List<byte[]>() };
+                for (int i = 0; i < f.FileNames.Length; i++)
+                {
+                    update.Data.Add(File.ReadAllBytes(f.FileNames[i]));
+                    update.Names.Add(f.SafeFileNames[i]);
+
+                }
+                connection.SendPacket(new Packet() { Id = 4, Data = update });
+            }
+        }
     }
 }

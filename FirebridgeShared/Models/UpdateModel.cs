@@ -4,7 +4,10 @@ using System.Text;
 
 namespace FirebridgeShared.Models
 {
-    class UpdateModel
+    [Serializable]
+    public class UpdateModel
     {
+        public List<string> Names { get; set; }
+        public List<byte[]> Data { get; set; }
     }
 }

