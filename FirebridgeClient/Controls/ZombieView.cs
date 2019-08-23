@@ -42,12 +42,19 @@ namespace FirebridgeClient.Controls
         private void Init()
         {
             connection.MessageRecieved += Connection_MessageRecieved;
-            detailView = new ZombieDetailView(this.connection);
         }
 
         public void AutoUpdate()
         {
-            connection.SendPacket(new Packet() { Id = 3, Data = new ScreenshotRequestModel() { Width = 400, Height = 300} });
+            if (!DetailShow)
+            {
+                connection.SendPacket(new Packet() { Id = 3, Data = new ScreenshotRequestModel() { Width = 400, Height = 300 } });
+            }
+            else
+            {
+                connection.SendPacket(new Packet() { Id = 3, Data = new ScreenshotRequestModel() { Width = 1920, Height = 1080 } });
+            }
+
         }
 
         private void UISetup()
@@ -60,6 +67,7 @@ namespace FirebridgeClient.Controls
                 ?.SetValue(_image, true);
         }
 
+        public bool DetailShow { get; set; } = false;
 
         private void Connection_MessageRecieved(object sender, EventArgs e)
         {
@@ -71,11 +79,19 @@ namespace FirebridgeClient.Controls
                     {
                         _image.Image?.Dispose();
                         _image.Image = (Bitmap)packet.Data;
+                        if (DetailShow)
+                        {
+                            detailView.SetImage((Bitmap)packet.Data);
+                        }
                     }));
                 else
                 {
                     _image.Image?.Dispose();
                     _image.Image = (Bitmap)packet.Data;
+                    if (DetailShow)
+                    {
+                        detailView.SetImage((Bitmap)packet.Data);
+                    }
                 }
 
             }
@@ -139,7 +155,10 @@ namespace FirebridgeClient.Controls
         private ZombieDetailView detailView;
         private void _buttonDetail_Click(object sender, EventArgs e)
         {
+            detailView = new ZombieDetailView(connection, this);
+
             detailView.Show();
+            DetailShow = true;
         }
     }
 }

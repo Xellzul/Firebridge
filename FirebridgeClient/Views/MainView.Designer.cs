@@ -41,7 +41,7 @@
             // timer1
             // 
             this.timer1.Enabled = true;
-            this.timer1.Interval = 1000;
+            this.timer1.Interval = 750;
             this.timer1.Tick += new System.EventHandler(this.Timer1_Tick);
             // 
             // _devices
@@ -61,19 +61,19 @@
             this.sendUpdateToolStripMenuItem,
             this.lockAllToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(181, 92);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(144, 70);
             // 
             // selectAllToolStripMenuItem
             // 
             this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
-            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.selectAllToolStripMenuItem.Text = "Select all";
             this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.SelectAllToolStripMenuItem_Click);
             // 
             // sendUpdateToolStripMenuItem
             // 
             this.sendUpdateToolStripMenuItem.Name = "sendUpdateToolStripMenuItem";
-            this.sendUpdateToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.sendUpdateToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.sendUpdateToolStripMenuItem.Text = "Send update ";
             this.sendUpdateToolStripMenuItem.Click += new System.EventHandler(this.SendUpdateToolStripMenuItem_Click);
             // 

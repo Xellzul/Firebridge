@@ -111,7 +111,7 @@ namespace FirebridgeClient
         private void Timer1_Tick(object sender, EventArgs e)
         {
             ping += 1;
-            if (ping == 10)
+            if (ping == 15)
             {
                 discoveryClient.SendPing();
                 ping = 0;

