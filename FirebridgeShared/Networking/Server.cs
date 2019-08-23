@@ -68,7 +68,7 @@ namespace FirebridgeShared.Networking
 
         protected virtual void OnClientConnected(ServerConnectionEventArgs e)
         {
-            ClientConnected?.Invoke(this, e);
+            ClientConnected?.SafeInvoke(this, e);
         }
 
         public event EventHandler ClientConnected;
@@ -76,7 +76,7 @@ namespace FirebridgeShared.Networking
 
         protected virtual void OnConnectionDisconnected(ServerConnectionEventArgs e)
         {
-            ConnectionDisconnected?.Invoke(this, e);
+            ConnectionDisconnected?.SafeInvoke(this, e);
         }
         public event EventHandler ConnectionDisconnected;
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
@@ -49,12 +50,21 @@ namespace FirebridgeShared.Networking
                 }
                 catch (IOException e)
                 {
-                    if (((SocketException)e.InnerException)?.ErrorCode == 10054)
+                    if (((SocketException)e.InnerException)?.ErrorCode == 10054 || ((SocketException)e.InnerException)?.ErrorCode == 10060)
                     {
                         OnDisconnected(EventArgs.Empty);
                         return; //TODO:
                     }
                     throw;
+                }
+                catch (SerializationException e)
+                {
+                    Console.WriteLine("Invalid Data: " + e.Message);
+
+                    while (stream.DataAvailable)
+                        stream.ReadByte();
+
+                    continue;
                 }
                 OnMessageRecievedConnected(new MessageEventArgs(p));
             }
@@ -68,23 +78,25 @@ namespace FirebridgeShared.Networking
             }
             catch (IOException e)
             {
-                if (((SocketException)e.InnerException)?.ErrorCode == 10054)
+                if (((SocketException)e.InnerException)?.ErrorCode == 10054 || ((SocketException)e.InnerException)?.ErrorCode == 10060)
                 {
                     OnDisconnected(EventArgs.Empty);
                     return; //TODO:
-                } 
+                }
                 throw;
             }
         }
 
         protected virtual void OnMessageRecievedConnected(MessageEventArgs e)
         {
-            MessageRecieved?.Invoke(this, e);
+            MessageRecieved.SafeInvoke(this, e);
+            //MessageRecieved?.Invoke(this, e);
         }
 
         protected virtual void OnDisconnected(EventArgs e)
         {
-            Disconnected?.Invoke(this, e);
+            MessageRecieved.SafeInvoke(this, e);
+            //Disconnected?.Invoke(this, e);
         }
 
         public event EventHandler Disconnected;

@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,9 +22,17 @@ namespace FireBridgeZombie
 {
     class Zombie
     {
-        public const int Revision = 1;
+        public const int Revision = 2;
         Server s;
         DiscoveryServer DiscoveryServer;
+
+        [DllImport("user32")]
+        public static extern void LockWorkStation();
+
+
+        [DllImport("aygshell.dll")]
+        private static extern bool ExitWindowsEx(uint dwFlags, uint dwReserved);
+
         public Zombie()
         {
             s = new Server();
@@ -106,6 +115,12 @@ namespace FireBridgeZombie
                     break;
                 case 6: //ZombieRevision
                     connection.SendPacket(new Packet() { Id = 6, Data = Revision });
+                    break;
+                case 7: //LOCK PC
+                    LockWorkStation();
+                    break;
+                case 8: //Restart PC
+                    ExitWindowsEx(2|4, 0);
                     break;
                 default:
                     Console.WriteLine("Unknown Packet of " + packet.Id);
