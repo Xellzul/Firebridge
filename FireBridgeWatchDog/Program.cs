@@ -2,8 +2,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using Microsoft.Win32.TaskScheduler;
+using System.Reflection;
 
 namespace FireBridgeWatchDog
 {
@@ -26,8 +27,29 @@ namespace FireBridgeWatchDog
             ShowWindow(handle, SW_HIDE);
 
             Process process;
-            RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            registryKey.SetValue("FireBridge", Application.ExecutablePath.ToString());
+            try { 
+                RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                registryKey.DeleteValue("FireBridge");
+            }
+            catch (Exception e)
+            {
+
+            }
+
+            using (TaskService ts = new TaskService())
+            {
+                try { 
+                ts.RootFolder.DeleteTask("FireBridge");
+                }
+                catch (Exception e) { }
+                TaskDefinition td = ts.NewTask();
+                td.Principal.RunLevel = TaskRunLevel.Highest;
+                td.Principal.LogonType = TaskLogonType.InteractiveToken;
+                td.Triggers.Add(new LogonTrigger() { });
+                td.Actions.Add(new ExecAction("FireBridgeWatchDog.exe", 
+                    workingDirectory: Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)));
+                ts.RootFolder.RegisterTaskDefinition(@"FireBridge", td);
+            }
 
             Console.WriteLine("WatchDog started");
 
@@ -43,7 +65,7 @@ namespace FireBridgeWatchDog
                 Console.WriteLine("Firebridge Started");
                 process.Start();
                 while (!process.WaitForExit(20)) { }
-                Console.WriteLine("Firebridge Stopping with exit code: " + process.ExitCode);
+                    Console.WriteLine("Firebridge Stopping with exit code: " + process.ExitCode);
 
                 if (process.ExitCode == 69)
                 {
