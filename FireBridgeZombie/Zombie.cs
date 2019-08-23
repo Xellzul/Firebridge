@@ -20,6 +20,7 @@ namespace FireBridgeZombie
 {
     class Zombie
     {
+        public const int Revision = 1;
         Server s;
         DiscoveryServer DiscoveryServer;
         public Zombie()
@@ -87,6 +88,9 @@ namespace FireBridgeZombie
                     break;
                 case 5: //Identification
                     connection.SendPacket(new Packet() { Id = 5, Data = Environment.MachineName });
+                    break;
+                case 6: //ZombieRevision
+                    connection.SendPacket(new Packet() { Id = 6, Data = Revision });
                     break;
                 default:
                     Console.WriteLine("Unknown Packet of " + packet.Id);
