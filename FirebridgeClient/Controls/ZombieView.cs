@@ -38,7 +38,7 @@ namespace FirebridgeClient.Controls
 
         public void AutoUpdate()
         {
-            connection.SendPacket(new Packet() { Id = 3, Data = "" });
+            connection.SendPacket(new Packet() { Id = 3, Data = new ScreenshotRequestModel() { Width = 400, Height = 300} });
         }
 
         private void UISetup()

