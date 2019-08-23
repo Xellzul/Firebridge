@@ -112,7 +112,7 @@ namespace FirebridgeClient.Controls
 
         private void _image_Click(object sender, EventArgs e)
         {
-            selected = !selected;
+            IsSelected = !selected;
 
         }
 
