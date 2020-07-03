@@ -71,6 +71,7 @@ namespace FirebridgeClient.Controls
 
         private void Connection_MessageRecieved(object sender, EventArgs e)
         {
+            //can cast??
             var packet = ((MessageEventArgs)e).Packet;
             if (packet.Id == 3)
             {
