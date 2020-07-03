@@ -29,7 +29,6 @@ namespace FireBridgeZombie
         [DllImport("user32")]
         public static extern void LockWorkStation();
 
-
         [DllImport("aygshell.dll")]
         private static extern bool ExitWindowsEx(uint dwFlags, uint dwReserved);
 
@@ -50,6 +49,7 @@ namespace FireBridgeZombie
         {
             var packet = ((MessageEventArgs)e).Packet;
             var connection = (Connection)sender;
+
             switch (packet.Id)
             {
                 case 0: //Message/Command
@@ -108,7 +108,6 @@ namespace FireBridgeZombie
                     DiscoveryServer.Stop();
                     Environment.ExitCode = 69;
                     Application.Exit();
-                    s.Stop();
                     break;
                 case 5: //Identification
                     connection.SendPacket(new Packet() { Id = 5, Data = Environment.MachineName });
