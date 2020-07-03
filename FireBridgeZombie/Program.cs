@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Security.Principal;
 
 namespace FireBridgeZombie
 {
@@ -10,8 +9,14 @@ namespace FireBridgeZombie
     {
         static void Main(string[] args)
         {
-            Zombie z = new Zombie();
-            z.Start();
+            bool IsElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+
+            Trace.Listeners.Add(new TextWriterTraceListener(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\zombie.txt"));
+            Trace.AutoFlush = true;
+            Trace.Indent();
+            Trace.WriteLine("Firebridge Watchdog started");
+            Trace.WriteLine("Eelevated: " + IsElevated);
+            new Zombie().Start();
         }
     }
 }
