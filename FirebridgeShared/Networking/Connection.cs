@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -16,6 +17,7 @@ namespace FirebridgeShared.Networking
         TcpClient tcpClient;
         BinaryFormatter bf;
         NetworkStream stream;
+
         public Connection(TcpClient client)
         {
             tcpClient = client;
@@ -38,11 +40,11 @@ namespace FirebridgeShared.Networking
 
         private void Read(NetworkStream _stream)
         {
-            BinaryFormatter _bf = new BinaryFormatter();
-            while (true)
+            while (tcpClient.Connected)
             {
                 if (!tcpClient.Connected && !stream.DataAvailable)
                     return;
+
                 Packet p;
                 try
                 {
@@ -51,10 +53,8 @@ namespace FirebridgeShared.Networking
                 catch (IOException e)
                 {
                     if (((SocketException)e.InnerException)?.ErrorCode == 10054 || ((SocketException)e.InnerException)?.ErrorCode == 10060)
-                    {
-                        OnDisconnected(EventArgs.Empty);
-                        return; //TODO:
-                    }
+                        break;
+
                     throw;
                 }
                 catch (SerializationException e)
@@ -68,10 +68,14 @@ namespace FirebridgeShared.Networking
                 }
                 OnMessageRecievedConnected(new MessageEventArgs(p));
             }
+            OnDisconnected(EventArgs.Empty);
         }
 
         public void SendPacket(Packet p)
         {
+            if (!stream.CanWrite)
+                return;
+
             try
             {
                 bf.Serialize(stream, p);
@@ -81,7 +85,7 @@ namespace FirebridgeShared.Networking
                 if (((SocketException)e.InnerException)?.ErrorCode == 10054 || ((SocketException)e.InnerException)?.ErrorCode == 10060)
                 {
                     OnDisconnected(EventArgs.Empty);
-                    return; //TODO:
+                    return; 
                 }
                 throw;
             }
@@ -90,13 +94,11 @@ namespace FirebridgeShared.Networking
         protected virtual void OnMessageRecievedConnected(MessageEventArgs e)
         {
             MessageRecieved.SafeInvoke(this, e);
-            //MessageRecieved?.Invoke(this, e);
         }
 
         protected virtual void OnDisconnected(EventArgs e)
         {
-            MessageRecieved.SafeInvoke(this, e);
-            //Disconnected?.Invoke(this, e);
+            Disconnected.SafeInvoke(this, e);
         }
 
         public event EventHandler Disconnected;

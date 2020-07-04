@@ -50,17 +50,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\DashboardPanel.cs">
+    <Compile Include="Controls\ZombieActionsBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\DashboardPanel.Designer.cs">
-      <DependentUpon>DashboardPanel.cs</DependentUpon>
+    <Compile Include="Controls\ZombieActionsBar.Designer.cs">
+      <DependentUpon>ZombieActionsBar.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\ZombieView.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\ZombieView.Designer.cs">
       <DependentUpon>ZombieView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CodeEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Views\CodeEditor.Designer.cs">
+      <DependentUpon>CodeEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\MainView.cs">
       <SubType>Form</SubType>
@@ -77,11 +83,14 @@
     <Compile Include="Views\ZombieDetailView.Designer.cs">
       <DependentUpon>ZombieDetailView.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Controls\DashboardPanel.resx">
-      <DependentUpon>DashboardPanel.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\ZombieActionsBar.resx">
+      <DependentUpon>ZombieActionsBar.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ZombieView.resx">
       <DependentUpon>ZombieView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\CodeEditor.resx">
+      <DependentUpon>CodeEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\MainView.resx">
       <DependentUpon>MainView.cs</DependentUpon>

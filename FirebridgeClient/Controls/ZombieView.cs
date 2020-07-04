@@ -18,20 +18,57 @@ namespace FirebridgeClient.Controls
 {
     public partial class ZombieView : UserControl
     {
-        Connection connection;
-        private bool downloadedData = false;
 
+        private ZombieDetailView detailView;
+        public int ScreenShotResolutionMultiplier { get; set; } = 1;
+        public int ScreenShotRefreshWaitTime
+        {
+            get => _screenshotTimer.Interval; set
+            {
+                _screenshotTimer.Interval = value;
+            }
+        }
         public string Ip { get => _ip.Text; }
+
+        Connection connection;
+
+        bool ImageRequested = false; //dont request another image while we wait for one
 
         public ZombieView(string ip)
         {
+
             InitializeComponent();
+            ScreenShotRefreshWaitTime = 1000;
 
             connection = new Connection(new IPEndPoint(IPAddress.Parse(ip), 6969));
             _ip.Text = ip;
 
-            UISetup();
-            Init();
+            _image.BackColor = ColorTranslator.FromHtml("#34ace0");
+            this.BackColor = ColorTranslator.FromHtml("#84817a");
+
+            _image.GetType()
+                .GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.SetValue(_image, true);
+
+            connection.MessageRecieved += Connection_MessageRecieved;
+            connection.Disconnected += Connection_Disconnected; ;
+
+            //request machine name, zombie rev
+            connection.SendPacket(new Packet() { Id = 5 });
+            connection.SendPacket(new Packet() { Id = 6 });
+
+
+            detailView = new ZombieDetailView(this);
+            detailView.Hide();
+        }
+
+        private void Connection_Disconnected(object sender, EventArgs e)
+        {
+            if (this.Disposing || this.IsDisposed)
+                return;
+
+            detailView.Dispose();
+            this.Dispose();
         }
 
         public void SendPacket(Packet packet)
@@ -39,71 +76,52 @@ namespace FirebridgeClient.Controls
             connection.SendPacket(packet);
         }
 
-        private void Init()
+        public void RequestScreenshot()
         {
-            connection.MessageRecieved += Connection_MessageRecieved;
-        }
+            if (ImageRequested)
+                return;
 
-        public void AutoUpdate()
-        {
-            if (!DetailShow)
+            ImageRequested = true;
+            connection.SendPacket(new Packet()
             {
-                connection.SendPacket(new Packet() { Id = 3, Data = new ScreenshotRequestModel() { Width = 400, Height = 300 } });
-            }
-            else
-            {
-                connection.SendPacket(new Packet() { Id = 3, Data = new ScreenshotRequestModel() { Width = 1920, Height = 1080 } });
-            }
-
+                Id = 3,
+                Data =
+                new ScreenshotRequestModel() { Width = (128 * ScreenShotResolutionMultiplier), Height = (72 * ScreenShotResolutionMultiplier) }
+            });
         }
-
-        private void UISetup()
-        {
-            _image.BackColor = ColorTranslator.FromHtml("#34ace0");
-            this.BackColor = ColorTranslator.FromHtml("#84817a");
-
-            _image.GetType()
-                .GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
-                ?.SetValue(_image, true);
-        }
-
-        public bool DetailShow { get; set; } = false;
 
         private void Connection_MessageRecieved(object sender, EventArgs e)
         {
-            //can cast??
-            var packet = ((MessageEventArgs)e).Packet;
-            if (packet.Id == 3)
+            var packet = (e as MessageEventArgs)?.Packet;
+
+            if (packet == null)
+                return;
+
+            if (this.InvokeRequired)
+                this.Invoke(new Action(() => this.Connection_MessageRecieved(sender, e)));
+
+            switch (packet.Id)
             {
-                if (this.InvokeRequired)
-                    this.Invoke(new Action(() =>
-                    {
-                        _image.Image?.Dispose();
-                        _image.Image = (Bitmap)packet.Data;
-                        if (DetailShow)
-                        {
-                            detailView.SetImage((Bitmap)packet.Data);
-                        }
-                    }));
-                else
-                {
+                case 0:
+                    Console.WriteLine((string)packet.Data);
+                    break;
+                case 3:
+                    ImageRequested = false;
                     _image.Image?.Dispose();
                     _image.Image = (Bitmap)packet.Data;
-                    if (DetailShow)
-                    {
-                        detailView.SetImage((Bitmap)packet.Data);
-                    }
-                }
-
+                    detailView?.SetImage((Bitmap)packet.Data);
+                    break;
+                case 5:
+                    _machineName.Text = (string)packet.Data;
+                    break;
+                case 6:
+                    _rev.Text = "Version: " + ((int)packet.Data).ToString();
+                    break;
+                default:
+                    Console.WriteLine("Unknown packet ID: " + packet.Id);
+                    Console.WriteLine(((MessageEventArgs)e).Packet.Data.ToString());
+                    break;
             }
-
-            Console.WriteLine(((MessageEventArgs)e).Packet.Data.ToString());
-
-
-            //if (this.InvokeRequired)
-            //    this.Invoke(new Action(() => _textBoxConsole.Text += ((MessageEventArgs)e).Packet.Data.ToString() + Environment.NewLine));
-            //else
-            //    _textBoxConsole.Text += ((MessageEventArgs)e).Packet.Data.ToString() + Environment.NewLine;
         }
 
         private bool selected = false;
@@ -113,53 +131,50 @@ namespace FirebridgeClient.Controls
             get => selected;
             set
             {
-                selected = value;
+                if (selected != value)
+                {
+                    selected = value;
+                    OnSelectionChange(new SelectionChangeEventArgs(value));
+                }
+                else 
+                    selected = value;
 
                 if (selected)
-                {
                     this.BackColor = ColorTranslator.FromHtml("#ffb142");
-                }
                 else
-                {
                     this.BackColor = ColorTranslator.FromHtml("#84817a");
-                }
             }
         }
 
+        protected virtual void OnSelectionChange(SelectionChangeEventArgs e)
+        {
+            SelectionChange?.Invoke(this, e);
+        }
+
+        public event EventHandler SelectionChange;
 
         private void _image_Click(object sender, EventArgs e)
         {
             IsSelected = !selected;
-
         }
 
-        public static int Width = 199;
-        public static int Height = 248;
-
-        private void Todo_delete_this_Click(object sender, EventArgs e)
-        {
-            var f = new OpenFileDialog();
-            f.Multiselect = true;
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                var update = new UpdateModel() { Names = new List<string>(), Data = new List<byte[]>() };
-                for (int i = 0; i < f.FileNames.Length; i++)
-                {
-                    update.Data.Add(File.ReadAllBytes(f.FileNames[i]));
-                    update.Names.Add(f.SafeFileNames[i]);
-
-                }
-                connection.SendPacket(new Packet() { Id = 4, Data = update });
-            }
-        }
-
-        private ZombieDetailView detailView;
         private void _buttonDetail_Click(object sender, EventArgs e)
         {
-            detailView = new ZombieDetailView(connection, this);
-
             detailView.Show();
-            DetailShow = true;
+        }
+
+        private void _screenshotTimer_Tick(object sender, EventArgs e)
+        {
+            RequestScreenshot();
         }
     }
+    public class SelectionChangeEventArgs : EventArgs
+    {
+        public bool Selected { get; set; }
+        public SelectionChangeEventArgs(bool selected)
+        {
+            Selected = selected;
+        }
+    }
+
 }
