@@ -41,6 +41,7 @@
             this._screenshotEnabled = new System.Windows.Forms.CheckBox();
             this._lockPc = new System.Windows.Forms.Button();
             this._restartApp = new System.Windows.Forms.Button();
+            this._shareVS = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this._refreshRateBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._resolutionBar)).BeginInit();
             this.SuspendLayout();
@@ -206,10 +207,24 @@
             this._restartApp.UseVisualStyleBackColor = true;
             this._restartApp.Click += new System.EventHandler(this._restartApp_Click);
             // 
+            // _shareVS
+            // 
+            this._shareVS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._shareVS.Location = new System.Drawing.Point(4, 510);
+            this._shareVS.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this._shareVS.Name = "_shareVS";
+            this._shareVS.Size = new System.Drawing.Size(287, 35);
+            this._shareVS.TabIndex = 14;
+            this._shareVS.Text = "Share VS";
+            this._shareVS.UseVisualStyleBackColor = true;
+            this._shareVS.Click += new System.EventHandler(this._shareVS_Click);
+            // 
             // ZombieActionsBar
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.BackColor = System.Drawing.Color.Transparent;
+            this.Controls.Add(this._shareVS);
             this.Controls.Add(this._restartApp);
             this.Controls.Add(this._lockPc);
             this.Controls.Add(this._screenshotEnabled);
@@ -224,7 +239,7 @@
             this.Controls.Add(this._restartPC);
             this.Controls.Add(this._updateZombie);
             this.Name = "ZombieActionsBar";
-            this.Size = new System.Drawing.Size(295, 513);
+            this.Size = new System.Drawing.Size(295, 550);
             ((System.ComponentModel.ISupportInitialize)(this._refreshRateBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._resolutionBar)).EndInit();
             this.ResumeLayout(false);
@@ -247,5 +262,6 @@
         public System.Windows.Forms.CheckBox _screenshotEnabled;
         private System.Windows.Forms.Button _lockPc;
         private System.Windows.Forms.Button _restartApp;
+        private System.Windows.Forms.Button _shareVS;
     }
 }

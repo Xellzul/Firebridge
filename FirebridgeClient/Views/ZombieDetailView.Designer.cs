@@ -40,11 +40,10 @@
             this._image.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this._image.Location = new System.Drawing.Point(13, 14);
-            this._image.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this._image.Location = new System.Drawing.Point(9, 9);
             this._image.Name = "_image";
-            this._image.Size = new System.Drawing.Size(599, 506);
-            this._image.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this._image.Size = new System.Drawing.Size(945, 577);
+            this._image.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this._image.TabIndex = 4;
             this._image.TabStop = false;
             // 
@@ -53,20 +52,20 @@
             this.zombieActionsBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.zombieActionsBar1.BackColor = System.Drawing.Color.Transparent;
-            this.zombieActionsBar1.Location = new System.Drawing.Point(619, 14);
+            this.zombieActionsBar1.Location = new System.Drawing.Point(959, 9);
+            this.zombieActionsBar1.Margin = new System.Windows.Forms.Padding(2);
             this.zombieActionsBar1.Name = "zombieActionsBar1";
-            this.zombieActionsBar1.Size = new System.Drawing.Size(165, 506);
+            this.zombieActionsBar1.Size = new System.Drawing.Size(110, 577);
             this.zombieActionsBar1.TabIndex = 5;
             this.zombieActionsBar1.zombieViews = null;
             // 
             // ZombieDetailView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(795, 532);
+            this.ClientSize = new System.Drawing.Size(1076, 594);
             this.Controls.Add(this.zombieActionsBar1);
             this.Controls.Add(this._image);
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ZombieDetailView";
             this.Text = "ZombieDetailView";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ZombieDetailView_FormClosing);

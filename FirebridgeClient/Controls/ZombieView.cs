@@ -29,6 +29,7 @@ namespace FirebridgeClient.Controls
             }
         }
         public string Ip { get => _ip.Text; }
+        public string MachineName { get => _machineName.Text; }
 
         Connection connection;
 
@@ -52,11 +53,6 @@ namespace FirebridgeClient.Controls
 
             connection.MessageRecieved += Connection_MessageRecieved;
             connection.Disconnected += Connection_Disconnected; ;
-
-            //request machine name, zombie rev
-            connection.SendPacket(new Packet() { Id = 5 });
-            connection.SendPacket(new Packet() { Id = 6 });
-
 
             detailView = new ZombieDetailView(this);
             detailView.Hide();
@@ -113,6 +109,7 @@ namespace FirebridgeClient.Controls
                     break;
                 case 5:
                     _machineName.Text = (string)packet.Data;
+                    OnMachineNameChanged(new OnMachineNameChangedEventArgs(_machineName.Text));
                     break;
                 case 6:
                     _rev.Text = "Version: " + ((int)packet.Data).ToString();
@@ -145,6 +142,12 @@ namespace FirebridgeClient.Controls
                     this.BackColor = ColorTranslator.FromHtml("#84817a");
             }
         }
+        protected virtual void OnMachineNameChanged(OnMachineNameChangedEventArgs e)
+        {
+            MachineNameChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler MachineNameChanged;
 
         protected virtual void OnSelectionChange(SelectionChangeEventArgs e)
         {
@@ -177,4 +180,12 @@ namespace FirebridgeClient.Controls
         }
     }
 
+    public class OnMachineNameChangedEventArgs : EventArgs
+    {
+        public string MachineName { get; set; }
+        public OnMachineNameChangedEventArgs(string machineName)
+        {
+            MachineName = machineName;
+        }
+    }
 }

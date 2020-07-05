@@ -17,7 +17,7 @@ namespace FireBridgeZombie
 {
     class Zombie
     {
-        public const int Revision = 3;
+        public const int Revision = 1;
         Server s;
         DiscoveryServer DiscoveryServer;
 
