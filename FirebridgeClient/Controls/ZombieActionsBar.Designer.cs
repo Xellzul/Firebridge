@@ -42,6 +42,7 @@
             this._lockPc = new System.Windows.Forms.Button();
             this._restartApp = new System.Windows.Forms.Button();
             this._shareVS = new System.Windows.Forms.Button();
+            this._sendText = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this._refreshRateBar)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this._resolutionBar)).BeginInit();
             this.SuspendLayout();
@@ -57,7 +58,7 @@
             this._updateZombie.TabIndex = 1;
             this._updateZombie.Text = "Update Zombie";
             this._updateZombie.UseVisualStyleBackColor = true;
-            this._updateZombie.Click += new System.EventHandler(this._updateZombie_Click);
+            //this._updateZombie.Click += new System.EventHandler(this._updateZombie_Click);
             // 
             // _restartPC
             // 
@@ -70,7 +71,7 @@
             this._restartPC.TabIndex = 2;
             this._restartPC.Text = "Restart PC";
             this._restartPC.UseVisualStyleBackColor = true;
-            this._restartPC.Click += new System.EventHandler(this._restartPC_Click);
+            //this._restartPC.Click += new System.EventHandler(this._restartPC_Click);
             // 
             // _identifyPC
             // 
@@ -83,7 +84,7 @@
             this._identifyPC.TabIndex = 3;
             this._identifyPC.Text = "Identify PC";
             this._identifyPC.UseVisualStyleBackColor = true;
-            this._identifyPC.Click += new System.EventHandler(this._identifyPC_Click);
+            //this._identifyPC.Click += new System.EventHandler(this._identifyPC_Click);
             // 
             // _executeCode
             // 
@@ -96,7 +97,7 @@
             this._executeCode.TabIndex = 4;
             this._executeCode.Text = "Execute Code";
             this._executeCode.UseVisualStyleBackColor = true;
-            this._executeCode.Click += new System.EventHandler(this._executeCode_Click);
+           // this._executeCode.Click += new System.EventHandler(this._executeCode_Click);
             // 
             // _editCode
             // 
@@ -109,7 +110,7 @@
             this._editCode.TabIndex = 5;
             this._editCode.Text = "Edit Code";
             this._editCode.UseVisualStyleBackColor = true;
-            this._editCode.Click += new System.EventHandler(this._editCode_Click);
+            //this._editCode.Click += new System.EventHandler(this._editCode_Click);
             // 
             // _updateScreenshot
             // 
@@ -122,7 +123,7 @@
             this._updateScreenshot.TabIndex = 6;
             this._updateScreenshot.Text = "Screenshot";
             this._updateScreenshot.UseVisualStyleBackColor = true;
-            this._updateScreenshot.Click += new System.EventHandler(this._updateScreenshot_Click);
+           // this._updateScreenshot.Click += new System.EventHandler(this._updateScreenshot_Click);
             // 
             // _refreshRateBar
             // 
@@ -136,7 +137,7 @@
             this._refreshRateBar.Size = new System.Drawing.Size(287, 45);
             this._refreshRateBar.TabIndex = 7;
             this._refreshRateBar.Value = 1;
-            this._refreshRateBar.ValueChanged += new System.EventHandler(this._refreshRateBar_ValueChanged);
+            //this._refreshRateBar.ValueChanged += new System.EventHandler(this._refreshRateBar_ValueChanged);
             // 
             // _resolutionBar
             // 
@@ -150,14 +151,14 @@
             this._resolutionBar.Size = new System.Drawing.Size(287, 45);
             this._resolutionBar.TabIndex = 8;
             this._resolutionBar.Value = 4;
-            this._resolutionBar.ValueChanged += new System.EventHandler(this._resolutionBar_ValueChanged);
+            //this._resolutionBar.ValueChanged += new System.EventHandler(this._resolutionBar_ValueChanged);
             // 
             // _resolution
             // 
             this._resolution.AutoSize = true;
             this._resolution.Location = new System.Drawing.Point(3, 126);
             this._resolution.Name = "_resolution";
-            this._resolution.Size = new System.Drawing.Size(172, 20);
+            this._resolution.Size = new System.Drawing.Size(116, 13);
             this._resolution.TabIndex = 9;
             this._resolution.Text = "Resolution: 2000x1000";
             // 
@@ -166,7 +167,7 @@
             this._refreshRate.AutoSize = true;
             this._refreshRate.Location = new System.Drawing.Point(3, 102);
             this._refreshRate.Name = "_refreshRate";
-            this._refreshRate.Size = new System.Drawing.Size(51, 20);
+            this._refreshRate.Size = new System.Drawing.Size(35, 13);
             this._refreshRate.TabIndex = 10;
             this._refreshRate.Text = "label2";
             // 
@@ -175,11 +176,11 @@
             this._screenshotEnabled.AutoSize = true;
             this._screenshotEnabled.Location = new System.Drawing.Point(180, 105);
             this._screenshotEnabled.Name = "_screenshotEnabled";
-            this._screenshotEnabled.Size = new System.Drawing.Size(111, 24);
+            this._screenshotEnabled.Size = new System.Drawing.Size(81, 17);
             this._screenshotEnabled.TabIndex = 11;
             this._screenshotEnabled.Text = "SC enabled";
             this._screenshotEnabled.UseVisualStyleBackColor = true;
-            this._screenshotEnabled.CheckedChanged += new System.EventHandler(this._screenshotEnabled_CheckedChanged);
+            //this._screenshotEnabled.CheckedChanged += new System.EventHandler(this._screenshotEnabled_CheckedChanged);
             // 
             // _lockPc
             // 
@@ -192,7 +193,7 @@
             this._lockPc.TabIndex = 12;
             this._lockPc.Text = "Lock PC";
             this._lockPc.UseVisualStyleBackColor = true;
-            this._lockPc.Click += new System.EventHandler(this._lockPc_Click);
+            //this._lockPc.Click += new System.EventHandler(this._lockPc_Click);
             // 
             // _restartApp
             // 
@@ -205,7 +206,7 @@
             this._restartApp.TabIndex = 13;
             this._restartApp.Text = "Restart Zombie";
             this._restartApp.UseVisualStyleBackColor = true;
-            this._restartApp.Click += new System.EventHandler(this._restartApp_Click);
+            //this._restartApp.Click += new System.EventHandler(this._restartApp_Click);
             // 
             // _shareVS
             // 
@@ -218,12 +219,26 @@
             this._shareVS.TabIndex = 14;
             this._shareVS.Text = "Share VS";
             this._shareVS.UseVisualStyleBackColor = true;
-            this._shareVS.Click += new System.EventHandler(this._shareVS_Click);
+            //this._shareVS.Click += new System.EventHandler(this._shareVS_Click);
+            // 
+            // _sendText
+            // 
+            this._sendText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._sendText.Location = new System.Drawing.Point(4, 555);
+            this._sendText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this._sendText.Name = "_sendText";
+            this._sendText.Size = new System.Drawing.Size(287, 35);
+            this._sendText.TabIndex = 15;
+            this._sendText.Text = "Send Text";
+            this._sendText.UseVisualStyleBackColor = true;
+            //this._sendText.Click += new System.EventHandler(this._sendText_Click);
             // 
             // ZombieActionsBar
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.BackColor = System.Drawing.Color.Transparent;
+            this.Controls.Add(this._sendText);
             this.Controls.Add(this._shareVS);
             this.Controls.Add(this._restartApp);
             this.Controls.Add(this._lockPc);
@@ -239,7 +254,7 @@
             this.Controls.Add(this._restartPC);
             this.Controls.Add(this._updateZombie);
             this.Name = "ZombieActionsBar";
-            this.Size = new System.Drawing.Size(295, 550);
+            this.Size = new System.Drawing.Size(295, 603);
             ((System.ComponentModel.ISupportInitialize)(this._refreshRateBar)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this._resolutionBar)).EndInit();
             this.ResumeLayout(false);
@@ -263,5 +278,6 @@
         private System.Windows.Forms.Button _lockPc;
         private System.Windows.Forms.Button _restartApp;
         private System.Windows.Forms.Button _shareVS;
+        private System.Windows.Forms.Button _sendText;
     }
 }

@@ -5,13 +5,28 @@ VisualStudioVersion = 16.0.29209.62
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirebridgeClient", "FirebridgeClient\FirebridgeClient.csproj", "{C8187039-4FFA-461E-8049-8DA28EC626DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireBridgeTestAPP", "FireBridgeTestAPP\FireBridgeTestAPP.csproj", "{63FF04F1-6279-452F-A5D0-326E6D903BCE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FirebridgeShared", "FirebridgeShared\FirebridgeShared.csproj", "{24C21BB3-3157-40A5-9457-254BB9C1B535}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireBridgeZombie", "FireBridgeZombie\FireBridgeZombie.csproj", "{9EDBB417-F31F-4627-84C5-DAA27255971E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireBridgeWatchDog", "FireBridgeWatchDog\FireBridgeWatchDog.csproj", "{D054FB0B-8393-45ED-A360-552473F3DEBB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireBridgeAgent", "FireBridgeAgent\FireBridgeAgent.csproj", "{59F858ED-1CE7-48BA-9502-6FA186DFC673}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireBridgeService", "FireBridgeService\FireBridgeService.csproj", "{D71AED31-DA8F-48C0-BDDA-41010966B933}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6F82D6B7-E316-4A2E-A3F5-87B2284A3AE3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireBridgeController", "FireBridgeController\FireBridgeController.csproj", "{272830D5-F809-4BD2-9C75-8F674FC5216C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireBridgeCore", "FireBridgeCore\FireBridgeCore.csproj", "{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{AAF1D37C-0B64-4650-8E90-79CECC6336C4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{0C47335C-1D01-46CA-9B31-EEC66B81D90B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LockPlugin", "LockPlugin\LockPlugin.csproj", "{8714E860-0955-435D-9028-909DB93607D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +38,6 @@ Global
 		{C8187039-4FFA-461E-8049-8DA28EC626DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8187039-4FFA-461E-8049-8DA28EC626DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8187039-4FFA-461E-8049-8DA28EC626DF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63FF04F1-6279-452F-A5D0-326E6D903BCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63FF04F1-6279-452F-A5D0-326E6D903BCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63FF04F1-6279-452F-A5D0-326E6D903BCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63FF04F1-6279-452F-A5D0-326E6D903BCE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{24C21BB3-3157-40A5-9457-254BB9C1B535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{24C21BB3-3157-40A5-9457-254BB9C1B535}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{24C21BB3-3157-40A5-9457-254BB9C1B535}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{24C21BB3-3157-40A5-9457-254BB9C1B535}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9EDBB417-F31F-4627-84C5-DAA27255971E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9EDBB417-F31F-4627-84C5-DAA27255971E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EDBB417-F31F-4627-84C5-DAA27255971E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,9 +46,36 @@ Global
 		{D054FB0B-8393-45ED-A360-552473F3DEBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D054FB0B-8393-45ED-A360-552473F3DEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D054FB0B-8393-45ED-A360-552473F3DEBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59F858ED-1CE7-48BA-9502-6FA186DFC673}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59F858ED-1CE7-48BA-9502-6FA186DFC673}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59F858ED-1CE7-48BA-9502-6FA186DFC673}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59F858ED-1CE7-48BA-9502-6FA186DFC673}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D71AED31-DA8F-48C0-BDDA-41010966B933}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D71AED31-DA8F-48C0-BDDA-41010966B933}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D71AED31-DA8F-48C0-BDDA-41010966B933}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D71AED31-DA8F-48C0-BDDA-41010966B933}.Release|Any CPU.Build.0 = Release|Any CPU
+		{272830D5-F809-4BD2-9C75-8F674FC5216C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{272830D5-F809-4BD2-9C75-8F674FC5216C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{272830D5-F809-4BD2-9C75-8F674FC5216C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{272830D5-F809-4BD2-9C75-8F674FC5216C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAF1D37C-0B64-4650-8E90-79CECC6336C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAF1D37C-0B64-4650-8E90-79CECC6336C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAF1D37C-0B64-4650-8E90-79CECC6336C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAF1D37C-0B64-4650-8E90-79CECC6336C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8714E860-0955-435D-9028-909DB93607D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8714E860-0955-435D-9028-909DB93607D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8714E860-0955-435D-9028-909DB93607D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8714E860-0955-435D-9028-909DB93607D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8714E860-0955-435D-9028-909DB93607D2} = {0C47335C-1D01-46CA-9B31-EEC66B81D90B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6D0BF095-ADAE-4EFF-85B0-BFBE07AB7634}

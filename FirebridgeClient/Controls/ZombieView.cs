@@ -77,6 +77,7 @@ namespace FirebridgeClient.Controls
             if (ImageRequested)
                 return;
 
+            /*
             ImageRequested = true;
             connection.SendPacket(new Packet()
             {
@@ -84,12 +85,14 @@ namespace FirebridgeClient.Controls
                 Data =
                 new ScreenshotRequestModel() { Width = (128 * ScreenShotResolutionMultiplier), Height = (72 * ScreenShotResolutionMultiplier) }
             });
+            */
         }
 
         private void Connection_MessageRecieved(object sender, EventArgs e)
         {
             var packet = (e as MessageEventArgs)?.Packet;
 
+            /*
             if (packet == null)
                 return;
 
@@ -117,8 +120,10 @@ namespace FirebridgeClient.Controls
                 default:
                     Console.WriteLine("Unknown packet ID: " + packet.Id);
                     Console.WriteLine(((MessageEventArgs)e).Packet.Data.ToString());
-                    break;
-            }
+                  
+            break;
+            }*/
+
         }
 
         private bool selected = false;

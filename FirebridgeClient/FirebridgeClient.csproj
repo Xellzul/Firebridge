@@ -27,7 +27,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -134,7 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FirebridgeShared\FirebridgeShared.csproj">
-      <Project>{24C21BB3-3157-40A5-9457-254BB9C1B535}</Project>
+      <Project>{190CBCC4-1B2D-4056-8767-F0AF650757C1}</Project>
       <Name>FirebridgeShared</Name>
     </ProjectReference>
   </ItemGroup>

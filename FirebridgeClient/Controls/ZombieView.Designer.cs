@@ -40,10 +40,12 @@
             // 
             // _image
             // 
-            this._image.Location = new System.Drawing.Point(4, 5);
-            this._image.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this._image.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._image.Location = new System.Drawing.Point(3, 3);
             this._image.Name = "_image";
-            this._image.Size = new System.Drawing.Size(363, 211);
+            this._image.Size = new System.Drawing.Size(276, 166);
             this._image.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this._image.TabIndex = 0;
             this._image.TabStop = false;
@@ -51,20 +53,20 @@
             // 
             // _ip
             // 
+            this._ip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._ip.AutoSize = true;
-            this._ip.Location = new System.Drawing.Point(4, 221);
-            this._ip.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this._ip.Location = new System.Drawing.Point(3, 176);
             this._ip.Name = "_ip";
-            this._ip.Size = new System.Drawing.Size(39, 20);
+            this._ip.Size = new System.Drawing.Size(27, 13);
             this._ip.TabIndex = 1;
             this._ip.Text = "<ip>";
             // 
             // _buttonDetail
             // 
-            this._buttonDetail.Location = new System.Drawing.Point(239, 221);
-            this._buttonDetail.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this._buttonDetail.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this._buttonDetail.Location = new System.Drawing.Point(194, 175);
             this._buttonDetail.Name = "_buttonDetail";
-            this._buttonDetail.Size = new System.Drawing.Size(128, 58);
+            this._buttonDetail.Size = new System.Drawing.Size(85, 38);
             this._buttonDetail.TabIndex = 4;
             this._buttonDetail.Text = "Detail";
             this._buttonDetail.UseVisualStyleBackColor = true;
@@ -72,21 +74,21 @@
             // 
             // _rev
             // 
+            this._rev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._rev.AutoSize = true;
-            this._rev.Location = new System.Drawing.Point(4, 241);
-            this._rev.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this._rev.Location = new System.Drawing.Point(3, 189);
             this._rev.Name = "_rev";
-            this._rev.Size = new System.Drawing.Size(48, 20);
+            this._rev.Size = new System.Drawing.Size(34, 13);
             this._rev.TabIndex = 5;
             this._rev.Text = "<rev>";
             // 
             // _machineName
             // 
+            this._machineName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this._machineName.AutoSize = true;
-            this._machineName.Location = new System.Drawing.Point(4, 258);
-            this._machineName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this._machineName.Location = new System.Drawing.Point(3, 200);
             this._machineName.Name = "_machineName";
-            this._machineName.Size = new System.Drawing.Size(106, 20);
+            this._machineName.Size = new System.Drawing.Size(71, 13);
             this._machineName.TabIndex = 6;
             this._machineName.Text = "<machname>";
             // 
@@ -98,16 +100,15 @@
             // 
             // ZombieView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this._machineName);
             this.Controls.Add(this._rev);
             this.Controls.Add(this._buttonDetail);
             this.Controls.Add(this._ip);
             this.Controls.Add(this._image);
-            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "ZombieView";
-            this.Size = new System.Drawing.Size(372, 284);
+            this.Size = new System.Drawing.Size(282, 216);
             this.Click += new System.EventHandler(this._image_Click);
             ((System.ComponentModel.ISupportInitialize)(this._image)).EndInit();
             this.ResumeLayout(false);

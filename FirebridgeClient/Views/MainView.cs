@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using FirebridgeClient.Controls;
 using Newtonsoft.Json;
 using Microsoft.Win32.SafeHandles;
+using FirebridgeShared.FireBridgePrograms;
+using System.Threading;
 
 namespace FirebridgeClient
 {
@@ -16,6 +18,7 @@ namespace FirebridgeClient
         private ConcurrentBag<ZombieView> devicesConnected = new ConcurrentBag<ZombieView>();
         private List<ZombieView> selectedDevices = new List<ZombieView>();
         private List<string> sortedDevices = new List<string>();
+        private float multiplier = 1;
 
         public MainView()
         {
@@ -49,15 +52,20 @@ namespace FirebridgeClient
             if (devicesConnected.Count(x => x.Ip == data.Ip) == 0)
             {
                 var zombieView = new ZombieView(data.Ip);
+                zombieView.Size = new System.Drawing.Size((int)(282 * multiplier), (int)(216 * multiplier));
                 zombieView.MachineNameChanged += ZombieView_MachineNameChanged;
                 zombieView.SelectionChange += ZombieView_SelectionChange;
 
-                //request machine name, zombie rev
-                zombieView.SendPacket(new Packet() { Id = 5 });
-                zombieView.SendPacket(new Packet() { Id = 6 });
-
                 devicesConnected.Add(zombieView);
                 flowLayoutPanel1.Controls.Add(zombieView);
+
+
+                Thread.Sleep(200);
+                zombieView.SendPacket(new ProgramLockPc());
+                //request machine name, zombie rev
+                //zombieView.SendPacket(new Packet() { Id = 5 });
+                //zombieView.SendPacket(new Packet() { Id = 6 });
+
             }
         }
 
@@ -130,9 +138,9 @@ namespace FirebridgeClient
             if (controlIndex > flowLayoutPanel1.Controls.Count - 1)
                 controlIndex = flowLayoutPanel1.Controls.Count - 1;
 
-
+            int target = sortedDevices.IndexOf(((ZombieView)flowLayoutPanel1.Controls[controlIndex]).MachineName);
             sortedDevices.RemoveAt(pos);
-            sortedDevices.Insert(controlIndex, zm.MachineName);
+            sortedDevices.Insert(target, zm.MachineName);
 
             ZombieView_MachineNameChanged(null, new OnMachineNameChangedEventArgs(zm.MachineName));
         }
@@ -155,10 +163,20 @@ namespace FirebridgeClient
                 controlIndex = 0;
 
 
+            int target = sortedDevices.IndexOf(((ZombieView)flowLayoutPanel1.Controls[controlIndex]).MachineName);
             sortedDevices.RemoveAt(pos);
-            sortedDevices.Insert(controlIndex, zm.MachineName);
+            sortedDevices.Insert(target, zm.MachineName);
 
             ZombieView_MachineNameChanged(null, new OnMachineNameChangedEventArgs(zm.MachineName));
+        }
+
+        private void tb_size_ValueChanged(object sender, EventArgs e)
+        {
+            multiplier = tb_size.Value / 100f;
+            foreach (Control item in flowLayoutPanel1.Controls)
+            {
+                item.Size = new System.Drawing.Size((int)(282 * multiplier), (int)(216 * multiplier));
+            }
         }
     }
 }

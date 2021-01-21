@@ -75,20 +75,20 @@ namespace FireBridgeWatchDog
             {
                 Trace.WriteLine("Firebridge starting");
 
-                ApplicationLoader.PROCESS_INFORMATION procInfo;
+                //ApplicationLoader.PROCESS_INFORMATION procInfo;
                 //ApplicationLoader.StartProcessAndBypassUAC("FireBridgeZombie.exe", assemblyLocation, out procInfo);
                 //ApplicationLoader.StartProcessAndBypassUAC("notepad.exe", @"C:\WINDOWS\system32", out procInfo);
-                bool success = ApplicationLoader.StartProcessAndBypassUAC("FireBridgeZombie.exe", assemblyLocation, out procInfo);
+                //bool success = ApplicationLoader.StartProcessAndBypassUAC("FireBridgeZombie.exe", assemblyLocation, out procInfo);
                 
 
-                Trace.WriteLine("Firebridge Started : " + success);
+                //Trace.WriteLine("Firebridge Started : " + success);
 
                 try
                 {
-                    process = Process.GetProcessById((int)procInfo.dwProcessId);
-                    process.EnableRaisingEvents = true;
-                    process.WaitForExit();
-                    Trace.WriteLine("Firebridge Ended with exit code: '" + process.ExitCode);
+                    //process = Process.GetProcessById((int)procInfo.dwProcessId);
+                    //process.EnableRaisingEvents = true;
+                    //process.WaitForExit();
+                    //Trace.WriteLine("Firebridge Ended with exit code: '" + process.ExitCode);
 
                     // process = new Process();
                     //process.StartInfo.FileName = "FireBridgeZombie.exe";
@@ -98,7 +98,7 @@ namespace FireBridgeWatchDog
                     //process.StartInfo.UseShellExecute = false;
                     //process.OutputDataReceived += Process_OutputDataReceived;
                     //process.ErrorDataReceived += Process_ErrorDataReceived;
-                    
+                    /*
                     if (process.ExitCode == 69)
                     {
                         Trace.WriteLine("Updating");
@@ -118,7 +118,7 @@ namespace FireBridgeWatchDog
                     else
                     {
                         Trace.WriteLine("Possible crash... restarting");
-                    }
+                    }*/
                     
                 }
                 catch (Exception e)

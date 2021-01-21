@@ -12,7 +12,7 @@ namespace FireBridgeZombie
         static void Main()
         {
             bool IsElevated = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
-
+            
             Trace.Listeners.Add(new TextWriterTraceListener(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\zombie.txt"));
             Trace.AutoFlush = true;
 

