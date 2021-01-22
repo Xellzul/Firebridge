@@ -4,294 +4,16 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
+using Microsoft.Windows.Sdk;
 
 namespace FireBridgeCore
 {
-    public static class WinApi
-    {
-        public const int ERROR_INSUFFICIENT_BUFFER = 122;
-        public const int TOKEN_QUERY = 0x0008;
-
-        [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern IntPtr GetSidSubAuthority(IntPtr sid, UInt32 subAuthorityIndex);
-
-        [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern bool GetTokenInformation(
-            IntPtr TokenHandle,
-            TOKEN_INFORMATION_CLASS TokenInformationClass,
-            IntPtr TokenInformation,
-            int TokenInformationLength,
-            out int ReturnLength);
-
-        [DllImport("kernel32.dll")]
-        public static extern IntPtr OpenProcess(uint dwDesiredAccess, bool bInheritHandle, uint dwProcessId);
-
-        [DllImport("advapi32.dll", ExactSpelling = true, SetLastError = true)]
-        public static extern bool OpenProcessToken(IntPtr h, int acc, ref IntPtr phtok);
-        public enum TOKEN_INFORMATION_CLASS
-        {
-            /// <summary>
-            /// The buffer receives a TOKEN_USER structure that contains the user account of the token.
-            /// </summary>
-            TokenUser = 1,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_GROUPS structure that contains the group accounts associated with the token.
-            /// </summary>
-            TokenGroups,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_PRIVILEGES structure that contains the privileges of the token.
-            /// </summary>
-            TokenPrivileges,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_OWNER structure that contains the default owner security identifier (SID) for newly created objects.
-            /// </summary>
-            TokenOwner,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_PRIMARY_GROUP structure that contains the default primary group SID for newly created objects.
-            /// </summary>
-            TokenPrimaryGroup,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_DEFAULT_DACL structure that contains the default DACL for newly created objects.
-            /// </summary>
-            TokenDefaultDacl,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_SOURCE structure that contains the source of the token. TOKEN_QUERY_SOURCE access is needed to retrieve this information.
-            /// </summary>
-            TokenSource,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_TYPE value that indicates whether the token is a primary or impersonation token.
-            /// </summary>
-            TokenType,
-
-            /// <summary>
-            /// The buffer receives a SECURITY_IMPERSONATION_LEVEL value that indicates the impersonation level of the token. If the access token is not an impersonation token, the function fails.
-            /// </summary>
-            TokenImpersonationLevel,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_STATISTICS structure that contains various token statistics.
-            /// </summary>
-            TokenStatistics,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_GROUPS structure that contains the list of restricting SIDs in a restricted token.
-            /// </summary>
-            TokenRestrictedSids,
-
-            /// <summary>
-            /// The buffer receives a DWORD value that indicates the Terminal Services session identifier that is associated with the token.
-            /// </summary>
-            TokenSessionId,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_GROUPS_AND_PRIVILEGES structure that contains the user SID, the group accounts, the restricted SIDs, and the authentication ID associated with the token.
-            /// </summary>
-            TokenGroupsAndPrivileges,
-
-            /// <summary>
-            /// Reserved.
-            /// </summary>
-            TokenSessionReference,
-
-            /// <summary>
-            /// The buffer receives a DWORD value that is nonzero if the token includes the SANDBOX_INERT flag.
-            /// </summary>
-            TokenSandBoxInert,
-
-            /// <summary>
-            /// Reserved.
-            /// </summary>
-            TokenAuditPolicy,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_ORIGIN value.
-            /// </summary>
-            TokenOrigin,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_ELEVATION_TYPE value that specifies the elevation level of the token.
-            /// </summary>
-            TokenElevationType,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_LINKED_TOKEN structure that contains a handle to another token that is linked to this token.
-            /// </summary>
-            TokenLinkedToken,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_ELEVATION structure that specifies whether the token is elevated.
-            /// </summary>
-            TokenElevation,
-
-            /// <summary>
-            /// The buffer receives a DWORD value that is nonzero if the token has ever been filtered.
-            /// </summary>
-            TokenHasRestrictions,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_ACCESS_INFORMATION structure that specifies security information contained in the token.
-            /// </summary>
-            TokenAccessInformation,
-
-            /// <summary>
-            /// The buffer receives a DWORD value that is nonzero if virtualization is allowed for the token.
-            /// </summary>
-            TokenVirtualizationAllowed,
-
-            /// <summary>
-            /// The buffer receives a DWORD value that is nonzero if virtualization is enabled for the token.
-            /// </summary>
-            TokenVirtualizationEnabled,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_MANDATORY_LABEL structure that specifies the token's integrity level.
-            /// </summary>
-            TokenIntegrityLevel,
-
-            /// <summary>
-            /// The buffer receives a DWORD value that is nonzero if the token has the UIAccess flag set.
-            /// </summary>
-            TokenUIAccess,
-
-            /// <summary>
-            /// The buffer receives a TOKEN_MANDATORY_POLICY structure that specifies the token's mandatory integrity policy.
-            /// </summary>
-            TokenMandatoryPolicy,
-
-            /// <summary>
-            /// The buffer receives the token's logon security identifier (SID).
-            /// </summary>
-            TokenLogonSid,
-
-            /// <summary>
-            /// The maximum value for this enumeration
-            /// </summary>
-            MaxTokenInfoClass
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        public struct TOKEN_MANDATORY_LABEL
-        {
-            public SID_AND_ATTRIBUTES label;
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SID_AND_ATTRIBUTES
-        {
-            public IntPtr Sid;
-            public int Attributes;
-        }
-
-        [DllImport("userenv.dll", SetLastError = true)]
-        public static extern bool CreateEnvironmentBlock(out IntPtr lpEnvironment, IntPtr hToken, bool bInherit);
-
-        [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern bool ConvertStringSidToSid(string StringSid, out IntPtr ptrSid);
-
-        [DllImport("advapi32.dll", SetLastError = true)]
-        public static extern bool SetTokenInformation(IntPtr TokenHandle, TOKEN_INFORMATION_CLASS TokenInformationClass, IntPtr TokenInformation, int TokenInformationLength);
-
-        [DllImport("advapi32.dll")]
-        public static extern uint GetLengthSid(IntPtr ptrSid);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SECURITY_ATTRIBUTES
-        {
-            public int Length;
-            public IntPtr lpSecurityDescriptor;
-            public int bInheritHandle;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct STARTUPINFO
-        {
-            public int cb;
-            public String lpReserved;
-            public String lpDesktop;
-            public String lpTitle;
-            public uint dwX;
-            public uint dwY;
-            public uint dwXSize;
-            public uint dwYSize;
-            public uint dwXCountChars;
-            public uint dwYCountChars;
-            public uint dwFillAttribute;
-            public uint dwFlags;
-            public short wShowWindow;
-            public short cbReserved2;
-            public IntPtr lpReserved2;
-            public IntPtr hStdInput;
-            public IntPtr hStdOutput;
-            public IntPtr hStdError;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct PROCESS_INFORMATION
-        {
-            public IntPtr hProcess;
-            public IntPtr hThread;
-            public uint dwProcessId;
-            public uint dwThreadId;
-        }
-
-        public const int MAXIMUM_ALLOWED = 0x2000000;
-        public const int NORMAL_PRIORITY_CLASS = 0x20;
-        public const int CREATE_NEW_CONSOLE = 0x00000010;
-        public const int SE_GROUP_INTEGRITY = 0x00000020;
-        public const int CREATE_UNICODE_ENVIRONMENT = 0x00000400;
-        public const int TOKEN_DUPLICATE = 0x0002;
-
-        public enum TOKEN_TYPE : int
-        {
-            TokenPrimary = 1,
-            TokenImpersonation = 2
-        }
-
-        public enum SECURITY_IMPERSONATION_LEVEL : int
-        {
-            SecurityAnonymous = 0,
-            SecurityIdentification = 1,
-            SecurityImpersonation = 2,
-            SecurityDelegation = 3,
-        }
-
-        [DllImport("kernel32.dll")]
-        public static extern uint WTSGetActiveConsoleSessionId();
-
-        [DllImport("wtsapi32.dll", SetLastError = true)]
-        public static extern bool WTSQueryUserToken(UInt32 sessionId, out IntPtr Token);
-
-        [DllImport("kernel32", SetLastError = true), SuppressUnmanagedCodeSecurityAttribute]
-        public static extern bool CloseHandle(IntPtr handle);
-
-        [DllImport("advapi32.dll", EntryPoint = "DuplicateTokenEx")]
-        public static extern bool DuplicateTokenEx(IntPtr hExistingToken, Int32 dwDesiredAccess,
-                     ref SECURITY_ATTRIBUTES lpThreadAttributes,
-                     Int32 ImpersonationLevel, Int32 dwTokenType,
-                     ref IntPtr phNewToken);
-
-        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        public static extern bool CreateProcessAsUser(
-            IntPtr hToken,
-            string lpApplicationName,
-            string lpCommandLine,
-            ref SECURITY_ATTRIBUTES lpProcessAttributes,
-            ref SECURITY_ATTRIBUTES lpThreadAttributes,
-            bool bInheritHandles,
-            uint dwCreationFlags,
-            IntPtr lpEnvironment,
-            string lpCurrentDirectory,
-            ref STARTUPINFO lpStartupInfo,
-            out PROCESS_INFORMATION lpProcessInformation);
-    }
-
     public static class ApplicationLoader
     {
+        public const int MAXIMUM_ALLOWED = 0x2000000;
+        public const int TOKEN_DUPLICATE = 0x0002;
+        public const int SE_GROUP_INTEGRITY = 0x00000020;
+        public const int NORMAL_PRIORITY_CLASS = 0x20;
         private static string SidStringFromIL(IIntegrityLevel il)
         {
             switch (il)
@@ -310,103 +32,111 @@ namespace FireBridgeCore
 
         public static Process StartProcess(string name, string[] parameters, IIntegrityLevel il)
         {
-            return StartProcess(name, parameters, WinApi.WTSGetActiveConsoleSessionId(), il);
+            return StartProcess(name, parameters, PInvoke.WTSGetActiveConsoleSessionId(), il);
         }
 
         public static Process StartProcess(string name, string[] parameters, uint sessionID, IIntegrityLevel il)
         {
-            IntPtr hPToken = IntPtr.Zero;
-            IntPtr hPSid = IntPtr.Zero;
-            IntPtr hPProcess = IntPtr.Zero;
-            string integrityString = SidStringFromIL(il);
-            WinApi.PROCESS_INFORMATION procInfo;
+            unsafe { 
+                IntPtr hPTokenptr = IntPtr.Zero;
+                CloseHandleSafeHandle hPToken = CloseHandleSafeHandle.Null;
+                void* hPSid;
+                IntPtr hPProcessRaw = IntPtr.Zero;
+                CloseHandleSafeHandle hPProcess = CloseHandleSafeHandle.Null;
+                string integrityString = SidStringFromIL(il);
+                PROCESS_INFORMATION procInfo;
 
-            WinApi.SECURITY_ATTRIBUTES sa = new WinApi.SECURITY_ATTRIBUTES();
-            sa.Length = Marshal.SizeOf(sa);
+                SECURITY_ATTRIBUTES sa = new SECURITY_ATTRIBUTES();
+                sa.nLength = (uint)Marshal.SizeOf(sa);
 
-            try
-            {
-                if (sessionID == 0) //duplicate myself for token
+                try
                 {
-                    if (!WinApi.OpenProcessToken(Process.GetCurrentProcess().Handle, WinApi.TOKEN_DUPLICATE, ref hPProcess))
+                    if (sessionID == 0) //duplicate myself for token
+                    {
+                        if (!PInvoke.OpenProcessToken(new CloseHandleSafeHandle(Process.GetCurrentProcess().Handle, false), TOKEN_DUPLICATE, out hPProcessRaw))
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                        hPProcess = new CloseHandleSafeHandle(hPProcessRaw);
+
+                        if (!PInvoke.DuplicateTokenEx(
+                                hPProcess,
+                                MAXIMUM_ALLOWED,
+                                sa,
+                                SECURITY_IMPERSONATION_LEVEL.SecurityIdentification,
+                                TOKEN_TYPE.TokenPrimary,
+                                out hPTokenptr)
+                                )
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+                    else //or get token for session
+                    {
+                        if (!PInvoke.WTSQueryUserToken(sessionID, ref hPTokenptr))
+                            throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+
+                    hPToken = new CloseHandleSafeHandle(hPTokenptr);
+
+                    if (!PInvoke.ConvertStringSidToSid(integrityString, out hPSid))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
 
-                    if (!WinApi.DuplicateTokenEx(
-                            hPProcess,
-                            WinApi.MAXIMUM_ALLOWED,
-                            ref sa,
-                            (int)WinApi.SECURITY_IMPERSONATION_LEVEL.SecurityIdentification,
-                            (int)WinApi.TOKEN_TYPE.TokenPrimary,
-                            ref hPToken)
-                            )
+                    var sidLenght = PInvoke.GetLengthSid(hPSid);
+
+                    
+                    TOKEN_MANDATORY_LABEL TIL;
+                    TIL.Label.Attributes = SE_GROUP_INTEGRITY;
+                    TIL.Label.Sid = hPSid;
+
+                    IntPtr hPTokenInf = Marshal.AllocHGlobal(Marshal.SizeOf<TOKEN_MANDATORY_LABEL>());
+                    Marshal.StructureToPtr(TIL, hPTokenInf, false);
+                    
+                    if (!PInvoke.SetTokenInformation(
+                        hPToken,
+                        TOKEN_INFORMATION_CLASS.TokenIntegrityLevel,
+                        hPTokenInf.ToPointer(),
+                        (uint)Marshal.SizeOf<TOKEN_MANDATORY_LABEL>() + sidLenght))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                    STARTUPINFOW si = new STARTUPINFOW();
+                    si.cb = (uint)Marshal.SizeOf(si);
+
+                    IntPtr UserEnvironment = IntPtr.Zero;
+
+                    uint dwCreationFlags = NORMAL_PRIORITY_CLASS; //| WinApi.CREATE_NEW_CONSOLE | WinApi.CREATE_UNICODE_ENVIRONMENT;
+
+                    // create a new process in the current user's logon session
+                    if (!PInvoke.CreateProcessAsUser(hPToken,        // client's access token
+                                                    null,                   // file to execute
+                                                    name + " " + string.Join(" ", parameters),        // command line
+                                                    sa,                 // pointer to process SECURITY_ATTRIBUTES
+                                                    sa,                 // pointer to thread SECURITY_ATTRIBUTES
+                                                    false,                  // handles are not inheritable
+                                                    dwCreationFlags,        // creation flags
+                                                    null,           // pointer to new environment block 
+                                                    null,                  // name of current directory 
+                                                    si,                 // pointer to STARTUPINFO structure
+                                                    out procInfo            // receives information about new process
+                                                    ))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+
+                    Process process = Process.GetProcessById((int)procInfo.dwProcessId);
+                    process.EnableRaisingEvents = true;
+                    return process;
                 }
-                else //or get token for session
+                catch (Exception)
                 {
-                    if (!WinApi.WTSQueryUserToken(sessionID, out hPToken))
-                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                }
+                finally
+                {
+                    if(hPToken != null)
+                        hPToken.Close();
+                    if (hPProcess != null)
+                        hPProcess.Close();
                 }
 
-                if (!WinApi.ConvertStringSidToSid(integrityString, out hPSid))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-
-                var sidLenght = WinApi.GetLengthSid(hPSid);
-
-                WinApi.TOKEN_MANDATORY_LABEL TIL;
-                TIL.label.Attributes = WinApi.SE_GROUP_INTEGRITY;
-                TIL.label.Sid = hPSid;
-
-                IntPtr hPTokenInf = Marshal.AllocHGlobal(Marshal.SizeOf<WinApi.TOKEN_MANDATORY_LABEL>());
-                Marshal.StructureToPtr(TIL, hPTokenInf, false);
-
-                if (!WinApi.SetTokenInformation(
-                    hPToken,
-                    WinApi.TOKEN_INFORMATION_CLASS.TokenIntegrityLevel,
-                    hPTokenInf,
-                    Marshal.SizeOf<WinApi.TOKEN_MANDATORY_LABEL>() + (int)sidLenght))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-
-                WinApi.STARTUPINFO si = new WinApi.STARTUPINFO();
-                si.cb = (int)Marshal.SizeOf(si);
-
-                IntPtr UserEnvironment = IntPtr.Zero;
-
-                uint dwCreationFlags = WinApi.NORMAL_PRIORITY_CLASS; //| WinApi.CREATE_NEW_CONSOLE | WinApi.CREATE_UNICODE_ENVIRONMENT;
-
-                // create a new process in the current user's logon session
-                if (!WinApi.CreateProcessAsUser(hPToken,        // client's access token
-                                                null,                   // file to execute
-                                                name + " " + string.Join(" ", parameters),        // command line
-                                                ref sa,                 // pointer to process SECURITY_ATTRIBUTES
-                                                ref sa,                 // pointer to thread SECURITY_ATTRIBUTES
-                                                false,                  // handles are not inheritable
-                                                dwCreationFlags,        // creation flags
-                                                IntPtr.Zero,            // pointer to new environment block 
-                                                null,                   // name of current directory 
-                                                ref si,                 // pointer to STARTUPINFO structure
-                                                out procInfo            // receives information about new process
-                                                ))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-
-
-                Process process = Process.GetProcessById((int)procInfo.dwProcessId);
-                process.EnableRaisingEvents = true;
-                return process;
+                return null;
             }
-            catch (Exception)
-            {
-
-            }
-            finally
-            {
-                if (hPToken != IntPtr.Zero && !WinApi.CloseHandle(hPToken))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-
-                if (hPProcess != IntPtr.Zero && !WinApi.CloseHandle(hPProcess))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-            }
-
-            return null;
         }
     }
 
@@ -414,6 +144,8 @@ namespace FireBridgeCore
     public static class IntegrityLevelHelper
     {
 
+        public const int ERROR_INSUFFICIENT_BUFFER = 122;
+        public const int TOKEN_QUERY = 0x0008;
         const int SECURITY_MANDATORY_UNTRUSTED_RID = (0x00000000);
         const int SECURITY_MANDATORY_LOW_RID = (0x00001000);
         const int SECURITY_MANDATORY_MEDIUM_RID = (0x00002000);
@@ -462,32 +194,32 @@ namespace FireBridgeCore
         /// </exception>
         private static int GetProcessIntegrityLevel()
         {
+            unsafe { 
             int IL = -1;
             IntPtr hToken = IntPtr.Zero;
-            int cbTokenIL = 0;
+            CloseHandleSafeHandle hTokenHabndle = CloseHandleSafeHandle.Null;
+            uint cbTokenIL = 0;
             IntPtr pTokenIL = IntPtr.Zero;
 
             try
             {
 
                 // Open the access token of the current process with TOKEN_QUERY.
-                if (!WinApi.OpenProcessToken(Process.GetCurrentProcess().Handle,
-                    WinApi.TOKEN_QUERY, ref hToken))
-                {
+                if (!PInvoke.OpenProcessToken(new CloseHandleSafeHandle(Process.GetCurrentProcess().Handle), TOKEN_QUERY, out hToken))
                     throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
 
+                hTokenHabndle = new CloseHandleSafeHandle(hToken);
                 // Then we must query the size of the integrity level information
                 // associated with the token. Note that we expect GetTokenInformation
                 // to return false with the ERROR_INSUFFICIENT_BUFFER error code
                 // because we've given it a null buffer. On exit cbTokenIL will tell
                 // the size of the group information.
-                if (!WinApi.GetTokenInformation(hToken,
-                    WinApi.TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, IntPtr.Zero, 0,
+                if (!PInvoke.GetTokenInformation(hTokenHabndle,
+                    TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, null, 0,
                     out cbTokenIL))
                 {
                     int error = Marshal.GetLastWin32Error();
-                    if (error != WinApi.ERROR_INSUFFICIENT_BUFFER)
+                    if (error != ERROR_INSUFFICIENT_BUFFER)
                     {
                         // When the process is run on operating systems prior to
                         // Windows Vista, GetTokenInformation returns false with the
@@ -498,37 +230,35 @@ namespace FireBridgeCore
                 }
 
                 // Now we allocate a buffer for the integrity level information.
-                pTokenIL = Marshal.AllocHGlobal(cbTokenIL);
+                pTokenIL = Marshal.AllocHGlobal((int)cbTokenIL);
                 if (pTokenIL == IntPtr.Zero)
-                {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
 
                 // Now we ask for the integrity level information again. This may fail
                 // if an administrator has added this account to an additional group
                 // between our first call to GetTokenInformation and this one.
-                if (!WinApi.GetTokenInformation(hToken,
-                    WinApi.TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, pTokenIL, cbTokenIL,
+                if (!PInvoke.GetTokenInformation(hTokenHabndle,
+                    TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, pTokenIL.ToPointer(), cbTokenIL,
                     out cbTokenIL))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
 
                 // Marshal the TOKEN_MANDATORY_LABEL struct from native to .NET object.
-                WinApi.TOKEN_MANDATORY_LABEL tokenIL = (WinApi.TOKEN_MANDATORY_LABEL)
-                    Marshal.PtrToStructure(pTokenIL, typeof(WinApi.TOKEN_MANDATORY_LABEL));
+                TOKEN_MANDATORY_LABEL tokenIL = (TOKEN_MANDATORY_LABEL)
+                    Marshal.PtrToStructure(pTokenIL, typeof(TOKEN_MANDATORY_LABEL));
 
-                IntPtr pIL = WinApi.GetSidSubAuthority(tokenIL.label.Sid, 0);
+                IntPtr pIL = new IntPtr(PInvoke.GetSidSubAuthority(tokenIL.Label.Sid, 0));
                 IL = Marshal.ReadInt32(pIL);
             }
             finally
             {
-                // Centralized cleanup for all allocated resources. Clean up only
-                // those which were allocated, and clean them up in the right order.
+                    // Centralized cleanup for all allocated resources. Clean up only
+                    // those which were allocated, and clean them up in the right order.
 
 
-                if (hToken != IntPtr.Zero && !WinApi.CloseHandle(hToken))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    if (hTokenHabndle != null)
+                        hTokenHabndle.Close();
 
                 if (pTokenIL != IntPtr.Zero)
                 {
@@ -539,6 +269,7 @@ namespace FireBridgeCore
             }
 
             return IL;
+        }
         }
     }
 }

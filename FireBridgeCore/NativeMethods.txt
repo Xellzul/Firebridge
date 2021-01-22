@@ -1,0 +1,13 @@
+﻿CreateProcessAsUser
+OpenProcessToken
+OpenProcess
+GetTokenInformation
+GetSidSubAuthority
+ConvertStringSidToSid
+SetTokenInformation
+GetLengthSid
+WTSGetActiveConsoleSessionId
+WTSQueryUserToken
+CloseHandle
+DuplicateTokenEx
+TOKEN_MANDATORY_LABEL
