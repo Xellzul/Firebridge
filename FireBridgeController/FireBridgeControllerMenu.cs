@@ -24,6 +24,7 @@ namespace FireBridgeController
         public List<FireBridgePlugin> Plugins = new List<FireBridgePlugin>();
         public FireBridgeControllerMenu()
         {
+            /*
             foreach(var file in Directory.GetFiles(Directory.GetCurrentDirectory() + "/plugins"))
             {
                 if (!file.EndsWith(".dll"))
@@ -46,7 +47,7 @@ namespace FireBridgeController
                     Console.WriteLine("hello");
                 }
             }
-
+            */
             screenshotSettings = new ScreenshotSettings(OverridePorgramSettings);
             screenshotSettings.SettingsChanged += ScreenshotSettings_SettingsChanged;
             var selectAll = new ToolStripMenuItem("Select All");
