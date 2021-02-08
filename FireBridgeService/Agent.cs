@@ -53,7 +53,7 @@ namespace FireBridgeService
                 new[] { Id.ToString() },
                 SessionID,
                 Elevation
-            );
+            ).process;
 
             if (_process == null)
             {

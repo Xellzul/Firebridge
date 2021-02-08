@@ -11,3 +11,8 @@ WTSQueryUserToken
 CloseHandle
 DuplicateTokenEx
 TOKEN_MANDATORY_LABEL
+CreatePipe
+DuplicateHandle
+GetCurrentProcess
+LocalFree
+SetHandleInformation

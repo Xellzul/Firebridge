@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 using Microsoft.Windows.Sdk;
+using System.IO;
+using Microsoft.Win32.SafeHandles;
 
 namespace FireBridgeCore
 {
@@ -30,112 +32,181 @@ namespace FireBridgeCore
             throw new Exception("IntegrityLevel is not valid");
         }
 
-        public static Process StartProcess(string name, string[] parameters, IIntegrityLevel il)
+        public static (Process process, Stream writeStream, Stream errorStream, Stream readStream) StartProcess(string name, string[] parameters, IIntegrityLevel il)
         {
             return StartProcess(name, parameters, PInvoke.WTSGetActiveConsoleSessionId(), il);
         }
 
-        public static Process StartProcess(string name, string[] parameters, uint sessionID, IIntegrityLevel il)
+
+        private static bool GetTokenHandle(uint sessionID, out CloseHandleSafeHandle tokenHandle)
         {
-            unsafe { 
-                IntPtr hPTokenptr = IntPtr.Zero;
-                CloseHandleSafeHandle hPToken = CloseHandleSafeHandle.Null;
-                void* hPSid;
-                IntPtr hPProcessRaw = IntPtr.Zero;
-                CloseHandleSafeHandle hPProcess = CloseHandleSafeHandle.Null;
-                string integrityString = SidStringFromIL(il);
-                PROCESS_INFORMATION procInfo;
+            SECURITY_ATTRIBUTES sa = new SECURITY_ATTRIBUTES();
+            sa.nLength = (uint)Marshal.SizeOf(sa);
 
-                SECURITY_ATTRIBUTES sa = new SECURITY_ATTRIBUTES();
-                sa.nLength = (uint)Marshal.SizeOf(sa);
-
-                try
+            CloseHandleSafeHandle hPProcess = CloseHandleSafeHandle.Null;
+            try
+            {
+                IntPtr tokenPointer = IntPtr.Zero;
+                if (sessionID == 0)
                 {
-                    if (sessionID == 0) //duplicate myself for token
-                    {
-                        if (!PInvoke.OpenProcessToken(new CloseHandleSafeHandle(Process.GetCurrentProcess().Handle, false), TOKEN_DUPLICATE, out hPProcessRaw))
-                            throw new Win32Exception(Marshal.GetLastWin32Error());
-
-                        hPProcess = new CloseHandleSafeHandle(hPProcessRaw);
-
-                        if (!PInvoke.DuplicateTokenEx(
-                                hPProcess,
-                                MAXIMUM_ALLOWED,
-                                sa,
-                                SECURITY_IMPERSONATION_LEVEL.SecurityIdentification,
-                                TOKEN_TYPE.TokenPrimary,
-                                out hPTokenptr)
-                                )
-                            throw new Win32Exception(Marshal.GetLastWin32Error());
-                    }
-                    else //or get token for session
-                    {
-                        if (!PInvoke.WTSQueryUserToken(sessionID, ref hPTokenptr))
-                            throw new Win32Exception(Marshal.GetLastWin32Error());
-                    }
-
-                    hPToken = new CloseHandleSafeHandle(hPTokenptr);
-
-                    if (!PInvoke.ConvertStringSidToSid(integrityString, out hPSid))
+                    IntPtr processPointer = IntPtr.Zero;
+                    if (!PInvoke.OpenProcessToken(PInvoke.GetCurrentProcess(), TOKEN_DUPLICATE, out processPointer))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
 
-                    var sidLenght = PInvoke.GetLengthSid(hPSid);
+                    hPProcess = new CloseHandleSafeHandle(processPointer);
 
-                    
+                    if (!PInvoke.DuplicateTokenEx(
+                            hPProcess,
+                            MAXIMUM_ALLOWED,
+                            sa,
+                            SECURITY_IMPERSONATION_LEVEL.SecurityIdentification,
+                            TOKEN_TYPE.TokenPrimary,
+                            out tokenPointer)
+                            )
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+                else
+                {
+                    if (!PInvoke.WTSQueryUserToken(sessionID, ref tokenPointer))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                }
+
+                tokenHandle = new CloseHandleSafeHandle(tokenPointer);
+                return true;
+            }
+            catch
+            {
+                tokenHandle = CloseHandleSafeHandle.Null;
+                return false;
+            }
+            finally
+            {
+                if (!hPProcess.IsClosed)
+                    hPProcess.Close(); //todo: Check for correctness
+            }
+        }
+
+
+        public static (Process process, Stream write, Stream error, Stream read) StartProcess(string name, string[] parameters, uint sessionID, IIntegrityLevel il)
+        {
+            unsafe
+            {
+                void* sidPointer = null;
+                CloseHandleSafeHandle tokenHandle = CloseHandleSafeHandle.Null;
+                try
+                {
+                    GetTokenHandle(sessionID, out tokenHandle);
+
+
+                    //SID
+                    if (!PInvoke.ConvertStringSidToSid(SidStringFromIL(il), out sidPointer))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                    var sidLenght = PInvoke.GetLengthSid(sidPointer);
+
+
+                    //Token manipulation
                     TOKEN_MANDATORY_LABEL TIL;
                     TIL.Label.Attributes = SE_GROUP_INTEGRITY;
-                    TIL.Label.Sid = hPSid;
+                    TIL.Label.Sid = sidPointer;
 
-                    IntPtr hPTokenInf = Marshal.AllocHGlobal(Marshal.SizeOf<TOKEN_MANDATORY_LABEL>());
-                    Marshal.StructureToPtr(TIL, hPTokenInf, false);
-                    
+                    IntPtr hPTokenInf = Marshal.AllocHGlobal(Marshal.SizeOf<TOKEN_MANDATORY_LABEL>()); //TODO: should i release later?
+                    Marshal.StructureToPtr(TIL, hPTokenInf, false); //delete here?
+
                     if (!PInvoke.SetTokenInformation(
-                        hPToken,
+                        tokenHandle,
                         TOKEN_INFORMATION_CLASS.TokenIntegrityLevel,
                         hPTokenInf.ToPointer(),
                         (uint)Marshal.SizeOf<TOKEN_MANDATORY_LABEL>() + sidLenght))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
 
+                    //process starting
                     STARTUPINFOW si = new STARTUPINFOW();
                     si.cb = (uint)Marshal.SizeOf(si);
 
-                    IntPtr UserEnvironment = IntPtr.Zero;
+                    SECURITY_ATTRIBUTES sa = new SECURITY_ATTRIBUTES();
+                    sa.nLength = (uint)Marshal.SizeOf(sa);
+                    sa.bInheritHandle = true;
 
-                    uint dwCreationFlags = NORMAL_PRIORITY_CLASS; //| WinApi.CREATE_NEW_CONSOLE | WinApi.CREATE_UNICODE_ENVIRONMENT;
+                    IntPtr pStdOutMyRead = IntPtr.Zero;
+                    IntPtr pStdOutProcessWrite = IntPtr.Zero;
+                    IntPtr pStdErrMyRead = IntPtr.Zero;
+                    IntPtr pStdErrProcessWrite = IntPtr.Zero;
+                    IntPtr pStdInProcessRead = IntPtr.Zero;
+                    IntPtr pStdInMyWrite = IntPtr.Zero;
 
-                    // create a new process in the current user's logon session
-                    if (!PInvoke.CreateProcessAsUser(hPToken,        // client's access token
-                                                    null,                   // file to execute
-                                                    name + " " + string.Join(" ", parameters),        // command line
-                                                    sa,                 // pointer to process SECURITY_ATTRIBUTES
-                                                    sa,                 // pointer to thread SECURITY_ATTRIBUTES
-                                                    false,                  // handles are not inheritable
-                                                    dwCreationFlags,        // creation flags
-                                                    null,           // pointer to new environment block 
-                                                    null,                  // name of current directory 
-                                                    si,                 // pointer to STARTUPINFO structure
-                                                    out procInfo            // receives information about new process
-                                                    ))
+
+                    if (!PInvoke.CreatePipe(out pStdOutMyRead, out pStdOutProcessWrite, sa, 0))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                    // Create a child stderr pipe.
+                    if (!PInvoke.CreatePipe(out pStdErrMyRead, out pStdErrProcessWrite, sa, 0))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                    // Create a child stdin pipe.
+                    if (!PInvoke.CreatePipe(out pStdInProcessRead, out pStdInMyWrite, sa, 0))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
 
 
-                    Process process = Process.GetProcessById((int)procInfo.dwProcessId);
-                    process.EnableRaisingEvents = true;
-                    return process;
-                }
-                catch (Exception)
-                {
+                    uint dwCreationFlags = NORMAL_PRIORITY_CLASS | 0x00000010; //CREATE_NEW_CONSOLE | WinApi.CREATE_UNICODE_ENVIRONMENT;
 
+                    PROCESS_INFORMATION procInfo;
+
+                    var hStdOutMyRead = new CloseHandleSafeHandle(pStdOutMyRead);
+                    var hStdErrMyRead = new CloseHandleSafeHandle(pStdErrMyRead);
+                    var hStdInMyWrite = new CloseHandleSafeHandle(pStdInMyWrite);
+
+                    PInvoke.SetHandleInformation(hStdOutMyRead, 0, HANDLE_FLAG_OPTIONS.HANDLE_FLAG_INHERIT);
+                    PInvoke.SetHandleInformation(hStdErrMyRead, 0, HANDLE_FLAG_OPTIONS.HANDLE_FLAG_INHERIT);
+                    PInvoke.SetHandleInformation(hStdInMyWrite, 0, HANDLE_FLAG_OPTIONS.HANDLE_FLAG_INHERIT);
+
+                    si.hStdInput = new HANDLE(pStdInProcessRead);
+                    si.hStdError = new HANDLE(pStdErrProcessWrite);
+                    si.hStdOutput = new HANDLE(pStdOutProcessWrite);
+                    si.dwFlags = 0x100 | 0x1;
+
+                    if (!PInvoke.CreateProcessAsUser(tokenHandle,        // client's access token
+                                null,                   // file to execute
+                                name + " " + string.Join(" ", parameters),        // command line
+                                sa,                 // pointer to process SECURITY_ATTRIBUTES
+                                sa,                 // pointer to thread SECURITY_ATTRIBUTES
+                                true,                  // handles are not inheritable
+                                dwCreationFlags,        // creation flags
+                                null,           // pointer to new environment block 
+                                null,                  // name of current directory 
+                                si,                 // pointer to STARTUPINFO structure
+                                out procInfo            // receives information about new process
+                                ))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                    PInvoke.CloseHandle(si.hStdError);
+                    PInvoke.CloseHandle(si.hStdInput);
+                    PInvoke.CloseHandle(si.hStdOutput);
+
+                    Process process = Process.GetProcessById((int)procInfo.dwProcessId);
+
+                    PInvoke.CloseHandle(procInfo.hThread);
+
+                    process.EnableRaisingEvents = true;
+
+                    return (
+                        process,
+                        new FileStream(new SafeFileHandle(pStdInMyWrite, true), FileAccess.Write),
+                        new FileStream(new SafeFileHandle(pStdErrMyRead, true), FileAccess.Read),
+                        new FileStream(new SafeFileHandle(pStdOutMyRead, true), FileAccess.Read));
+                }
+                catch
+                {
+                    return (null, null, null, null);
                 }
                 finally
                 {
-                    if(hPToken != null)
-                        hPToken.Close();
-                    if (hPProcess != null)
-                        hPProcess.Close();
+                    if (!tokenHandle.IsClosed)
+                        tokenHandle.Close();
+                    //todo close handles
+                    if (sidPointer != null)
+                        PInvoke.LocalFree((nint)sidPointer); //todo: check result for success??, is conversion safe?
                 }
-
-                return null;
             }
         }
     }
@@ -157,7 +228,7 @@ namespace FireBridgeCore
         {
             int il = GetProcessIntegrityLevel();
 
-            switch(il)
+            switch (il)
             {
                 case SECURITY_MANDATORY_SYSTEM_RID:
                     return IIntegrityLevel.System;
@@ -194,65 +265,66 @@ namespace FireBridgeCore
         /// </exception>
         private static int GetProcessIntegrityLevel()
         {
-            unsafe { 
-            int IL = -1;
-            IntPtr hToken = IntPtr.Zero;
-            CloseHandleSafeHandle hTokenHabndle = CloseHandleSafeHandle.Null;
-            uint cbTokenIL = 0;
-            IntPtr pTokenIL = IntPtr.Zero;
-
-            try
+            unsafe
             {
+                int IL = -1;
+                IntPtr hToken = IntPtr.Zero;
+                CloseHandleSafeHandle hTokenHabndle = CloseHandleSafeHandle.Null;
+                uint cbTokenIL = 0;
+                IntPtr pTokenIL = IntPtr.Zero;
 
-                // Open the access token of the current process with TOKEN_QUERY.
-                if (!PInvoke.OpenProcessToken(new CloseHandleSafeHandle(Process.GetCurrentProcess().Handle), TOKEN_QUERY, out hToken))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-
-                hTokenHabndle = new CloseHandleSafeHandle(hToken);
-                // Then we must query the size of the integrity level information
-                // associated with the token. Note that we expect GetTokenInformation
-                // to return false with the ERROR_INSUFFICIENT_BUFFER error code
-                // because we've given it a null buffer. On exit cbTokenIL will tell
-                // the size of the group information.
-                if (!PInvoke.GetTokenInformation(hTokenHabndle,
-                    TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, null, 0,
-                    out cbTokenIL))
+                try
                 {
-                    int error = Marshal.GetLastWin32Error();
-                    if (error != ERROR_INSUFFICIENT_BUFFER)
+
+                    // Open the access token of the current process with TOKEN_QUERY.
+                    if (!PInvoke.OpenProcessToken(new CloseHandleSafeHandle(Process.GetCurrentProcess().Handle), TOKEN_QUERY, out hToken))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                    hTokenHabndle = new CloseHandleSafeHandle(hToken);
+                    // Then we must query the size of the integrity level information
+                    // associated with the token. Note that we expect GetTokenInformation
+                    // to return false with the ERROR_INSUFFICIENT_BUFFER error code
+                    // because we've given it a null buffer. On exit cbTokenIL will tell
+                    // the size of the group information.
+                    if (!PInvoke.GetTokenInformation(hTokenHabndle,
+                        TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, null, 0,
+                        out cbTokenIL))
                     {
-                        // When the process is run on operating systems prior to
-                        // Windows Vista, GetTokenInformation returns false with the
-                        // ERROR_INVALID_PARAMETER error code because
-                        // TokenIntegrityLevel is not supported on those OS's.
-                        throw new Win32Exception(error);
+                        int error = Marshal.GetLastWin32Error();
+                        if (error != ERROR_INSUFFICIENT_BUFFER)
+                        {
+                            // When the process is run on operating systems prior to
+                            // Windows Vista, GetTokenInformation returns false with the
+                            // ERROR_INVALID_PARAMETER error code because
+                            // TokenIntegrityLevel is not supported on those OS's.
+                            throw new Win32Exception(error);
+                        }
                     }
+
+                    // Now we allocate a buffer for the integrity level information.
+                    pTokenIL = Marshal.AllocHGlobal((int)cbTokenIL);
+                    if (pTokenIL == IntPtr.Zero)
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+
+                    // Now we ask for the integrity level information again. This may fail
+                    // if an administrator has added this account to an additional group
+                    // between our first call to GetTokenInformation and this one.
+                    if (!PInvoke.GetTokenInformation(hTokenHabndle,
+                        TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, pTokenIL.ToPointer(), cbTokenIL,
+                        out cbTokenIL))
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+
+                    // Marshal the TOKEN_MANDATORY_LABEL struct from native to .NET object.
+                    TOKEN_MANDATORY_LABEL tokenIL = (TOKEN_MANDATORY_LABEL)
+                        Marshal.PtrToStructure(pTokenIL, typeof(TOKEN_MANDATORY_LABEL));
+
+                    IntPtr pIL = new IntPtr(PInvoke.GetSidSubAuthority(tokenIL.Label.Sid, 0));
+                    IL = Marshal.ReadInt32(pIL);
                 }
-
-                // Now we allocate a buffer for the integrity level information.
-                pTokenIL = Marshal.AllocHGlobal((int)cbTokenIL);
-                if (pTokenIL == IntPtr.Zero)
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-
-                // Now we ask for the integrity level information again. This may fail
-                // if an administrator has added this account to an additional group
-                // between our first call to GetTokenInformation and this one.
-                if (!PInvoke.GetTokenInformation(hTokenHabndle,
-                    TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, pTokenIL.ToPointer(), cbTokenIL,
-                    out cbTokenIL))
+                finally
                 {
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
-
-                // Marshal the TOKEN_MANDATORY_LABEL struct from native to .NET object.
-                TOKEN_MANDATORY_LABEL tokenIL = (TOKEN_MANDATORY_LABEL)
-                    Marshal.PtrToStructure(pTokenIL, typeof(TOKEN_MANDATORY_LABEL));
-
-                IntPtr pIL = new IntPtr(PInvoke.GetSidSubAuthority(tokenIL.Label.Sid, 0));
-                IL = Marshal.ReadInt32(pIL);
-            }
-            finally
-            {
                     // Centralized cleanup for all allocated resources. Clean up only
                     // those which were allocated, and clean them up in the right order.
 
@@ -260,16 +332,16 @@ namespace FireBridgeCore
                     if (hTokenHabndle != null)
                         hTokenHabndle.Close();
 
-                if (pTokenIL != IntPtr.Zero)
-                {
-                    Marshal.FreeHGlobal(pTokenIL);
-                    pTokenIL = IntPtr.Zero;
-                    cbTokenIL = 0;
+                    if (pTokenIL != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(pTokenIL);
+                        pTokenIL = IntPtr.Zero;
+                        cbTokenIL = 0;
+                    }
                 }
-            }
 
-            return IL;
-        }
+                return IL;
+            }
         }
     }
 }
