@@ -13,22 +13,23 @@ namespace FireBridgeCore.Networking
     {
 
         protected bool _shouldEnd = false;
-        protected Stream _stream;
+        protected Stream _readStream;
+        protected Stream _writeStream;
         protected Thread _readerThread;
 
         public virtual bool Send(Packet packet)
         {
-            if (!_stream.CanWrite)
+            if (!_writeStream.CanWrite)
                 return false;
 
-            lock(_stream)
+            lock(_writeStream)
             {
                 try
                 {
                     Console.WriteLine("Sending Packet:" + packet.ToString());
 
                     BinaryFormatter binaryFormatter = new BinaryFormatter();
-                    binaryFormatter.Serialize(_stream, packet);
+                    binaryFormatter.Serialize(_writeStream, packet);
                 }
                 catch(Exception e) {
                     Console.WriteLine("Error sending packet: " + e.Message);
@@ -41,13 +42,13 @@ namespace FireBridgeCore.Networking
         protected void ReadLoop()
         {
             BinaryFormatter binaryFormatter = new BinaryFormatter();
-            while (_stream.CanRead && !_shouldEnd)
+            while (_readStream.CanRead && !_shouldEnd)
             {
                 try
                 {
-                    Packet p = binaryFormatter.Deserialize(_stream) as Packet;
+                    Packet p = binaryFormatter.Deserialize(_readStream) as Packet;
 
-                    if (_stream.CanRead == false || p == null || p.Payload == null)
+                    if (_readStream.CanRead == false || p == null || p.Payload == null)
                         continue;
 
                     Console.WriteLine("Reading packet: " + p.ToString());
@@ -83,12 +84,5 @@ namespace FireBridgeCore.Networking
         }
 
          public abstract void Close();
-       // protected abstract void close();
-       /* public void Close()
-        {
-            Status = ConnectionStatus.Disconnected;
-            _shouldEnd = true;
-            close();
-        }*/
     }
 }

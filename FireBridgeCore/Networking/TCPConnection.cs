@@ -90,7 +90,8 @@ namespace FireBridgeCore.Networking
                 return;
             }
 
-            _stream = _client.GetStream();
+            _writeStream = _client.GetStream();
+            _readStream = _client.GetStream();
 
             this._readerThread = new Thread(ReadLoop);
             this._readerThread.Start();
