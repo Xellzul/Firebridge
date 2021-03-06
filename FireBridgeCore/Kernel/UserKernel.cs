@@ -10,42 +10,58 @@ namespace FireBridgeCore.Kernel
 {
     public class UserKernel
     {
-        private Object _idLock;
-        private int _lastID = 1;
-        private ConcurrentDictionary<int, UserProcess> _programs;
-
+        private ConcurrentDictionary<Guid, UserProcess> _processes;
         public UserKernel()
         {
-            _idLock = new Object();
-            _programs = new ConcurrentDictionary<int, UserProcess>();
+            _processes = new ConcurrentDictionary<Guid, UserProcess>();
         }
 
-        public void SendToProcess(Connection connection, Packet message)
+        public bool StartProcessAttached(UserProgram program, Connection connection, Guid localID, Guid remoteID)
         {
-            _programs.TryGetValue(message.ToPort, out UserProcess userProcess);
-
-            if(userProcess != null)
-                Task.Run(() => { userProcess?.DataRecieved(connection, message); });
+            var process = new AttachedUserProcess(program, connection, localID, remoteID);
+            return _startProcess(process);
         }
 
-        public bool StartProcess(Connection connection, UserProcess up)
+        public bool StartProcessDetached(StartProgramModel startProgramModel, Connection connection)
         {
-            int id;
-            lock(_idLock)
+            var process = new DetachedUserProcess(startProgramModel, connection);
+            return _startProcess(process);
+        }
+
+        private bool _startProcess(UserProcess process)
+        {
+            if (!_processes.TryAdd(process.Id, process))
+                return false;
+
+            process.Completed += Process_Completed;
+            if (!process.Start())
             {
-                id = _lastID;
-                _lastID++;
+                process.Completed -= Process_Completed;
+                _processes.TryRemove(process.Id, out _);
+                return false;
             }
-
-            _programs.TryAdd(id, up);
-            up.Completed += Process_Completed;
-            up.Start(this, id, connection);
             return true;
         }
 
         private void Process_Completed(object sender, EventArgs e)
         {
-            _programs.TryRemove(((UserProcess)sender).ProcessID, out _);
+            if (sender != null && sender is UserProcess)
+                RemoveProcess((UserProcess)sender);
+        }
+
+        public bool RemoveProcess(UserProcess process)
+        {
+            process.Completed -= Process_Completed;
+            process.Stop();
+            return _processes.TryRemove(process.Id, out _);
+        }
+
+        public void Stop()
+        {
+            foreach (var item in _processes)
+            {
+                RemoveProcess(item.Value);
+            }
         }
     }
 }

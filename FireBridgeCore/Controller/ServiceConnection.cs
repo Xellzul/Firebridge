@@ -18,13 +18,8 @@ namespace FireBridgeCore.Controller
 
         private UserKernel _kernel;
 
-        public ConcurrentDictionary<Guid, AgentConnection> _agents;
-        public ConcurrentDictionary<Guid, AgentConnection> _pendingAgents;
-
         public ServiceConnection(Guid serviceId) : base(serviceId)
         {
-            _pendingAgents = new ConcurrentDictionary<Guid, AgentConnection>();
-            _agents = new ConcurrentDictionary<Guid, AgentConnection>();
             _kernel = new UserKernel();
         }
 
@@ -36,12 +31,7 @@ namespace FireBridgeCore.Controller
 
         private void RequestInfo()
         {
-            Send(new Packet()
-            {
-                ToPort = -1,
-                FromPort = -1,
-                Payload = new RequestInfo()
-            });
+            Send(new Packet(Guid.Empty, Guid.Empty, new RequestInfo()));
         }
         private void CheckForConnected(int tries)
         {
@@ -62,22 +52,13 @@ namespace FireBridgeCore.Controller
             if (packet == null || packet.Payload == null)
                 return;
 
-            if (packet.ToPort == -1)
+            if (packet.To == Guid.Empty)
             {
                 if (packet.Payload is ServiceInfo si)
                 {
                     ServiceInfo = si;
+                    Status = ConnectionStatus.Connected;
 
-                    lock (_pendingAgents)
-                    {
-                        foreach (var agent in si.Agents)
-                        {
-                            if (_pendingAgents.ContainsKey(agent.AgentID) || _agents.ContainsKey(agent.AgentID))
-                                continue;
-
-                            AddConnectingAgent(agent.Port, agent.AgentID);
-                        }
-                    }
                 }
                 return;
             }
@@ -85,84 +66,26 @@ namespace FireBridgeCore.Controller
             base.Receiving(packet);
         }
 
-        public AgentConnection GetAgent(IIntegrityLevel il, uint SessionID)
+        public void StartProgram(Type remoteProgram, UserProgram localProgram = null)
         {
-            var agnt = _agents.Where(
-                x => x.Value.AgentInfo.IntegrityLevel == il && 
-                x.Value.AgentInfo.SessionID == SessionID
-            ).Select(x => (KeyValuePair<Guid, AgentConnection>?)x).FirstOrDefault();
-
-            return agnt?.Value;
-        }
-
-        private void AddConnectingAgent(int port, Guid id)
-        {
-            //TODO: AgentConnecting Event
-            AgentConnection ac = new AgentConnection(id);
-
-            //IPAddress, item.Port
-            ac.ConnectionStatusChanged += Ac_Pending_ConnectionStatusChanged;
-            ac.MessageRecieved += Ac_MessageRecieved;
-            _pendingAgents.TryAdd(ac.Id, ac);
-
-            ac.Start(IPAddress, port);
-        }
-
-        private void Ac_MessageRecieved(object sender, MessageRecievedEventArgs e)
-        {
-            _kernel.SendToProcess(e.Connection, e.Message);
-        }
-
-        private void Ac_Pending_ConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
-        {
-            if (e==null || sender == null || !(sender is AgentConnection))
-                return;
-
-            var agent = (AgentConnection)sender;
-
-            if (e.Now == ConnectionStatus.Connected)
+            var remoteGuid = Guid.NewGuid();
+            var localGuid = localProgram == null ? Guid.Empty : Guid.NewGuid();
+            var toSend = new Packet(localGuid, remoteGuid, new StartProgramModel()
             {
-                agent.ConnectionStatusChanged -= Ac_Pending_ConnectionStatusChanged;
-                lock (_pendingAgents)
-                {
-                    //todo: Agent Connected?
-                    _agents.TryAdd(agent.Id, agent);
-                    _pendingAgents.TryRemove(agent.Id, out _);
+                SessionId = uint.MaxValue,
+                Type = remoteProgram.ToString(),
+                ProcessId = remoteGuid,
+                RemoteId = localGuid,
+                IntegrityLevel = IIntegrityLevel.Medium // todo CHANGE
+            });
 
-                    if (_pendingAgents.Count == 0 && Status != ConnectionStatus.Disconnected)
-                        Status = ConnectionStatus.Connected;
-                }
+
+            if (localProgram != null)
+            {
+                _kernel.StartProcessAttached(localProgram, this, localGuid, remoteGuid);
             }
 
-            if (e.Now == ConnectionStatus.Disconnected)
-            {
-                lock (_pendingAgents)
-                {
-                    //todo: Agent disconnected?
-                    _pendingAgents.TryRemove(agent.Id, out _);
-                    if(ServiceInfo.Agents.Any(x => x.AgentID == agent.Id)) 
-                        AddConnectingAgent(agent.Port, agent.Id);
-                }
-            }
-        }
-
-        public void StartProgram(AgentConnection ac, UserProcess remoteProcess, UserProcess localProcess = null)
-        {
-            var toSend = new Packet()
-            {
-                ToPort = -1,
-                FromPort = -1,
-                Payload = remoteProcess
-            };
-
-            if (localProcess != null)
-            {
-                _kernel.StartProcess(ac, localProcess);
-                toSend.FromPort = localProcess.ProcessID;
-                remoteProcess.RemoteProcessID = localProcess.ProcessID;
-            }
-
-            ac.Send(toSend);
+            Send(toSend);
         }
     }
 }

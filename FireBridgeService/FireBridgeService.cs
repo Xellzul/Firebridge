@@ -1,9 +1,11 @@
-﻿using FireBridgeCore.Networking;
+﻿using FireBridgeCore.Kernel;
+using FireBridgeCore.Networking;
 using NetFwTypeLib;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Security.Principal;
 using System.ServiceProcess;
 using System.Threading;
 
@@ -14,7 +16,7 @@ namespace FireBridgeService
         public const int Revision = 1;
         private uint _selectedSession = 0;
 
-        AgentManager AgentManager;
+        UserKernel Kernel;
         TCPServer TCPServer;
         Settings settings;
 
@@ -60,7 +62,7 @@ namespace FireBridgeService
         protected override void OnStop()
         {
             DiscoveryServer.Stop();
-            AgentManager.Stop();
+            Kernel.Stop();
             TCPServer.Stop();
             base.OnStop();
         }
@@ -74,7 +76,7 @@ namespace FireBridgeService
             }
             AddFirewallException();
 
-            AgentManager = new AgentManager();
+            Kernel = new UserKernel();
             TCPServer = new TCPServer();
             DiscoveryServer = new DiscoveryServer(settings.Guid);
 
@@ -84,12 +86,11 @@ namespace FireBridgeService
 
             foreach (var a in sessions)
             {
-                AgentManager.StartSession(a.Key);
-
                 if (a.Value)
                     SelectedSession = a.Key;
             }
 
+            
             TCPServer.Start(6969);
             DiscoveryServer.Run();
         }
@@ -109,12 +110,13 @@ namespace FireBridgeService
         {
             switch(e.Message.Payload)
             {
-                case RequestInfo rw:
-                    e.Connection.Send(new Packet() { 
-                        FromPort = -1,
-                        ToPort = -1,
-                        Payload = GetServiceInfo()
-                    });
+                case RequestInfo:
+                    e.Connection.Send(new Packet(this.settings.Guid, Guid.Empty, GetServiceInfo()));
+                    break;
+                case StartProgramModel spm:
+                    if (spm.SessionId == uint.MaxValue)
+                        spm.SessionId = SelectedSession;
+                    Kernel.StartProcessDetached(spm, e.Connection);
                     break;
                 default:
                     break;
@@ -127,13 +129,14 @@ namespace FireBridgeService
             {
                 ActiveSession = SelectedSession, 
                 ServiceRevision = Revision,
-                ID = this.settings.Guid,
-                Agents = AgentManager.GetAgents()
+                ID = this.settings.Guid
             };
         }
 
         protected override void OnSessionChange(SessionChangeDescription changeDescription)
         {
+            //todo: tell client
+            /*
             switch (changeDescription.Reason)
             {
                 case SessionChangeReason.SessionLogoff: //delete session
@@ -157,8 +160,9 @@ namespace FireBridgeService
                 ToPort = -1,
                 Payload = GetServiceInfo()
             });
-
+            */
             base.OnSessionChange(changeDescription);
+
         }
     }
 }

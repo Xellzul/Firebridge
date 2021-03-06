@@ -22,11 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireBridgeController", "Fir
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireBridgeCore", "FireBridgeCore\FireBridgeCore.csproj", "{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{AAF1D37C-0B64-4650-8E90-79CECC6336C4}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{0C47335C-1D01-46CA-9B31-EEC66B81D90B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LockPlugin", "LockPlugin\LockPlugin.csproj", "{8714E860-0955-435D-9028-909DB93607D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LockPlugin", "LockPlugin\LockPlugin.csproj", "{8714E860-0955-435D-9028-909DB93607D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,10 +60,6 @@ Global
 		{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AAF1D37C-0B64-4650-8E90-79CECC6336C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AAF1D37C-0B64-4650-8E90-79CECC6336C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAF1D37C-0B64-4650-8E90-79CECC6336C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AAF1D37C-0B64-4650-8E90-79CECC6336C4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8714E860-0955-435D-9028-909DB93607D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8714E860-0955-435D-9028-909DB93607D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8714E860-0955-435D-9028-909DB93607D2}.Release|Any CPU.ActiveCfg = Release|Any CPU

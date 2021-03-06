@@ -10,15 +10,19 @@ namespace FireBridgeCore.Networking
     [Serializable]
     public sealed class Packet
     {
+        public Packet(Guid from, Guid to, object payload)
+        {
+            Payload = payload;
+            From = from;
+            To = to;
+        }
         public object Payload { get; set; }
-        public int FromPort { get; set; }
-        public int ToPort { get; set; }
-
-        public const int Broadcast = int.MaxValue;
+        public Guid From { get; set; }
+        public Guid To { get; set; }
 
         public override string ToString()
         {
-            return $"({FromPort}) -> ({ToPort}) - ({Payload.GetType()} / {Payload})";
+            return $"({From}) -> ({To}) - <{Payload}>";
         }
     }
 }

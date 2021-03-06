@@ -202,9 +202,11 @@ namespace FireBridgeController
             if (frm.ShowDialog() != DialogResult.OK)
                 this.Close();
 
+            throw new NotImplementedException();
+            /*
             foreach (var item in ConnectionManger.GetConnectedServices())
                 item.StartProgram(item.GetAgent(IIntegrityLevel.System, 0), new UnlockPcProcess() { 
-                Password = frm.tb_password.Text, Username = frm.tb_username.Text });
+                Password = frm.tb_password.Text, Username = frm.tb_username.Text });*/
         }
     }
 }

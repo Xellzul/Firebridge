@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 namespace FireBridgeCore.Kernel.UserPrograms
 {
     [Serializable]
-    public class UnlockPcProcess : UserProcess
+    public class UnlockPcProcess : UserProgram
     {
         public string Password { get; set; }
         public string Username { get; set; }
 
-        public override void Main()
+        public override void Main(UserProgramContainer container)
         {
             try
             {

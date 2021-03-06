@@ -79,8 +79,7 @@ namespace FireBridgeCore.Networking
             if (MessageRecieved == null)
                 return;
 
-            foreach (EventHandler<MessageRecievedEventArgs> reciever in MessageRecieved.GetInvocationList())
-                Task.Run(() => { reciever.Invoke(this, e); });
+            MessageRecieved?.Invoke(this, e);
         }
 
          public abstract void Close();

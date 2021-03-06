@@ -15,7 +15,7 @@ namespace FireBridgeService
         //custom settings? Dictianory<>
         public Settings()
         {
-            Guid = new Guid();
+            Guid = Guid.NewGuid();
         }
 
         public Guid Guid { get; set; }

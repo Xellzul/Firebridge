@@ -106,10 +106,7 @@ namespace FireBridgeController
             opc = new OverrideProgramController();
             opc.ImageRecieved += ClientProgram_ImageRecieved;
 
-            var agent = serviceConnection.GetAgent(IIntegrityLevel.Medium, serviceConnection.ServiceInfo.ActiveSession);
-
-            if (agent != null)
-                serviceConnection.StartProgram(agent, new OverrideProgram(), opc);
+            serviceConnection.StartProgram( typeof(OverrideProgram), opc);
 
             this.Invoke((Action)(() => {
                 l_connecting.Hide();

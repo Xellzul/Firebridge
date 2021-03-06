@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace FireBridgeCore.Controller
 {
-    public class AgentConnection : TCPConnection
+    [Obsolete]
+    public class AgentConnectionRM : TCPConnection
     {
-        public AgentConnection(Guid guid) : base(guid) { }
-        public AgentConnection() { }
+        public AgentConnectionRM(Guid guid) : base(guid) { }
+        public AgentConnectionRM() { }
 
         public AgentInfo AgentInfo { private set; get; }
         protected override void PostStart()
@@ -38,12 +39,7 @@ namespace FireBridgeCore.Controller
 
         private void RequestInfo()
         {
-            Send(new Packet()
-            {
-                ToPort = -1,
-                FromPort = -1,
-                Payload = new RequestInfo()
-            });
+            Send(new Packet(Guid.Empty, Guid.Empty, new RequestInfo()));
         }
 
         protected override void Receiving(Packet packet)
@@ -51,7 +47,7 @@ namespace FireBridgeCore.Controller
             if (packet == null || packet.Payload == null)
                 return;
 
-            if(packet.ToPort == -1)
+            if(packet.To == Guid.Empty)
             {
                 if(packet.Payload is AgentInfo ai)
                 {

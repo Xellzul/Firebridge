@@ -23,11 +23,7 @@ namespace LockPlugin
         {
             foreach (var sc in obj)
             {
-                var agent = sc.GetAgent(IIntegrityLevel.High, 0);
-                if (agent == null)
-                    continue;
-
-                sc.StartProgram(agent, new LockProcess());
+                sc.StartProgram(typeof(LockProcess));
             }
         }
     }

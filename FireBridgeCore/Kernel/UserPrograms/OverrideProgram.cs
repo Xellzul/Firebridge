@@ -14,7 +14,7 @@ using System.Windows.Forms;
 namespace FireBridgeCore.Kernel.UserPrograms
 {
     [Serializable]
-    public class OverrideProgram : UserProcess
+    public class OverrideProgram : UserProgram
     {
         int WaitTime = 1000;
         int quality = 70;
@@ -22,21 +22,37 @@ namespace FireBridgeCore.Kernel.UserPrograms
         int heigth = 480;
         bool takeScreenShot = true;
 
-        public override void Main()
+        public override void Main(UserProgramContainer container)
         {
-            this.MessageRecieved += OverrideProgram_MessageRecieved;
-            while (this.RemoteConnection.Status == ConnectionStatus.Connected)
+            while (container.Connection.Status == ConnectionStatus.Connected)
             {
                 Thread.Sleep(WaitTime);
-                if(takeScreenShot)
+                if (takeScreenShot)
                 {
                     var screenShot = GetScreenshot();
-                    Respond(screenShot);
+                    container.Respond(screenShot);
                     screenShot.Dispose();
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                 }
             }
+        }
+
+        public override void OnDataRecieved(Packet packet)
+        {
+            switch (packet.Payload)
+            {
+                case OverridePorgramSettings ops:
+                    this.heigth = ops.Heigth;
+                    this.width = ops.Width;
+                    this.WaitTime = ops.WaitTime;
+                    this.quality = ops.Quality;
+                    this.takeScreenShot = ops.TakeScreenShot;
+                    break;
+                default:
+                    break;
+            }
+            base.OnDataRecieved(packet);
         }
 
         private ImageCodecInfo GetEncoder(ImageFormat format)
@@ -102,22 +118,6 @@ namespace FireBridgeCore.Kernel.UserPrograms
             resized.Dispose();
 
             return Image.FromStream(ms);
-        }
-
-        private void OverrideProgram_MessageRecieved(object sender, MessageRecievedEventArgs e)
-        {
-            switch(e.Message.Payload)
-            {
-                case OverridePorgramSettings ops:
-                    this.heigth = ops.Heigth;
-                    this.width = ops.Width;
-                    this.WaitTime = ops.WaitTime;
-                    this.quality = ops.Quality;
-                    this.takeScreenShot = ops.TakeScreenShot;
-                    break;
-                default:
-                    break;
-            }
         }
     }
 }

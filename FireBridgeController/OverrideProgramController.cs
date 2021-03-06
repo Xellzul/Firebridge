@@ -13,20 +13,19 @@ using System.Windows.Forms;
 namespace FireBridgeController
 {
     [Serializable]
-    public class OverrideProgramController : UserProcess
+    public class OverrideProgramController : UserProgram
     {
-        public override void Main()
+        UserProgramContainer _container;
+        public override void Main(UserProgramContainer container)
         {
-            this.MessageRecieved += OverrideProgramController_MessageRecieved;
-            while (this.RemoteConnection.Status == ConnectionStatus.Connected)
-            {
+            _container = container;
+            while (container.Connection.Status == ConnectionStatus.Connected)
                 Thread.Sleep(1000);
-            }
         }
 
-        private void OverrideProgramController_MessageRecieved(object sender, MessageRecievedEventArgs e)
+        public override void OnDataRecieved(Packet packet)
         {
-            switch(e.Message.Payload)
+            switch (packet.Payload)
             {
                 case Image i:
                     OnImageRecieved(new ImageRecievedEventArgs() { Image = i });
@@ -34,6 +33,8 @@ namespace FireBridgeController
                 default:
                     break;
             }
+
+            base.OnDataRecieved(packet);
         }
 
         private void OnImageRecieved(ImageRecievedEventArgs e)
@@ -50,7 +51,7 @@ namespace FireBridgeController
 
         internal void ChangeSettings(OverridePorgramSettings overridePorgramSettings)
         {
-            Respond(overridePorgramSettings);
+            _container?.Respond(overridePorgramSettings);
         }
     }
 }
