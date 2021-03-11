@@ -18,16 +18,21 @@ namespace FireBridgeAgent
         private bool _completed = false;
         private UserProgramContainer _userProgramContainer;
 
-        private StreamWriter sw = new StreamWriter($"C://FireBridge/Agent-{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}-{Process.GetCurrentProcess().Id}.txt", true);
+        private StreamWriter sw;
         private ConsoleConnection _connection;
 
         public Agent()
         {
-           // Thread.Sleep(10000);
+            // Thread.Sleep(10000);
+            var filename = $"C://FireBridge/Agent-{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}-{Process.GetCurrentProcess().Id}.txt";
+            Directory.CreateDirectory("C://FireBridge/");
+            sw = new StreamWriter(filename, true);
+
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
 
             _connection = new ConsoleConnection();
             _connection.MessageRecieved += _connection_MessageRecieved;
+
 
             _userProgramContainer = new UserProgramContainer();
             _userProgramContainer.Completed += _userProgramContainer_Completed;
@@ -46,40 +51,29 @@ namespace FireBridgeAgent
                 switch (e.Message.Payload)
                 {
                     case StartProgramModel spm:
-                        Console.WriteLine("A0");
                         _userProgramContainer.Completed -= _userProgramContainer_Completed;
-                        Console.WriteLine("A1");
 
                         //todo: try catch
                         if (spm.Assemblies != null && spm.Assemblies.Length > 0)
                         {
-                            Console.WriteLine("A");
                             var assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(spm.Assemblies));
-                            Console.WriteLine("b");
                             var type = assembly.GetType(spm.Type);
-                            Console.WriteLine("C");
                             UserProgram instance = Activator.CreateInstance(type) as UserProgram;
-                            Console.WriteLine("D");
 
                             _userProgramContainer.StartAsync(instance, _connection, spm.ProcessId, e.Message.From);
-                            Console.WriteLine("E");
                         }
                         else
                         {
-                            Console.WriteLine("F");
                             var type = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.ManifestModule.Name == "FireBridgeCore.dll").First()
                                 .GetType(spm.Type);
-                            Console.WriteLine("G");
+
                             UserProgram instance = Activator.CreateInstance(type) as UserProgram;
-                            Console.WriteLine("H");
 
                             _userProgramContainer.StartAsync(instance, _connection, spm.ProcessId, e.Message.From);
-                            Console.WriteLine("I");
                         }
 
                         break;
                     default:
-                        Console.WriteLine("def");
                         break;
                 }
             }

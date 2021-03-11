@@ -10,6 +10,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace FireBridgeCore
 {
+
     public static class ApplicationLoader
     {
         public const int MAXIMUM_ALLOWED = 0x2000000;
@@ -38,22 +39,20 @@ namespace FireBridgeCore
         }
 
 
-        private static bool GetTokenHandle(uint sessionID, out CloseHandleSafeHandle tokenHandle)
+        private static bool GetTokenHandle(uint sessionID, out SafeHandle tokenHandle)
         {
             SECURITY_ATTRIBUTES sa = new SECURITY_ATTRIBUTES();
             sa.nLength = (uint)Marshal.SizeOf(sa);
 
-            CloseHandleSafeHandle hPProcess = CloseHandleSafeHandle.Null;
+            SafeFileHandle hPProcess = null;
             try
             {
-                IntPtr tokenPointer = IntPtr.Zero;
+                SafeFileHandle hPNewToken = null;
                 if (sessionID == 0)
                 {
-                    IntPtr processPointer = IntPtr.Zero;
-                    if (!PInvoke.OpenProcessToken(PInvoke.GetCurrentProcess(), TOKEN_DUPLICATE, out processPointer))
-                        throw new Win32Exception(Marshal.GetLastWin32Error());
 
-                    hPProcess = new CloseHandleSafeHandle(processPointer);
+                    if (!PInvoke.OpenProcessToken(new SafeFileHandle(PInvoke.GetCurrentProcess(), true), TOKEN_DUPLICATE, out hPProcess))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
 
                     if (!PInvoke.DuplicateTokenEx(
                             hPProcess,
@@ -61,27 +60,29 @@ namespace FireBridgeCore
                             sa,
                             SECURITY_IMPERSONATION_LEVEL.SecurityIdentification,
                             TOKEN_TYPE.TokenPrimary,
-                            out tokenPointer)
+                            out hPNewToken)
                             )
                         throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
                 else
                 {
-                    if (!PInvoke.WTSQueryUserToken(sessionID, ref tokenPointer))
+                    HANDLE pHANDLE = new HANDLE();
+                    if (!PInvoke.WTSQueryUserToken(sessionID, ref pHANDLE))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
+                    hPNewToken = new SafeFileHandle(pHANDLE, true);
                 }
 
-                tokenHandle = new CloseHandleSafeHandle(tokenPointer);
+                tokenHandle = hPNewToken;
                 return true;
             }
             catch
             {
-                tokenHandle = CloseHandleSafeHandle.Null;
+                tokenHandle = null;
                 return false;
             }
             finally
             {
-                if (!hPProcess.IsClosed)
+                if (hPProcess != null && !(hPProcess.IsClosed))
                     hPProcess.Close(); //todo: Check for correctness
             }
         }
@@ -92,7 +93,7 @@ namespace FireBridgeCore
             unsafe
             {
                 void* sidPointer = null;
-                CloseHandleSafeHandle tokenHandle = CloseHandleSafeHandle.Null;
+                SafeHandle tokenHandle = null;
                 try
                 {
                     GetTokenHandle(sessionID, out tokenHandle);
@@ -128,23 +129,23 @@ namespace FireBridgeCore
                     sa.nLength = (uint)Marshal.SizeOf(sa);
                     sa.bInheritHandle = true;
 
-                    IntPtr pStdOutMyRead = IntPtr.Zero;
-                    IntPtr pStdOutProcessWrite = IntPtr.Zero;
-                    IntPtr pStdErrMyRead = IntPtr.Zero;
-                    IntPtr pStdErrProcessWrite = IntPtr.Zero;
-                    IntPtr pStdInProcessRead = IntPtr.Zero;
-                    IntPtr pStdInMyWrite = IntPtr.Zero;
+                    SafeFileHandle hStdOutMyRead;
+                    SafeFileHandle hStdOutProcessWrite;
+                    SafeFileHandle hStdErrMyRead;
+                    SafeFileHandle hStdErrProcessWrite;
+                    SafeFileHandle hStdInProcessRead;
+                    SafeFileHandle hStdInMyWrite;
 
 
-                    if (!PInvoke.CreatePipe(out pStdOutMyRead, out pStdOutProcessWrite, sa, 0))
+                    if (!PInvoke.CreatePipe(out hStdOutMyRead, out hStdOutProcessWrite, sa, 0))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
 
                     // Create a child stderr pipe.
-                    if (!PInvoke.CreatePipe(out pStdErrMyRead, out pStdErrProcessWrite, sa, 0))
+                    if (!PInvoke.CreatePipe(out hStdErrMyRead, out hStdErrProcessWrite, sa, 0))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
 
                     // Create a child stdin pipe.
-                    if (!PInvoke.CreatePipe(out pStdInProcessRead, out pStdInMyWrite, sa, 0))
+                    if (!PInvoke.CreatePipe(out hStdInProcessRead, out hStdInMyWrite, sa, 0))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
 
 
@@ -152,22 +153,26 @@ namespace FireBridgeCore
 
                     PROCESS_INFORMATION procInfo;
 
-                    var hStdOutMyRead = new CloseHandleSafeHandle(pStdOutMyRead);
-                    var hStdErrMyRead = new CloseHandleSafeHandle(pStdErrMyRead);
-                    var hStdInMyWrite = new CloseHandleSafeHandle(pStdInMyWrite);
-
                     PInvoke.SetHandleInformation(hStdOutMyRead, 0, HANDLE_FLAG_OPTIONS.HANDLE_FLAG_INHERIT);
                     PInvoke.SetHandleInformation(hStdErrMyRead, 0, HANDLE_FLAG_OPTIONS.HANDLE_FLAG_INHERIT);
                     PInvoke.SetHandleInformation(hStdInMyWrite, 0, HANDLE_FLAG_OPTIONS.HANDLE_FLAG_INHERIT);
 
-                    si.hStdInput = new HANDLE(pStdInProcessRead);
-                    si.hStdError = new HANDLE(pStdErrProcessWrite);
-                    si.hStdOutput = new HANDLE(pStdOutProcessWrite);
-                    si.dwFlags = 0x100 | 0x1;
 
+
+                    si.hStdInput = new HANDLE(hStdInProcessRead.DangerousGetHandle());
+                    si.hStdError = new HANDLE(hStdErrProcessWrite.DangerousGetHandle());
+                    si.hStdOutput = new HANDLE(hStdOutProcessWrite.DangerousGetHandle());
+
+                    bool succ = false;
+                    hStdInProcessRead.DangerousAddRef(ref succ); // :( fix later 
+                    hStdErrProcessWrite.DangerousAddRef(ref succ); // :(
+                    hStdOutProcessWrite.DangerousAddRef(ref succ); // :(
+
+                    si.dwFlags = 0x100 | 0x1;
+                    fixed (char* appName = (name + " " + string.Join(" ", parameters))) 
                     if (!PInvoke.CreateProcessAsUser(tokenHandle,        // client's access token
                                 null,                   // file to execute
-                                name + " " + string.Join(" ", parameters),        // command line
+                                new PWSTR(appName),        // command line
                                 sa,                 // pointer to process SECURITY_ATTRIBUTES
                                 sa,                 // pointer to thread SECURITY_ATTRIBUTES
                                 true,                  // handles are not inheritable
@@ -191,9 +196,9 @@ namespace FireBridgeCore
 
                     return (
                         process,
-                        new FileStream(new SafeFileHandle(pStdInMyWrite, true), FileAccess.Write),
-                        new FileStream(new SafeFileHandle(pStdErrMyRead, true), FileAccess.Read),
-                        new FileStream(new SafeFileHandle(pStdOutMyRead, true), FileAccess.Read));
+                        new FileStream(hStdInMyWrite, FileAccess.Write),
+                        new FileStream(hStdErrMyRead, FileAccess.Read),
+                        new FileStream(hStdOutMyRead, FileAccess.Read));
                 }
                 catch
                 {
@@ -201,7 +206,7 @@ namespace FireBridgeCore
                 }
                 finally
                 {
-                    if (!tokenHandle.IsClosed)
+                    if (tokenHandle != null && !tokenHandle.IsClosed)
                         tokenHandle.Close();
                     //todo close handles
                     if (sidPointer != null)
@@ -268,25 +273,24 @@ namespace FireBridgeCore
             unsafe
             {
                 int IL = -1;
-                IntPtr hToken = IntPtr.Zero;
-                CloseHandleSafeHandle hTokenHabndle = CloseHandleSafeHandle.Null;
+                SafeFileHandle hToken = null;
+                SafeHandle hProcess = null;
                 uint cbTokenIL = 0;
                 IntPtr pTokenIL = IntPtr.Zero;
 
                 try
                 {
-
+                    hProcess = new SafeFileHandle(Process.GetCurrentProcess().Handle, true);
                     // Open the access token of the current process with TOKEN_QUERY.
-                    if (!PInvoke.OpenProcessToken(new CloseHandleSafeHandle(Process.GetCurrentProcess().Handle), TOKEN_QUERY, out hToken))
+                    if (!PInvoke.OpenProcessToken(hProcess, TOKEN_QUERY, out hToken))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
 
-                    hTokenHabndle = new CloseHandleSafeHandle(hToken);
                     // Then we must query the size of the integrity level information
                     // associated with the token. Note that we expect GetTokenInformation
                     // to return false with the ERROR_INSUFFICIENT_BUFFER error code
                     // because we've given it a null buffer. On exit cbTokenIL will tell
                     // the size of the group information.
-                    if (!PInvoke.GetTokenInformation(hTokenHabndle,
+                    if (!PInvoke.GetTokenInformation(hToken,
                         TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, null, 0,
                         out cbTokenIL))
                     {
@@ -309,7 +313,7 @@ namespace FireBridgeCore
                     // Now we ask for the integrity level information again. This may fail
                     // if an administrator has added this account to an additional group
                     // between our first call to GetTokenInformation and this one.
-                    if (!PInvoke.GetTokenInformation(hTokenHabndle,
+                    if (!PInvoke.GetTokenInformation(hToken,
                         TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, pTokenIL.ToPointer(), cbTokenIL,
                         out cbTokenIL))
                     {
@@ -327,10 +331,6 @@ namespace FireBridgeCore
                 {
                     // Centralized cleanup for all allocated resources. Clean up only
                     // those which were allocated, and clean them up in the right order.
-
-
-                    if (hTokenHabndle != null)
-                        hTokenHabndle.Close();
 
                     if (pTokenIL != IntPtr.Zero)
                     {

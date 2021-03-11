@@ -92,7 +92,7 @@ namespace FireBridgeCore.Kernel
 
         public override void Stop()
         {
-            Process.Kill();
+            Process?.Kill();
             base.Stop();
         }
     }
