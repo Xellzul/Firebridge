@@ -19,6 +19,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireBridgeController", "FireBridgeController\FireBridgeController.csproj", "{272830D5-F809-4BD2-9C75-8F674FC5216C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DF0DB60F-6453-4C4E-9239-A5F5589171B4} = {DF0DB60F-6453-4C4E-9239-A5F5589171B4}
+		{8714E860-0955-435D-9028-909DB93607D2} = {8714E860-0955-435D-9028-909DB93607D2}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireBridgeCore", "FireBridgeCore\FireBridgeCore.csproj", "{C8C78C53-B0ED-4082-8C3D-DFA9FA2F0D3E}"
 EndProject
