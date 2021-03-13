@@ -11,17 +11,53 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
 
-namespace FireBridgeController
+namespace FireBridgeCore.Controller
 {
-    public class ConnectionManger
+    public sealed class ConnectionManger
     {
         private DiscoveryClient _discoveryClient;
         private ConcurrentDictionary<Guid, ServiceConnection> _services;
-        public ConnectionManger()
+        private ConcurrentDictionary<Guid, ServiceConnection> _selectedServices;
+
+        static ConnectionManger _instance;
+
+        public static ConnectionManger Instance
+        {
+            get { return _instance ??= new ConnectionManger(); }
+        }
+
+        private ConnectionManger()
         {
             _services = new ConcurrentDictionary<Guid, ServiceConnection>();
+            _selectedServices = new ConcurrentDictionary<Guid, ServiceConnection>();
             _discoveryClient = new DiscoveryClient();
             _discoveryClient.ClientResponded += _discoveryClient_ClientResponded;
+        }
+
+        public bool SelectService(Guid serviceID)
+        {
+            ServiceConnection sc = null;
+            if(_selectedServices.TryGetValue(serviceID, out sc))
+            {
+                if (sc.Status == ConnectionStatus.Connected)
+                    return _selectedServices.TryAdd(serviceID, sc);
+            }
+            return false;
+        }
+
+        public bool DeselectService(Guid serviceID)
+        {
+            return _selectedServices.TryRemove(serviceID, out _);
+        }
+
+        public ICollection<ServiceConnection> GetSelectedServices()
+        {
+            return _selectedServices.Values.Where(x => x.Status == ConnectionStatus.Connected).ToList();
+        }
+
+        public ICollection<ServiceConnection> GetServices()
+        {
+            return _services.Values.ToList();
         }
 
         public ICollection<ServiceConnection> GetConnectedServices()
@@ -60,23 +96,21 @@ namespace FireBridgeController
             _discoveryClient.End();
         }
 
-        protected virtual void OnClientConnected(ServiceConnectionConnectedEventArgs e)
+        public void OnClientConnected(ServiceConnectionConnectedEventArgs e)
         {
             if (ClientConnected == null || e == null)
                 return;
 
-            foreach (EventHandler<ServiceConnectionConnectedEventArgs> reciever in ClientConnected.GetInvocationList())
-                Task.Run(() => { reciever.Invoke(this, e); });
+            ClientConnected.Invoke(this, e);
         }
         public event EventHandler<ServiceConnectionConnectedEventArgs> ClientConnected;
 
-        protected virtual void OnClientMessageRecieved(ServiceConnectionMessageRecievedEventArgs e)
+        public void OnClientMessageRecieved(ServiceConnectionMessageRecievedEventArgs e)
         {
             if (ClientMessageRecieved == null || e == null)
                 return;
 
-            foreach (EventHandler<ServiceConnectionMessageRecievedEventArgs> reciever in ClientMessageRecieved.GetInvocationList())
-                Task.Run(() => { reciever.Invoke(this, e); });
+            ClientMessageRecieved.Invoke(this, e);
         }
         public event EventHandler<ServiceConnectionMessageRecievedEventArgs> ClientMessageRecieved;
     }

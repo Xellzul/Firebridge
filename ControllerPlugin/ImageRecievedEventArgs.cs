@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace FireBridgeController
+namespace ControllerPlugin
 {
     public class ImageRecievedEventArgs : EventArgs
     {

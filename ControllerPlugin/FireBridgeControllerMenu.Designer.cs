@@ -1,5 +1,5 @@
 ﻿
-namespace FireBridgeController
+namespace ControllerPlugin
 {
     partial class FireBridgeControllerMenu
     {

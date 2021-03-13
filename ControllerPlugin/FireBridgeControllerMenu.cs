@@ -13,43 +13,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FireBridgeController
+namespace ControllerPlugin
 {
     public partial class FireBridgeControllerMenu : Form
     {
         private ContextMenuStrip cm = new ContextMenuStrip();
         public OverridePorgramSettings OverridePorgramSettings { get; set; } = new OverridePorgramSettings();
         private ScreenshotSettings screenshotSettings;
-        public ConnectionManger ConnectionManger { get; set; } = new ConnectionManger();
-        public List<FireBridgePlugin> Plugins = new List<FireBridgePlugin>();
-        public FireBridgeControllerMenu()
+        public ControllerMain ControllerMain;
+        public FireBridgeControllerMenu(ControllerMain controllerMain)
         {
-            /*
-            foreach(var file in Directory.GetFiles(Directory.GetCurrentDirectory() + "/plugins"))
-            {
-                if (!file.EndsWith(".dll"))
-                    continue;
+            ControllerMain = controllerMain;
 
-                try
-                {
-                    Assembly asm = Assembly.LoadFrom(file);
-
-                    foreach (Type type in asm.GetTypes())
-                    {
-                        if (type.GetCustomAttributes(typeof(FireBridgePluginAttribute), true).Length > 0)
-                        {
-                            Plugins.Add((FireBridgePlugin)Activator.CreateInstance(type));
-                        }
-                    }
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine("hello");
-                }
-            }
-            */
+            //Basic plugin
             screenshotSettings = new ScreenshotSettings(OverridePorgramSettings);
             screenshotSettings.SettingsChanged += ScreenshotSettings_SettingsChanged;
+
+            //Controls
             var selectAll = new ToolStripMenuItem("Select All");
             selectAll.Click += SelectAll_Click;
             var invert = new ToolStripMenuItem("Invert Selection");
@@ -61,32 +41,21 @@ namespace FireBridgeController
 
             InitializeComponent();
 
+
             this.ContextMenuStrip = cm;
             this.ContextMenuStrip.PerformLayout();
 
             screenshotSettingsMenuItem.Click += ScreenshotSettingsMenuItem_Click;
 
-            ConnectionManger.ClientConnected += ConnectionManger_ClientConnected;
-            ConnectionManger.Start();
+            ConnectionManger.Instance.ClientConnected += ConnectionManger_ClientConnected;
 
-            foreach (var plugin in Plugins)
-            {
-                var plugin2 = plugin.Register();
-                foreach(var b in plugin2)
-                {
-                    var menu = new ToolStripMenuItem() { Text = b.Key, Tag = b.Value };
-                    menu.Click += Menu_Click;
-                    this.settingsMenu.DropDownItems.Add(menu);
-                }
-            }
         }
 
-        private void Menu_Click(object sender, EventArgs e)
+        public void AddAction(string name, EventHandler action)
         {
-            if (sender == null || !(sender is ToolStripMenuItem))
-                return;
-
-            ((Action<ServiceConnection[]>)(((ToolStripMenuItem)sender).Tag)).Invoke(ConnectionManger.GetConnectedServices().ToArray());
+            var tsmi = new ToolStripMenuItem() { Text = name };
+            tsmi.Click += action;
+            settingsMenu.DropDownItems.Add(tsmi);
         }
 
         private void ScreenshotSettings_SettingsChanged(object sender, EventArgs e)
@@ -134,7 +103,7 @@ namespace FireBridgeController
             }
 
 
-            var toadd = new OverViewControl();
+            var toadd = new OverViewControl(ControllerMain);
             toadd.DragOver += mainView_DragOver;
             toadd.MouseDown += Toadd_MouseDown;
             mainView.Controls.Add(toadd);
@@ -198,15 +167,6 @@ namespace FireBridgeController
 
         private void UnlockMenuItem_Click(object sender, EventArgs e)
         {
-            PasswordForm frm = new PasswordForm();
-            if (frm.ShowDialog() != DialogResult.OK)
-                this.Close();
-
-            throw new NotImplementedException();
-            /*
-            foreach (var item in ConnectionManger.GetConnectedServices())
-                item.StartProgram(item.GetAgent(IIntegrityLevel.System, 0), new UnlockPcProcess() { 
-                Password = frm.tb_password.Text, Username = frm.tb_username.Text });*/
         }
     }
 }

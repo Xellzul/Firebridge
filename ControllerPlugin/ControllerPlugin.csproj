@@ -1,19 +1,32 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\FireBridgeCore\FireBridgeCore.csproj" />
   </ItemGroup>
-
+  
   <ItemGroup>
-    <Compile Update="PasswordForm.cs">
+    <Compile Update="DBPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="DetailView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FireBridgeControllerMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="OverViewControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="ScreenshotSettings.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\Build\</OutputPath>
   </PropertyGroup>

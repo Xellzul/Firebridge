@@ -1,5 +1,5 @@
 ﻿
-namespace FireBridgeController
+namespace LockPlugin
 {
     partial class PasswordForm
     {

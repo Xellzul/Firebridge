@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace FireBridgeController
+namespace ControllerPlugin
 {
     partial class OverViewControl
     {
@@ -30,7 +30,7 @@ namespace FireBridgeController
         /// </summary>
         private void InitializeComponent()
         {
-            this.imagePanel = new FireBridgeController.DBPanel();
+            this.imagePanel = new ControllerPlugin.DBPanel();
             this.l_connecting = new System.Windows.Forms.Label();
             this.toolsPanel = new System.Windows.Forms.Panel();
             this.b_detail = new System.Windows.Forms.Button();
@@ -41,7 +41,7 @@ namespace FireBridgeController
             // 
             // imagePanel
             // 
-            this.imagePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.imagePanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.imagePanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.imagePanel.Controls.Add(this.l_connecting);
@@ -52,7 +52,7 @@ namespace FireBridgeController
             // 
             // l_connecting
             // 
-            this.l_connecting.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.l_connecting.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.l_connecting.AutoSize = true;
             this.l_connecting.Font = new System.Drawing.Font("Verdana", 50F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
@@ -64,7 +64,7 @@ namespace FireBridgeController
             // 
             // toolsPanel
             // 
-            this.toolsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.toolsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.toolsPanel.Controls.Add(this.b_detail);
             this.toolsPanel.Controls.Add(this.l_ip);

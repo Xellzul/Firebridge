@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FireBridgeCore.Controller;
 
 namespace FireBridgeController
 {
@@ -14,10 +16,16 @@ namespace FireBridgeController
         [STAThread]
         static void Main()
         {
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FireBridgeControllerMenu());
+            Application.ApplicationExit += Application_ApplicationExit;
+            PluginManager.Instance.LoadFolder(Directory.GetCurrentDirectory() + "/plugins");
+            PluginManager.Instance.StartPlugins();
+            ConnectionManger.Instance.Start();
+        }
+
+        private static void Application_ApplicationExit(object sender, EventArgs e)
+        {
+            PluginManager.Instance.Stop();
+            ConnectionManger.Instance.Stop();
         }
     }
 }

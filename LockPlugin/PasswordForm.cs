@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FireBridgeController
+namespace LockPlugin
 {
     public partial class PasswordForm : Form
     {

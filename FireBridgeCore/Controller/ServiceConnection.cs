@@ -9,6 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using FireBridgeCore.Kernel;
+using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FireBridgeCore.Controller
 {
@@ -66,14 +68,16 @@ namespace FireBridgeCore.Controller
             base.Receiving(packet);
         }
 
-        public void StartProgram(Type remoteProgram, UserProgram localProgram = null)
+        public void StartProgram(Type remoteProgram, byte[] assembly, UserProgram localProgram = null)
         {
             var remoteGuid = Guid.NewGuid();
             var localGuid = localProgram == null ? Guid.Empty : Guid.NewGuid();
+
             var toSend = new Packet(localGuid, remoteGuid, new StartProgramModel()
             {
                 SessionId = uint.MaxValue,
                 Type = remoteProgram.ToString(),
+                Assemblies = assembly,
                 ProcessId = remoteGuid,
                 RemoteId = localGuid,
                 IntegrityLevel = IIntegrityLevel.Medium // todo CHANGE

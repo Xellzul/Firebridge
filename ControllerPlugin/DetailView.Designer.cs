@@ -1,5 +1,5 @@
 ﻿
-namespace FireBridgeController
+namespace ControllerPlugin
 {
     partial class DetailView
     {
@@ -29,7 +29,7 @@ namespace FireBridgeController
         /// </summary>
         private void InitializeComponent()
         {
-            this.p_screenshot = new FireBridgeController.DBPanel();
+            this.p_screenshot = new DBPanel();
             this.SuspendLayout();
             // 
             // p_screenshot

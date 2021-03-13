@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FireBridgeCore.Kernel.UserPrograms
+namespace ControllerPlugin
 {
     [Serializable]
     public class OverridePorgramSettings

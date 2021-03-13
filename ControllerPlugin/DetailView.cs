@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FireBridgeController
+namespace ControllerPlugin
 {
     public partial class DetailView : Form
     {

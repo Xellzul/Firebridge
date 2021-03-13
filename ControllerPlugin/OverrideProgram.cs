@@ -1,4 +1,5 @@
-﻿using FireBridgeCore.Networking;
+﻿using FireBridgeCore.Kernel;
+using FireBridgeCore.Networking;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FireBridgeCore.Kernel.UserPrograms
+namespace ControllerPlugin
 {
     [Serializable]
     public class OverrideProgram : UserProgram

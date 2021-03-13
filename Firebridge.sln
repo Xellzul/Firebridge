@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{0C47
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LockPlugin", "LockPlugin\LockPlugin.csproj", "{8714E860-0955-435D-9028-909DB93607D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControllerPlugin", "ControllerPlugin\ControllerPlugin.csproj", "{DF0DB60F-6453-4C4E-9239-A5F5589171B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,12 +66,17 @@ Global
 		{8714E860-0955-435D-9028-909DB93607D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8714E860-0955-435D-9028-909DB93607D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8714E860-0955-435D-9028-909DB93607D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF0DB60F-6453-4C4E-9239-A5F5589171B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF0DB60F-6453-4C4E-9239-A5F5589171B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF0DB60F-6453-4C4E-9239-A5F5589171B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF0DB60F-6453-4C4E-9239-A5F5589171B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8714E860-0955-435D-9028-909DB93607D2} = {0C47335C-1D01-46CA-9B31-EEC66B81D90B}
+		{DF0DB60F-6453-4C4E-9239-A5F5589171B4} = {0C47335C-1D01-46CA-9B31-EEC66B81D90B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6D0BF095-ADAE-4EFF-85B0-BFBE07AB7634}

@@ -13,10 +13,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FireBridgeController
+namespace ControllerPlugin
 {
     public partial class OverViewControl : UserControl
     {
+        ControllerMain ControllerMain;
         public OverrideProgramController opc;
         private ServiceConnection serviceConnection;
         private DetailView detailView;
@@ -33,8 +34,9 @@ namespace FireBridgeController
             } 
         }
 
-        public OverViewControl()
+        public OverViewControl(ControllerMain controllerMain)
         {
+            ControllerMain = controllerMain;
             detailView = new DetailView();
             InitializeComponent();
 
@@ -106,7 +108,7 @@ namespace FireBridgeController
             opc = new OverrideProgramController();
             opc.ImageRecieved += ClientProgram_ImageRecieved;
 
-            serviceConnection.StartProgram( typeof(OverrideProgram), opc);
+            serviceConnection.StartProgram( typeof(OverrideProgram), ControllerMain.AssemblyData, opc);
 
             this.Invoke((Action)(() => {
                 l_connecting.Hide();

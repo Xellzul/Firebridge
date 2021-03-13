@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FireBridgeController
+namespace ControllerPlugin
 {
     [Serializable]
     public class OverrideProgramController : UserProgram

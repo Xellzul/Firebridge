@@ -6,6 +6,9 @@ namespace FireBridgeCore.Kernel
 {
     public abstract class FireBridgePlugin
     {
-        public abstract ICollection<KeyValuePair<string, Action<ServiceConnection[]>>> Register();
+        public List<KeyValuePair<string, EventHandler>> PossibleActions = new List<KeyValuePair<string, EventHandler>>();
+        public abstract void Start();
+        public abstract int Order { get; }
+        public byte[] AssemblyData { get; set; }
     }
 }
