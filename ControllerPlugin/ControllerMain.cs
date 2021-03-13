@@ -23,6 +23,7 @@ namespace ControllerPlugin
             formThread = new Thread(startForm);
             formThread.SetApartmentState(ApartmentState.STA);
             formThread.Start();
+            Thread.Sleep(100);
         }
 
         private void startForm()
