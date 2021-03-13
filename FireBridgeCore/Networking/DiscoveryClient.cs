@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FireBridgeCore.Networking
 {
-    public class DiscoveryClient 
+    public class DiscoveryClient
     {
         private UdpClient Client;
         private IPEndPoint ServerEp;
@@ -19,9 +20,9 @@ namespace FireBridgeCore.Networking
 
         public DiscoveryClient()
         {
-            Client = new UdpClient();
-            Client.EnableBroadcast = true;
             ServerEp = new IPEndPoint(IPAddress.Any, 8888);
+            Client = new UdpClient(ServerEp);
+            Client.EnableBroadcast = true;
         }
         public void End()
         {
@@ -49,12 +50,12 @@ namespace FireBridgeCore.Networking
 
         private void loop()
         {
-            Client.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Broadcast, 8888));
             while (_run)
             {
                 try
                 {
-                    var ServerResponseData = Client.Receive(ref ServerEp);
+                    IPEndPoint readerEP = new IPEndPoint(IPAddress.Any, 8888);
+                    var ServerResponseData = Client.Receive(ref readerEP);
                     var ServerResponse = Encoding.ASCII.GetString(ServerResponseData);
 
                     Guid id;
@@ -73,7 +74,7 @@ namespace FireBridgeCore.Networking
                     if (ServerResponse.StartsWith("FireBridge Pong |"))
                         this.OnClientResponded(
                             new ClientRespondedEventArgs(
-                                ServerEp.Address, 
+                                readerEP.Address,
                                 id
                            ));
                 }
@@ -86,7 +87,29 @@ namespace FireBridgeCore.Networking
 
         public void SendPing()
         {
-            Client.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Broadcast, 8888));
+            //https://stackoverflow.com/questions/1096142/broadcasting-udp-message-to-all-the-available-network-cards
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus == OperationalStatus.Up && ni.SupportsMulticast && ni.GetIPProperties().GetIPv4Properties() != null)
+                {
+                    int id = ni.GetIPProperties().GetIPv4Properties().Index;
+                    if (NetworkInterface.LoopbackInterfaceIndex != id)
+                    {
+                        foreach (UnicastIPAddressInformation uip in ni.GetIPProperties().UnicastAddresses)
+                        {
+                            if (uip.Address.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                IPEndPoint local = new IPEndPoint(uip.Address, 0);
+                                UdpClient udpc = new UdpClient(local);
+                                udpc.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
+                                udpc.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontRoute, 1);
+
+                                udpc.Send(RequestData, RequestData.Length, new IPEndPoint(IPAddress.Broadcast, 8889));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public void OnClientResponded(ClientRespondedEventArgs e)

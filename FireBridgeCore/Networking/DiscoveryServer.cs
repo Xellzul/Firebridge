@@ -15,7 +15,7 @@ namespace FireBridgeCore.Networking
         public DiscoveryServer(Guid id)
         {
             _id = id;
-            Server = new UdpClient(8888);
+            Server = new UdpClient(8889);
         }
 
         private void loop()
@@ -23,10 +23,10 @@ namespace FireBridgeCore.Networking
             var ResponseData = Encoding.ASCII.GetBytes("FireBridge Pong |" + _id.ToString());
             while (true)
             {
-                var iPEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                var iPEndPoint = new IPEndPoint(IPAddress.Any, 8889);
                 var data = Server.Receive(ref iPEndPoint);
                 var dataASCII = Encoding.ASCII.GetString(data);
-
+                iPEndPoint.Port = 8888;
                 if (dataASCII == "FireBridge Ping")
                     Server.Send(ResponseData, ResponseData.Length, iPEndPoint);
             }
