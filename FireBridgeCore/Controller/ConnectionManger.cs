@@ -101,7 +101,7 @@ namespace FireBridgeCore.Controller
             if (ClientConnected == null || e == null)
                 return;
 
-            ClientConnected.Invoke(this, e);
+            ClientConnected?.Invoke(this, e);
         }
         public event EventHandler<ServiceConnectionConnectedEventArgs> ClientConnected;
 
@@ -110,7 +110,7 @@ namespace FireBridgeCore.Controller
             if (ClientMessageRecieved == null || e == null)
                 return;
 
-            ClientMessageRecieved.Invoke(this, e);
+            ClientMessageRecieved?.Invoke(this, e);
         }
         public event EventHandler<ServiceConnectionMessageRecievedEventArgs> ClientMessageRecieved;
     }
