@@ -22,6 +22,8 @@ namespace FireBridgeCore.Networking
             _writeStream = writer;
 
             this._readerThread = new Thread(ReadLoop);
+            this._readerThread.IsBackground = true;
+            this._readerThread.Name = "ReaderThread Console";
             this._readerThread.Start();
 
             Status = ConnectionStatus.Connected;

@@ -53,7 +53,7 @@ namespace FireBridgeAgent
                 switch (e.Message.Payload)
                 {
                     case StartProgramModel spm:
-                        _userProgramContainer.Completed -= _userProgramContainer_Completed;
+                        _connection.MessageRecieved -= _connection_MessageRecieved;
 
                         Assembly asm = null;
                         //todo: try catch

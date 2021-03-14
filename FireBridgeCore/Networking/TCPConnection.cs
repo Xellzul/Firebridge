@@ -94,6 +94,8 @@ namespace FireBridgeCore.Networking
             _readStream = _client.GetStream();
 
             this._readerThread = new Thread(ReadLoop);
+            this._readerThread.IsBackground = true;
+            this._readerThread.Name = "ReaderThread TCP - " + _client.Client.RemoteEndPoint.ToString();
             this._readerThread.Start();
 
             PostStart();

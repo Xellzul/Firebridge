@@ -76,9 +76,6 @@ namespace FireBridgeCore.Networking
         public event EventHandler<MessageRecievedEventArgs> MessageRecieved;
         protected virtual void OnMessageRecieved(MessageRecievedEventArgs e)
         {
-            if (MessageRecieved == null)
-                return;
-
             MessageRecieved?.Invoke(this, e);
         }
 
