@@ -33,7 +33,7 @@ namespace LockPlugin
         private void LockPC(object sender, EventArgs e)
         {
             foreach (var sc in ConnectionManger.Instance.GetSelectedServices())
-                sc.StartProgram(typeof(LockProcess), IIntegrityLevel.System, 0, AssemblyData, null, null);
+                sc.StartProgram(typeof(LockProcess), IIntegrityLevel.Medium, UInt32.MaxValue, AssemblyData, null, null);
         }
 
         public override void Start()
