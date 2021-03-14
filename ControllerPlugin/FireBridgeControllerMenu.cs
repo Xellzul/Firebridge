@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -20,8 +21,10 @@ namespace ControllerPlugin
         public OverridePorgramSettings OverridePorgramSettings { get; set; } = new OverridePorgramSettings();
         private ScreenshotSettings screenshotSettings;
         public ControllerMain ControllerMain;
+        Timer clickTimer = new Timer();
         public FireBridgeControllerMenu(ControllerMain controllerMain)
         {
+            clickTimer.Tick += ClickTimer_Tick;
             ControllerMain = controllerMain;
 
             //Basic plugin
@@ -49,7 +52,6 @@ namespace ControllerPlugin
             ConnectionManger.Instance.ClientConnected += ConnectionManger_ClientConnected;
 
         }
-
         public void AddAction(string name, EventHandler action)
         {
             var tsmi = new ToolStripMenuItem() { Text = name };
@@ -105,15 +107,31 @@ namespace ControllerPlugin
             var toadd = new OverViewControl(ControllerMain);
             toadd.DragOver += mainView_DragOver;
             toadd.MouseDown += Toadd_MouseDown;
+            toadd.MouseUp += Toadd_MouseUp;
             mainView.Controls.Add(toadd);
             toadd.Init(e.ServiceConnection);
         }
 
+        private void Toadd_MouseUp(object sender, MouseEventArgs e)
+        {
+            if(clickTimer.Enabled)
+            {
+                clickTimer.Stop();
+            }
+        }
 
+        private void ClickTimer_Tick(object sender, EventArgs e)
+        {
+            clickTimer.Stop();
+            DoDragDrop(clickTimer.Tag, DragDropEffects.Move);
+        }
         private void Toadd_MouseDown(object sender, MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            DoDragDrop(sender, DragDropEffects.Move);
+
+            clickTimer.Interval = 150;
+            clickTimer.Tag = sender;
+            clickTimer.Start();
         }
 
         private void mainView_DragOver(object sender, DragEventArgs e)

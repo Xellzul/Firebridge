@@ -25,7 +25,8 @@ namespace ControllerPlugin
         private bool _init = false;
         public bool Selected {
             get { return _selected; } 
-            set { _selected = value;
+            set { 
+                _selected = value;
                 if (_selected)
                 {
                     ConnectionManger.Instance.SelectService(serviceConnection.Id);
@@ -49,7 +50,13 @@ namespace ControllerPlugin
             {
                 control.Click += Control_Click;
                 control.MouseDown += Control_MouseDown;
+                control.MouseUp += Control_MouseUp;
             }
+        }
+
+        private void Control_MouseUp(object sender, MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
         }
 
         private void Control_MouseDown(object sender, MouseEventArgs e)
