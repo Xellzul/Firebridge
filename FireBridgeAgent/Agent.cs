@@ -10,6 +10,8 @@ using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FireBridgeAgent
 {
@@ -53,24 +55,24 @@ namespace FireBridgeAgent
                     case StartProgramModel spm:
                         _userProgramContainer.Completed -= _userProgramContainer_Completed;
 
+                        Assembly asm = null;
                         //todo: try catch
                         if (spm.Assemblies != null && spm.Assemblies.Length > 0)
-                        {
-                            var assembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(spm.Assemblies));
-                            var type = assembly.GetType(spm.Type);
-                            UserProgram instance = Activator.CreateInstance(type) as UserProgram;
-
-                            _userProgramContainer.StartAsync(instance, _connection, spm.ProcessId, e.Message.From);
-                        }
+                            asm = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(spm.Assemblies));
                         else
-                        {
-                            var type = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.ManifestModule.Name == "FireBridgeCore.dll").First()
-                                .GetType(spm.Type);
+                            asm =  AppDomain.CurrentDomain.GetAssemblies().Where(x => x.ManifestModule.Name == "FireBridgeCore.dll").First();
 
-                            UserProgram instance = Activator.CreateInstance(type) as UserProgram;
+                        var type = asm.GetType(spm.Type);
+                        UserProgram instance = Activator.CreateInstance(type) as UserProgram;
 
-                            _userProgramContainer.StartAsync(instance, _connection, spm.ProcessId, e.Message.From);
+                        object args = null;
+                        if (spm.StartParameters != null && spm.StartParameters.Length > 0)
+                        { 
+                            var ms = new MemoryStream(spm.StartParameters, false);
+                            args = new BinaryFormatter().Deserialize(ms);
                         }
+
+                        _userProgramContainer.StartAsync(instance, args, _connection, spm.ProcessId, e.Message.From);
 
                         break;
                     default:

@@ -37,7 +37,7 @@ namespace FireBridgeCore.Controller
         public bool SelectService(Guid serviceID)
         {
             ServiceConnection sc = null;
-            if(_selectedServices.TryGetValue(serviceID, out sc))
+            if(_services.TryGetValue(serviceID, out sc))
             {
                 if (sc.Status == ConnectionStatus.Connected)
                     return _selectedServices.TryAdd(serviceID, sc);

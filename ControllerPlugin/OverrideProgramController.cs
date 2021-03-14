@@ -1,5 +1,4 @@
 ﻿using FireBridgeCore.Kernel;
-using FireBridgeCore.Kernel.UserPrograms;
 using FireBridgeCore.Networking;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,7 @@ namespace ControllerPlugin
     public class OverrideProgramController : UserProgram
     {
         UserProgramContainer _container;
-        public override void Main(UserProgramContainer container)
+        public override void Main(UserProgramContainer container, object args)
         {
             _container = container;
             while (container.Connection.Status == ConnectionStatus.Connected)

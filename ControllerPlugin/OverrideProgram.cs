@@ -23,7 +23,7 @@ namespace ControllerPlugin
         int heigth = 480;
         bool takeScreenShot = true;
 
-        public override void Main(UserProgramContainer container)
+        public override void Main(UserProgramContainer container, object args)
         {
             while (container.Connection.Status == ConnectionStatus.Connected)
             {

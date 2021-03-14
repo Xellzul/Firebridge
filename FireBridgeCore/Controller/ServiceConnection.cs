@@ -68,21 +68,31 @@ namespace FireBridgeCore.Controller
             base.Receiving(packet);
         }
 
-        public void StartProgram(Type remoteProgram, byte[] assembly, UserProgram localProgram = null)
+        public void StartProgram(Type remoteProgram, IIntegrityLevel il, uint sessionID, byte[] assembly, object startParameter = null, UserProgram localProgram = null)
         {
             var remoteGuid = Guid.NewGuid();
             var localGuid = localProgram == null ? Guid.Empty : Guid.NewGuid();
 
+            
+
             var toSend = new Packet(localGuid, remoteGuid, new StartProgramModel()
             {
-                SessionId = uint.MaxValue,
+                SessionId = sessionID,
                 Type = remoteProgram.ToString(),
+                StartParameters = null,
                 Assemblies = assembly,
                 ProcessId = remoteGuid,
                 RemoteId = localGuid,
-                IntegrityLevel = IIntegrityLevel.Medium // todo CHANGE
+                IntegrityLevel = il
             });
 
+            if(startParameter != null)
+            {
+                MemoryStream ms = new MemoryStream();
+                BinaryFormatter bf = new BinaryFormatter();
+                bf.Serialize(ms, startParameter);
+                ((StartProgramModel)toSend.Payload).StartParameters = ms.ToArray();
+            }
 
             if (localProgram != null)
             {

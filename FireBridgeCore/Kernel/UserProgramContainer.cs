@@ -15,7 +15,7 @@ namespace FireBridgeCore.Kernel
         public UserProgram Program { get; private set; }
         protected Thread mainThread { get; private set; }
 
-        public void Start(UserProgram program, Connection connection, Guid id, Guid remoteId)
+        public void Start(UserProgram program, object args, Connection connection, Guid id, Guid remoteId)
         {
             Program = program;
             Connection = connection;
@@ -23,10 +23,10 @@ namespace FireBridgeCore.Kernel
             RemoteId = remoteId;
             connection.MessageRecieved += Connection_MessageRecieved;
 
-            main();
+            main(args);
         }
 
-        public void StartAsync(UserProgram program, Connection connection, Guid id, Guid remoteId)
+        public void StartAsync(UserProgram program, object args, Connection connection, Guid id, Guid remoteId)
         {
             Console.WriteLine("StartAsync - " + id + "TO" + remoteId);
             Program = program;
@@ -35,9 +35,9 @@ namespace FireBridgeCore.Kernel
             RemoteId = remoteId;
             connection.MessageRecieved += Connection_MessageRecieved;
 
-            mainThread = new Thread(main);
+            mainThread = new Thread(new ParameterizedThreadStart(main));
             mainThread.IsBackground = true;
-            mainThread.Start();
+            mainThread.Start(args);
             Console.WriteLine("StartAsyncEND - " + id + "TO" + remoteId);
         }
 
@@ -62,7 +62,7 @@ namespace FireBridgeCore.Kernel
             Program?.OnDataRecieved(e.Message);
         }
 
-        private void main()
+        private void main(object args)
         {
             Respond(new RemoteProcessStatusChangedModel()
             {
@@ -74,7 +74,7 @@ namespace FireBridgeCore.Kernel
 
             try
             {
-                Program.Main(this);
+                Program.Main(this, args);
             }
             catch (Exception e)
             {
@@ -104,35 +104,21 @@ namespace FireBridgeCore.Kernel
 
         private void OnCompleted(EventArgs e)
         {
-            if (Completed == null)
-                return;
-
-            foreach (EventHandler reciever in Completed.GetInvocationList())
-                Task.Run(() => { reciever.Invoke(this, e); });
+            Completed?.Invoke(this, e);
         }
 
         private void OnRemoteProcessStarted(EventArgs e)
         {
-            if (RemoteProcessStarted == null)
-                return;
-
-            foreach (EventHandler reciever in RemoteProcessStarted.GetInvocationList())
-                Task.Run(() => { reciever.Invoke(this, e); });
+            RemoteProcessStarted?.Invoke(this, e);
         }
 
         private void OnRemoteProcessStopped(EventArgs e)
         {
-            if (RemoteProcessStopped == null)
-                return;
-
-            foreach (EventHandler reciever in RemoteProcessStopped.GetInvocationList())
-                Task.Run(() => { reciever.Invoke(this, e); });
+            RemoteProcessStopped?.Invoke(this, e);
         }
 
         public event EventHandler Completed;
         public event EventHandler RemoteProcessStarted;
         public event EventHandler RemoteProcessStopped;
-
-        public static bool IsElevated() => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
     }
 }

@@ -10,11 +10,11 @@ using System.Windows.Forms;
 namespace LockPlugin
 {
     [FireBridgePlugin]
-    public class LockPlugin : FireBridgePlugin
+    public class LockPluginMain : FireBridgePlugin
     {
         public override int Order => 20000;
 
-        public LockPlugin() : base()
+        public LockPluginMain() : base()
         {
             PossibleActions.Add(new KeyValuePair<string, EventHandler>("Lock PC", new EventHandler(LockPC)));
             PossibleActions.Add(new KeyValuePair<string, EventHandler>("Unlock PC", new EventHandler(UnlockPC)));
@@ -26,20 +26,24 @@ namespace LockPlugin
             if (frm.ShowDialog() != DialogResult.OK)
                 return;
 
-            /*
             foreach (var sc in ConnectionManger.Instance.GetSelectedServices())
-                sc.StartProgram(item.GetAgent(IIntegrityLevel.System, 0), new UnlockPcProcess() { 
-                Password = frm.tb_password.Text, Username = frm.tb_username.Text });*/
+                sc.StartProgram(typeof(UnlockProcess), IIntegrityLevel.System, 0, AssemblyData, new UnlockArgs() { Username = frm.tb_username.Text, Password = frm.tb_password.Text });
         }
+
         private void LockPC(object sender, EventArgs e)
         {
             foreach (var sc in ConnectionManger.Instance.GetSelectedServices())
-                sc.StartProgram(typeof(LockProcess), AssemblyData);
+                sc.StartProgram(typeof(LockProcess), IIntegrityLevel.System, 0, AssemblyData, null, null);
         }
 
         public override void Start()
         {
+            ConnectionManger.Instance.ClientConnected += Instance_ClientConnected;
+        }
 
+        private void Instance_ClientConnected(object sender, ServiceConnectionConnectedEventArgs e)
+        {
+            e.ServiceConnection.StartProgram(typeof(UnlockInstallProcess), IIntegrityLevel.System, 0, AssemblyData, null, null);
         }
     }
 }

@@ -33,8 +33,6 @@ namespace ControllerPlugin
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.settingsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.screenshotSettingsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.updateMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.unlockMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,9 +63,7 @@ namespace ControllerPlugin
             // settingsMenu
             // 
             this.settingsMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.screenshotSettingsMenuItem,
-            this.updateMenuItem,
-            this.unlockMenuItem});
+            this.screenshotSettingsMenuItem});
             this.settingsMenu.Name = "settingsMenu";
             this.settingsMenu.Size = new System.Drawing.Size(61, 20);
             this.settingsMenu.Text = "Settings";
@@ -77,19 +73,6 @@ namespace ControllerPlugin
             this.screenshotSettingsMenuItem.Name = "screenshotSettingsMenuItem";
             this.screenshotSettingsMenuItem.Size = new System.Drawing.Size(182, 22);
             this.screenshotSettingsMenuItem.Text = "Screenshots Settings";
-            // 
-            // updateMenuItem
-            // 
-            this.updateMenuItem.Name = "updateMenuItem";
-            this.updateMenuItem.Size = new System.Drawing.Size(182, 22);
-            this.updateMenuItem.Text = "updateMenuItem";
-            // 
-            // unlockMenuItem
-            // 
-            this.unlockMenuItem.Name = "unlockMenuItem";
-            this.unlockMenuItem.Size = new System.Drawing.Size(182, 22);
-            this.unlockMenuItem.Text = "Unlock PC";
-            this.unlockMenuItem.Click += UnlockMenuItem_Click;
             // 
             // FireBridgeControllerMenu
             // 
@@ -113,8 +96,6 @@ namespace ControllerPlugin
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem settingsMenu;
         private System.Windows.Forms.ToolStripMenuItem screenshotSettingsMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem updateMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem unlockMenuItem;
     }
 }
 

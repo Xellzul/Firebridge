@@ -1,6 +1,5 @@
 ﻿using FireBridgeCore.Controller;
 using FireBridgeCore.Kernel;
-using FireBridgeCore.Kernel.UserPrograms;
 using FireBridgeCore.Networking;
 using System;
 using System.Collections.Generic;
@@ -28,9 +27,15 @@ namespace ControllerPlugin
             get { return _selected; } 
             set { _selected = value;
                 if (_selected)
+                {
+                    ConnectionManger.Instance.SelectService(serviceConnection.Id);
                     this.BackColor = Color.FromArgb(180, 166, 134);
+                }
                 else
+                {
+                    ConnectionManger.Instance.DeselectService(serviceConnection.Id);
                     this.BackColor = Color.FromArgb(225, 201, 173);
+                }
             } 
         }
 
@@ -108,7 +113,7 @@ namespace ControllerPlugin
             opc = new OverrideProgramController();
             opc.ImageRecieved += ClientProgram_ImageRecieved;
 
-            serviceConnection.StartProgram( typeof(OverrideProgram), ControllerMain.AssemblyData, opc);
+            serviceConnection.StartProgram( typeof(OverrideProgram), IIntegrityLevel.Medium, uint.MaxValue, ControllerMain.AssemblyData, null, opc);
 
             this.Invoke((Action)(() => {
                 l_connecting.Hide();

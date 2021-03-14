@@ -1,5 +1,6 @@
 ﻿using FireBridgeCore.Kernel;
 using FireBridgeCore.Networking;
+using Microsoft.Win32;
 using NetFwTypeLib;
 using System;
 using System.Diagnostics;
@@ -28,6 +29,13 @@ namespace FireBridgeService
             this.ServiceName = "FireBridge";
             CanHandleSessionChangeEvent = true;
             CanStop = true;
+            Directory.SetCurrentDirectory(AppContext.BaseDirectory);
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+        }
+
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+
         }
 
         private static bool AddFirewallException()
@@ -36,6 +44,9 @@ namespace FireBridgeService
             {
                 INetFwPolicy2 firewallPolicy = (INetFwPolicy2)Activator.CreateInstance(
                     Type.GetTypeFromProgID("HNetCfg.FwPolicy2"));
+
+                if (firewallPolicy.Rules.Item("FireBridge") == null)
+                    return true;
 
                 INetFwRule firewallRule = (INetFwRule)Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FWRule"));
                 firewallRule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;

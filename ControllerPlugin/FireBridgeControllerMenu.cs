@@ -1,6 +1,5 @@
 ﻿using FireBridgeCore.Controller;
 using FireBridgeCore.Kernel;
-using FireBridgeCore.Kernel.UserPrograms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -108,17 +107,6 @@ namespace ControllerPlugin
             toadd.MouseDown += Toadd_MouseDown;
             mainView.Controls.Add(toadd);
             toadd.Init(e.ServiceConnection);
-
-
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    toadd = new OverViewControl();
-            //    toadd.MouseDown += Toadd_MouseDown;
-            //    toadd.DragOver += mainView_DragOver;
-            //    mainView.Controls.Add(toadd);
-            //    toadd.Init(e.ServiceConnection);
-            //    toadd.BackColor = Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256)); ;
-            //}
         }
 
 
@@ -136,8 +124,6 @@ namespace ControllerPlugin
 
             Point screenCoords = Cursor.Position;
             Point controlRelatedCoords = this.mainView.PointToClient(screenCoords);
-
-            Console.WriteLine(controlRelatedCoords);
 
             Control nearest = mainView.Controls[0];
             double distance = double.MaxValue;
@@ -163,10 +149,6 @@ namespace ControllerPlugin
         private static double GetDistance(Point a, Point b)
         {
             return Math.Sqrt(Math.Pow((a.X - b.X), 2) + Math.Pow((a.Y - b.Y), 2));
-        }
-
-        private void UnlockMenuItem_Click(object sender, EventArgs e)
-        {
         }
     }
 }

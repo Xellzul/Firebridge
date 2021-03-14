@@ -114,13 +114,7 @@ namespace FireBridgeCore.Networking
 
         public void OnClientResponded(ClientRespondedEventArgs e)
         {
-            if (ClientResponded == null)
-                return;
-
-            foreach (EventHandler<ClientRespondedEventArgs> reciever in ClientResponded.GetInvocationList())
-                Task.Run(() => {
-                    reciever.Invoke(this, e);
-                });
+            ClientResponded?.Invoke(this, e);
         }
         public event EventHandler<ClientRespondedEventArgs> ClientResponded;
     }

@@ -22,7 +22,7 @@ namespace FireBridgeCore.Kernel
         public override bool Start()
         {
             userProgramContainer = new UserProgramContainer();
-            userProgramContainer.StartAsync(program, Connection, Id, remoteID);
+            userProgramContainer.StartAsync(program, null, Connection, Id, remoteID);
             return true;
         }
 

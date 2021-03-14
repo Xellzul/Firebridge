@@ -10,7 +10,8 @@ namespace FireBridgeCore.Networking
     public class StartProgramModel
     {
         public string Type { get; set; }
-        public byte[] Assemblies { get; set; }
+        public byte[] Assemblies { get; set; } //todo: list of assemblies
+        public byte[] StartParameters { get; set; }
         public Guid ProcessId { get; set; }
         public Guid RemoteId { get; set; }
         public uint SessionId { get; set; }
