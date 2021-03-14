@@ -52,69 +52,28 @@ namespace ControllerPlugin
             // 
             this.cb_quality.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cb_quality.FormattingEnabled = true;
-            this.cb_quality.Items.AddRange(new object[] {
-            "100",
-            "90",
-            "80",
-            "70",
-            "60",
-            "50",
-            "40",
-            "30",
-            "20",
-            "10",
-            "0"});
-            this.cb_quality.SelectedIndex = 3;
             this.cb_quality.Location = new System.Drawing.Point(138, 76);
             this.cb_quality.Name = "cb_quality";
             this.cb_quality.Size = new System.Drawing.Size(121, 23);
             this.cb_quality.TabIndex = 1;
-            this.cb_quality.SelectedValueChanged += new System.EventHandler(this.cb_quality_SelectedValueChanged);
             // 
             // cb_resolution
             // 
             this.cb_resolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cb_resolution.FormattingEnabled = true;
-            this.cb_resolution.Items.AddRange(new object[] {
-            "72p",
-            "144p",
-            "240p",
-            "360p",
-            "480p",
-            "720p",
-            "1080p",
-            "1440p",
-            "2160p",
-            "4320p"});
-            this.cb_resolution.SelectedIndex = 4;
             this.cb_resolution.Location = new System.Drawing.Point(138, 105);
             this.cb_resolution.Name = "cb_resolution";
             this.cb_resolution.Size = new System.Drawing.Size(121, 23);
             this.cb_resolution.TabIndex = 2;
-            this.cb_resolution.SelectedValueChanged += new System.EventHandler(this.cb_resolution_SelectedValueChanged);
             // 
             // cb_speed
             // 
             this.cb_speed.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cb_speed.FormattingEnabled = true;
-            this.cb_speed.Items.AddRange(new object[] {
-            "60hz",
-            "45hz",
-            "30hz",
-            "15hz",
-            "10hz",
-            "5hz",
-            "3hz",
-            "1hz",
-            "2s",
-            "4s",
-            "8s"});
-            this.cb_speed.SelectedIndex = 7;
             this.cb_speed.Location = new System.Drawing.Point(138, 134);
             this.cb_speed.Name = "cb_speed";
             this.cb_speed.Size = new System.Drawing.Size(121, 23);
             this.cb_speed.TabIndex = 3;
-            this.cb_speed.SelectedValueChanged += new System.EventHandler(this.cb_speed_SelectedValueChanged);
             // 
             // ScreenshotSettings
             // 

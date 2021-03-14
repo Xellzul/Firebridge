@@ -14,109 +14,83 @@ namespace ControllerPlugin
     public partial class ScreenshotSettings : Form
     {
         public OverridePorgramSettings ops;
+        private Dictionary<string, ValueTuple<int, int>> resolutions = new Dictionary<string, ValueTuple<int, int>>() {
+            { "72p", (128, 72) },
+            {"144p", (256, 144) },
+            {"240p", (426, 240) },
+            {"360p", (640, 360) },
+            {"480p", (720, 480) },
+            {"720p", (1280, 720) },
+            {"1080p", (1920, 1080) },
+            {"1440p", (2560, 1440) },
+            {"2160p", (3840, 2160) },
+            {"4320p", (7680, 4320) } 
+        };
+
+        private Dictionary<string, int> qualities = new Dictionary<string, int>() {
+            {"100", 100},
+            {"90", 90 },
+            {"80", 80 },
+            {"70", 70 },
+            {"60", 60 },
+            {"50", 50 },
+            {"40", 40 },
+            {"30", 30 },
+            {"20", 20 },
+            {"10", 10 },
+            {"0", 0 }
+        };
+
+        private Dictionary<string, int> speeds = new Dictionary<string, int>() {
+            {"60hz", (int)(1000f / 60)},
+            {"45hz", (int)(1000f / 45) },
+            {"30hz", (int)(1000f / 30) },
+            {"15hz", (int)(1000f / 45) },
+            {"10hz", (int)(1000f / 10) },
+            {"5hz", (int)(1000f / 5) },
+            {"3hz", (int)(1000f / 3) },
+            {"1hz", (int)(1000f) },
+            {"2s", (int)(1000f * 2) },
+            {"4s", (int)(1000f * 4) },
+            {"8s", (int)(1000f * 8) }
+        };
+
+
         public ScreenshotSettings(OverridePorgramSettings OverridePorgramSettings)
         {
             ops = OverridePorgramSettings;
-            InitializeComponent(); 
+            InitializeComponent();
+
+            this.cb_quality.Items.AddRange(qualities.Keys.ToArray());
+            this.cb_resolution.Items.AddRange(resolutions.Keys.ToArray());
+            this.cb_speed.Items.AddRange(speeds.Keys.ToArray());
+
+            cb_quality.SelectedIndex = cb_quality.FindStringExact(qualities.Where(x => x.Value == ops.Quality).First().Key);
+            cb_resolution.SelectedIndex = cb_resolution.FindStringExact(resolutions.Where(x => x.Value.Item1 == ops.Width && x.Value.Item2 == ops.Heigth).First().Key);
+            cb_speed.SelectedIndex = cb_speed.FindStringExact(speeds.Where(x=> x.Value == ops.WaitTime).First().Key);
+
+            this.cb_quality.SelectedValueChanged += new System.EventHandler(this.cb_quality_SelectedValueChanged);
+            this.cb_resolution.SelectedValueChanged += new System.EventHandler(this.cb_resolution_SelectedValueChanged);
+            this.cb_speed.SelectedValueChanged += new System.EventHandler(this.cb_speed_SelectedValueChanged);
         }
 
         private void cb_speed_SelectedValueChanged(object sender, EventArgs e)
         {
-            switch(cb_speed.SelectedItem.ToString())
-            {
-                case "60hz":
-                    ops.WaitTime = (int)(1000f / 60);
-                    break;
-                case "45hz":
-                    ops.WaitTime = (int)(1000f / 45);
-                    break;
-                case "30hz":
-                    ops.WaitTime = (int)(1000f / 30);
-                    break;
-                case "15hz":
-                    ops.WaitTime = (int)(1000f / 15);
-                    break;
-                case "10hz":
-                    ops.WaitTime = (int)(1000f / 10);
-                    break;
-                case "5hz":
-                    ops.WaitTime = (int)(1000f / 5);
-                    break;
-                case "3hz":
-                    ops.WaitTime = (int)(1000f / 3);
-                    break;
-                case "1hz":
-                    ops.WaitTime = (int)(1000f / 1);
-                    break;
-                case "2s":
-                    ops.WaitTime = (int)(1000f * 2);
-                    break;
-                case "4s":
-                    ops.WaitTime = (int)(1000f * 4);
-                    break;
-                case "8s":
-                    ops.WaitTime = (int)(1000f * 8);
-                    break;
-                default:
-                    break;
-            }
+            ops.WaitTime = speeds[cb_speed.SelectedItem.ToString()];
             OnSettingsChanged(e);
         }
 
         private void cb_resolution_SelectedValueChanged(object sender, EventArgs e)
         {
-            switch (cb_resolution.SelectedItem.ToString())
-            {
-                case "72p":
-                    ops.Width = 128;
-                    ops.Heigth = 72;
-                    break;
-                case "144p":
-                    ops.Width = 256;
-                    ops.Heigth = 144;
-                    break;
-                case "240p":
-                    ops.Width = 426;
-                    ops.Heigth = 240;
-                    break;
-                case "360p":
-                    ops.Width = 640;
-                    ops.Heigth = 360;
-                    break;
-                case "480p":
-                    ops.Width = 720;
-                    ops.Heigth = 480;
-                    break;
-                case "720p":
-                    ops.Width = 1280;
-                    ops.Heigth = 720;
-                    break;
-                case "1080p":
-                    ops.Width = 1920;
-                    ops.Heigth = 1080;
-                    break;
-                case "1440p":
-                    ops.Width = 2560;
-                    ops.Heigth = 1440;
-                    break;
-                case "2160p":
-                    ops.Width = 3840;
-                    ops.Heigth = 2160;
-                    break;
-                case "4320p":
-                    ops.Width = 7680;
-                    ops.Heigth = 4320;
-                    break;
-                default:
-                    break;
-            }
+            var values = resolutions[cb_resolution.SelectedItem.ToString()];
+            ops.Width = values.Item1;
+            ops.Heigth = values.Item2;
             OnSettingsChanged(e);
         }
 
         private void cb_quality_SelectedValueChanged(object sender, EventArgs e)
         {
-            Int32.TryParse(cb_quality.SelectedItem.ToString(), out int quality);
-            ops.Quality = quality;
+            ops.Quality = qualities[cb_quality.SelectedItem.ToString()];
             OnSettingsChanged(e);
         }
 
