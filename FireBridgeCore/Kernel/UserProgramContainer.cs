@@ -1,6 +1,8 @@
 ﻿using FireBridgeCore.Networking;
 using System;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,6 +45,14 @@ namespace FireBridgeCore.Kernel
 
         private void Connection_MessageRecieved(object sender, MessageRecievedEventArgs e)
         {
+            byte[] data = e.Message.Payload as byte[];
+            if (data == null)
+                return;
+
+            var ms = new MemoryStream(data);
+            var obj = new BinaryFormatter().Deserialize(ms);
+            e.Message.Payload = obj;
+
             var rp = e.Message.Payload as RemoteProcessStatusChangedModel;
 
             if (rp != null)
@@ -98,7 +108,10 @@ namespace FireBridgeCore.Kernel
             if (RemoteId == Guid.Empty)
                 return false;
 
-            Connection.Send(new Packet(Id, RemoteId, payload));
+            var ms = new MemoryStream();
+            new BinaryFormatter().Serialize(ms, payload);
+
+            Connection.Send(new Packet(Id, RemoteId, ms.ToArray()));
             return true;
         }
 
