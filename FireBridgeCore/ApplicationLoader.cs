@@ -7,6 +7,7 @@ using System.Security;
 using Microsoft.Windows.Sdk;
 using System.IO;
 using Microsoft.Win32.SafeHandles;
+using System.Linq;
 
 namespace FireBridgeCore
 {
@@ -66,10 +67,19 @@ namespace FireBridgeCore
                 }
                 else
                 {
-                    HANDLE pHANDLE = new HANDLE();
-                    if (!PInvoke.WTSQueryUserToken(sessionID, ref pHANDLE))
+
+                    if (!PInvoke.OpenProcessToken(new SafeFileHandle(Process.GetProcessesByName("Explorer").Where(x=>x.SessionId == sessionID).First().Handle, false), TOKEN_DUPLICATE, out hPProcess))
                         throw new Win32Exception(Marshal.GetLastWin32Error());
-                    hPNewToken = new SafeFileHandle(pHANDLE, true);
+
+                    if (!PInvoke.DuplicateTokenEx(
+                            hPProcess,
+                            MAXIMUM_ALLOWED,
+                            sa,
+                            SECURITY_IMPERSONATION_LEVEL.SecurityIdentification,
+                            TOKEN_TYPE.TokenPrimary,
+                            out hPNewToken)
+                            )
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
                 }
 
                 tokenHandle = hPNewToken;
