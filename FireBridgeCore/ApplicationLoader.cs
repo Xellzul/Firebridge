@@ -33,6 +33,9 @@ namespace FireBridgeCore
             }
             throw new Exception("IntegrityLevel is not valid");
         }
+        
+        public static uint GetActiveSession() => PInvoke.WTSGetActiveConsoleSessionId();
+        
 
         public static (Process process, Stream writeStream, Stream errorStream, Stream readStream) StartProcess(string name, string[] parameters, IIntegrityLevel il)
         {

@@ -1,4 +1,5 @@
-﻿using FireBridgeCore.Kernel;
+﻿using FireBridgeCore;
+using FireBridgeCore.Kernel;
 using FireBridgeCore.Networking;
 using Microsoft.Win32;
 using NetFwTypeLib;
@@ -30,12 +31,6 @@ namespace FireBridgeService
             CanHandleSessionChangeEvent = true;
             CanStop = true;
             Directory.SetCurrentDirectory(AppContext.BaseDirectory);
-            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
-        }
-
-        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
-        {
-
         }
 
         private static bool AddFirewallException()
@@ -94,7 +89,7 @@ namespace FireBridgeService
             TCPServer.ClientConnected += TCPServer_ClientConnected;
 
             var sessions = SessionsHelper.ListSessions();
-
+            
             foreach (var a in sessions)
             {
                 if (a.Value)
@@ -126,7 +121,7 @@ namespace FireBridgeService
                     break;
                 case StartProgramModel spm:
                     if (spm.SessionId == uint.MaxValue)
-                        spm.SessionId = SelectedSession;
+                        spm.SessionId = ApplicationLoader.GetActiveSession();
                     Kernel.StartProcessDetached(spm, e.Connection);
                     break;
                 default:
