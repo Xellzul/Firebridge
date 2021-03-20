@@ -11,15 +11,21 @@ using System.Windows.Forms;
 
 namespace ControllerPlugin
 {
-    [Serializable]
     public class OverrideProgramController : UserProgram
     {
         UserProgramContainer _container;
+        private bool shouldEnd = false;
         public override void Main(UserProgramContainer container, object args)
         {
+            container.RemoteProcessStopped += Container_RemoteProcessStopped;
             _container = container;
-            while (container.Connection.Status == ConnectionStatus.Connected)
+            while (container.Connection.Status == ConnectionStatus.Connected && !shouldEnd)
                 Thread.Sleep(1000);
+        }
+
+        private void Container_RemoteProcessStopped(object sender, EventArgs e)
+        {
+            shouldEnd = true;
         }
 
         public override void OnDataRecieved(Packet packet)
@@ -36,21 +42,17 @@ namespace ControllerPlugin
             base.OnDataRecieved(packet);
         }
 
-        private void OnImageRecieved(ImageRecievedEventArgs e)
+        public override void OnEnding()
         {
-            if (ImageRecieved == null)
-                return;
-
-            foreach (EventHandler<ImageRecievedEventArgs> reciever in ImageRecieved.GetInvocationList())
-                Task.Run(() => { reciever.Invoke(this, e); });
+            Ending?.Invoke(this, EventArgs.Empty);
+            base.OnEnding();
         }
 
-        [field: NonSerialized]
+        private void OnImageRecieved(ImageRecievedEventArgs e) => ImageRecieved?.Invoke(this, e);
+
         public event EventHandler<ImageRecievedEventArgs> ImageRecieved;
+        public event EventHandler Ending;
 
-        internal void ChangeSettings(OverridePorgramSettings overridePorgramSettings)
-        {
-            _container?.Respond(overridePorgramSettings);
-        }
+        internal void ChangeSettings(OverridePorgramSettings overridePorgramSettings) => _container?.Respond(overridePorgramSettings);
     }
 }

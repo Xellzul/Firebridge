@@ -120,11 +120,29 @@ namespace ControllerPlugin
             opc = new OverrideProgramController();
             opc.ImageRecieved += ClientProgram_ImageRecieved;
 
-            serviceConnection.StartProgram( typeof(OverrideProgram), IIntegrityLevel.Medium, uint.MaxValue, ControllerMain.AssemblyData, null, opc);
+            opc.Ending += Opc_Ending;
+
+            serviceConnection.StartProgram( typeof(OverrideProgram), IIntegrityLevel.Medium, UInt32.MaxValue, ControllerMain.AssemblyData, null, opc);
 
             this.Invoke((Action)(() => {
                 l_connecting.Hide();
             }));
+        }
+
+        private void Opc_Ending(object sender, EventArgs e)
+        {
+            var img = this.imagePanel.BackgroundImage;
+            this.imagePanel.BackgroundImage = null;
+            detailView.p_screenshot.BackgroundImage = null;
+            img?.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            opc = new OverrideProgramController();
+            opc.ImageRecieved += ClientProgram_ImageRecieved;
+            opc.Ending += Opc_Ending;
+
+            serviceConnection.StartProgram(typeof(OverrideProgram), IIntegrityLevel.Medium, UInt32.MaxValue, ControllerMain.AssemblyData, null, opc);
         }
 
         private void ClientProgram_ImageRecieved(object sender, ImageRecievedEventArgs e)

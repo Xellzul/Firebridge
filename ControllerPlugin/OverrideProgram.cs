@@ -1,7 +1,9 @@
 ﻿using FireBridgeCore.Kernel;
 using FireBridgeCore.Networking;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -22,21 +24,47 @@ namespace ControllerPlugin
         int width = 720;
         int heigth = 480;
         bool takeScreenShot = true;
-
+        bool shouldEnd = false;
         public override void Main(UserProgramContainer container, object args)
         {
-            while (container.Connection.Status == ConnectionStatus.Connected)
+            if(args is OverridePorgramSettings)
             {
+                OverridePorgramSettings ops = (OverridePorgramSettings)args;
+                this.heigth = ops.Heigth;
+                this.width = ops.Width;
+                this.WaitTime = ops.WaitTime;
+                this.quality = ops.Quality;
+                this.takeScreenShot = ops.TakeScreenShot;
+            }
+
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+            while (container.Connection.Status == ConnectionStatus.Connected && !shouldEnd)
+            {
+                
                 Thread.Sleep(WaitTime);
                 if (takeScreenShot)
                 {
-                    var screenShot = GetScreenshot();
-                    container.Respond(screenShot);
-                    screenShot.Dispose();
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
+                    try { 
+                        var screenShot = GetScreenshot();
+                        container.Respond(screenShot);
+                        container.Connection.Flush();
+                        screenShot.Dispose();
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                    }
+                    catch(Exception e) {
+                        Console.WriteLine("Error: " + e.Message);
+                        break;
+                    }
                 }
             }
+            SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
+        }
+
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if(e.Reason == SessionSwitchReason.ConsoleConnect)
+                shouldEnd = true;
         }
 
         public override void OnDataRecieved(Packet packet)
