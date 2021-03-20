@@ -30,7 +30,6 @@ namespace FireBridgeCore.Kernel
 
         public void StartAsync(UserProgram program, object args, Connection connection, Guid id, Guid remoteId)
         {
-            Console.WriteLine("StartAsync - " + id + "TO" + remoteId);
             Program = program;
             Connection = connection;
             Id = id;
@@ -40,7 +39,6 @@ namespace FireBridgeCore.Kernel
             mainThread = new Thread(new ParameterizedThreadStart(main));
             mainThread.IsBackground = true;
             mainThread.Start(args);
-            Console.WriteLine("StartAsyncEND - " + id + "TO" + remoteId);
         }
 
         private void Connection_MessageRecieved(object sender, MessageRecievedEventArgs e)
@@ -91,6 +89,8 @@ namespace FireBridgeCore.Kernel
                 error = true;
                 errorMsg = e.Message;
             }
+
+            Console.WriteLine("Ending - " + errorMsg);
 
             Program.OnEnding();
             OnCompleted(EventArgs.Empty);
