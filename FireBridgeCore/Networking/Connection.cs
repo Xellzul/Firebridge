@@ -80,5 +80,10 @@ namespace FireBridgeCore.Networking
         }
 
          public abstract void Close();
+
+        public void Flush()
+        {
+            _writeStream?.Flush();
+        }
     }
 }

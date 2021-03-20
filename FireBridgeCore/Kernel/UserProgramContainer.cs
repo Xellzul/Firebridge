@@ -43,28 +43,27 @@ namespace FireBridgeCore.Kernel
 
         private void Connection_MessageRecieved(object sender, MessageRecievedEventArgs e)
         {
-            byte[] data = e.Message.Payload as byte[];
-            if (data == null)
-                return;
-
-            var ms = new MemoryStream(data);
-            var obj = new BinaryFormatter().Deserialize(ms);
-            e.Message.Payload = obj;
-
-            var rp = e.Message.Payload as RemoteProcessStatusChangedModel;
-
-            if (rp != null)
+            switch (e.Message.Payload)
             {
-                if (rp.Status == Status.Starting)
-                {
-                    RemoteId = e.Message.From;
-                    OnRemoteProcessStarted(EventArgs.Empty);
-                }
-                else
-                {
-                    RemoteId = Guid.Empty;
-                    OnRemoteProcessStopped(EventArgs.Empty);
-                }
+                case RemoteProcessStatusChangedModel rp:
+                    if (rp.Status == Status.Starting)
+                    {
+                        RemoteId = e.Message.From;
+                        OnRemoteProcessStarted(EventArgs.Empty);
+                    }
+                    else
+                    {
+                        RemoteId = Guid.Empty;
+                        OnRemoteProcessStopped(EventArgs.Empty);
+                    }
+                    break;
+                case ProgramMessageModel pm:
+                    var ms = new MemoryStream(pm.Data);
+                    var obj = new BinaryFormatter().Deserialize(ms);
+                    e.Message.Payload = obj;
+                    break;
+                default:
+                    break;
             }
 
             Program?.OnDataRecieved(e.Message);
@@ -72,7 +71,7 @@ namespace FireBridgeCore.Kernel
 
         private void main(object args)
         {
-            Respond(new RemoteProcessStatusChangedModel()
+            RespondRaw(new RemoteProcessStatusChangedModel()
             {
                 Status = Status.Starting
             });
@@ -95,40 +94,29 @@ namespace FireBridgeCore.Kernel
             Program.OnEnding();
             OnCompleted(EventArgs.Empty);
 
-            Respond(new RemoteProcessStatusChangedModel()
+            RespondRaw(new RemoteProcessStatusChangedModel()
             {
                 Status = Status.Stopping,
                 Errored = error,
                 ErrorMessage = errorMsg
             });
+
+            Connection.Flush();
         }
+
+        public bool RespondRaw(object payload) => Connection.Send(new Packet(Id, RemoteId, payload));
 
         public bool Respond(object payload)
         {
-            if (RemoteId == Guid.Empty)
-                return false;
-
             var ms = new MemoryStream();
             new BinaryFormatter().Serialize(ms, payload);
 
-            Connection.Send(new Packet(Id, RemoteId, ms.ToArray()));
-            return true;
+            return RespondRaw(new ProgramMessageModel() { Data = ms.ToArray() });
         }
 
-        private void OnCompleted(EventArgs e)
-        {
-            Completed?.Invoke(this, e);
-        }
-
-        private void OnRemoteProcessStarted(EventArgs e)
-        {
-            RemoteProcessStarted?.Invoke(this, e);
-        }
-
-        private void OnRemoteProcessStopped(EventArgs e)
-        {
-            RemoteProcessStopped?.Invoke(this, e);
-        }
+        private void OnCompleted(EventArgs e) => Completed?.Invoke(this, e);
+        private void OnRemoteProcessStarted(EventArgs e) => RemoteProcessStarted?.Invoke(this, e);
+        private void OnRemoteProcessStopped(EventArgs e) => RemoteProcessStopped?.Invoke(this, e);
 
         public event EventHandler Completed;
         public event EventHandler RemoteProcessStarted;

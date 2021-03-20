@@ -105,6 +105,7 @@ namespace FireBridgeCore.Networking
         {
             Status = ConnectionStatus.Disconnected;
             _shouldEnd = true;
+            _client.GetStream().Flush();
             _client?.Close();
         }
     }
