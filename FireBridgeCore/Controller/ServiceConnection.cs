@@ -70,6 +70,9 @@ namespace FireBridgeCore.Controller
 
         public void StartProgram(Type remoteProgram, IIntegrityLevel il, uint sessionID, byte[] assembly, object startParameter = null, UserProgram localProgram = null)
         {
+            if (Status != ConnectionStatus.Connected)
+                return;
+
             var remoteGuid = Guid.NewGuid();
             var localGuid = localProgram == null ? Guid.Empty : Guid.NewGuid();
 
