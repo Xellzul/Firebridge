@@ -1,22 +1,12 @@
 ﻿using System;
-using System.Diagnostics;
 using System.ServiceProcess;
 
 namespace FireBridgeService
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            if(Debugger.IsAttached)
-            {
-                var service = new FireBridgeService();
-                service.Starting();
-                Console.ReadKey(true);
-                service.Stop();
-                return;
-            }
-
             if (Environment.UserInteractive)
             {
                 string ServiceName = "FireBridge";

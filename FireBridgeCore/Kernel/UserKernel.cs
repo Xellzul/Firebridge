@@ -45,8 +45,11 @@ namespace FireBridgeCore.Kernel
 
         private void Process_Completed(object sender, EventArgs e)
         {
-            if (sender != null && sender is UserProcess)
-                RemoveProcess((UserProcess)sender);
+            UserProcess up = sender as UserProcess;
+            if (up == null)
+                return;
+
+            RemoveProcess(up);
         }
 
         public bool RemoveProcess(UserProcess process)

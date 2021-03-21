@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Security.Principal;
 using System.ServiceProcess;
 using System.Threading;
@@ -15,20 +16,15 @@ namespace FireBridgeService
 {
     class FireBridgeService : ServiceBase
     {
-        public const int Revision = 1;
-        private uint _selectedSession = 0;
-
+        Settings settings;
         UserKernel Kernel;
         TCPServer TCPServer;
-        Settings settings;
-
         DiscoveryServer DiscoveryServer;
-        public uint SelectedSession { get => _selectedSession; set => _selectedSession = value; }
 
         public FireBridgeService()
         {
+
             this.ServiceName = "FireBridge";
-            CanHandleSessionChangeEvent = true;
             CanStop = true;
             Directory.SetCurrentDirectory(AppContext.BaseDirectory);
         }
@@ -80,6 +76,7 @@ namespace FireBridgeService
                 settings = new Settings();
                 settings.Save("FireBridgeSettings.json");
             }
+
             AddFirewallException();
 
             Kernel = new UserKernel();
@@ -87,16 +84,6 @@ namespace FireBridgeService
             DiscoveryServer = new DiscoveryServer(settings.Guid);
 
             TCPServer.ClientConnected += TCPServer_ClientConnected;
-
-            var sessions = SessionsHelper.ListSessions();
-            
-            foreach (var a in sessions)
-            {
-                if (a.Value)
-                    SelectedSession = a.Key;
-            }
-
-            
             TCPServer.Start(6969);
             DiscoveryServer.Run();
         }
@@ -119,6 +106,7 @@ namespace FireBridgeService
                 case RequestInfo:
                     e.Connection.Send(new Packet(this.settings.Guid, Guid.Empty, GetServiceInfo()));
                     break;
+
                 case StartProgramModel spm:
                     if (spm.SessionId == uint.MaxValue)
                         spm.SessionId = ApplicationLoader.GetActiveSession();
@@ -133,58 +121,10 @@ namespace FireBridgeService
         {
             return new ServiceInfo()
             {
-                ActiveSession = SelectedSession, 
-                ServiceRevision = Revision,
+                ActiveSession = ApplicationLoader.GetActiveSession(), 
+                ServiceRevision = Assembly.GetEntryAssembly().GetName().Version,
                 ID = this.settings.Guid
             };
         }
-
-        protected override void OnSessionChange(SessionChangeDescription changeDescription)
-        {
-            //todo: tell client
-            /*
-            switch (changeDescription.Reason)
-            {
-                case SessionChangeReason.SessionLogoff: //delete session
-                    AgentManager.CloseSession((uint)changeDescription.SessionId);
-                    break;
-                case SessionChangeReason.SessionLogon: //new session
-                    AgentManager.StartSession((uint)changeDescription.SessionId);
-                    break;
-                case SessionChangeReason.SessionUnlock:
-                    SelectedSession = (uint)changeDescription.SessionId;
-                    break;
-                case SessionChangeReason.SessionLock:
-                    SelectedSession = 0;
-                    break;
-                default:
-                    break;
-            }
-
-            TCPServer.SendAll(new Packet() { 
-                FromPort = -1,
-                ToPort = -1,
-                Payload = GetServiceInfo()
-            });
-            */
-            base.OnSessionChange(changeDescription);
-
-        }
     }
 }
-
-//Process.Start("C:\\test/a.exe ", "100");
-//ApplicationLoader.PROCESS_INFORMATION procInfo;
-//ApplicationLoader.StartProcessAndBypassUAC("C:\\test/a.exe 103", "C:\\test", out procInfo);
-/*
-s = new Server();
-DiscoveryServer = new DiscoveryServer();
-SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
-s.ClientConnected += S_ClientConnected;
-s.ConnectionDisconnected += S_ConnectionDisconnected;
-
-DiscoveryServer.Run();
-Task.Run(() =>
-{
-    s.Start(new IPEndPoint(IPAddress.Any, 6969));
-});*/
