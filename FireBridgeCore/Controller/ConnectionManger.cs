@@ -75,15 +75,18 @@ namespace FireBridgeCore.Controller
             {
                 conn.ConnectionStatusChanged += Conn_ConnectionStatusChanged;
                 conn.Start(e.Address, 6969); 
-                OnClientConnected(new ServiceConnectionConnectedEventArgs() { ServiceConnection = conn });
             }
         }
 
         private void Conn_ConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
         {
-            if (sender == null || e == null || !(sender is ServiceConnection))
+            if (sender == null || e == null || !(sender is ServiceConnection)) { 
+
                 if (e.Now == ConnectionStatus.Disconnected)
                     _services.TryRemove(((ServiceConnection)sender).Id, out _);
+            }
+            else if (e.Now == ConnectionStatus.Connected)
+                OnClientConnected(new ServiceConnectionConnectedEventArgs() { ServiceConnection = (ServiceConnection)sender });
         }
 
         public void Start()
