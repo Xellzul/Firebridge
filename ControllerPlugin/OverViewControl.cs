@@ -131,12 +131,8 @@ namespace ControllerPlugin
 
         private void Opc_Ending(object sender, EventArgs e)
         {
-            var img = this.imagePanel.BackgroundImage;
             this.imagePanel.BackgroundImage = null;
             detailView.p_screenshot.BackgroundImage = null;
-            img?.Dispose();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
 
             opc = new OverrideProgramController();
             opc.ImageRecieved += ClientProgram_ImageRecieved;
@@ -147,12 +143,11 @@ namespace ControllerPlugin
 
         private void ClientProgram_ImageRecieved(object sender, ImageRecievedEventArgs e)
         {
-            var img = this.imagePanel.BackgroundImage;
-            this.imagePanel.BackgroundImage = e.Image;
-            detailView.p_screenshot.BackgroundImage = e.Image;
-            img?.Dispose();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            if (e.Image == null)
+                return;
+
+            this.imagePanel.BackgroundImage = (Image)e.Image.Clone();
+            detailView.p_screenshot.BackgroundImage = this.imagePanel.BackgroundImage;
         }
 
         private void toolsPanel_MouseClick(object sender, MouseEventArgs e)
