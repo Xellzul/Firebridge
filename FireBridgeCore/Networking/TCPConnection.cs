@@ -13,7 +13,7 @@ namespace FireBridgeCore.Networking
     {
         protected TcpClient _client; 
         public Guid Id { get; } 
-        public Server Owner { get; private set; }
+        public IServer Owner { get; private set; }
         public TCPConnection(Guid guid)
         {
             Id = guid;
@@ -46,7 +46,7 @@ namespace FireBridgeCore.Networking
             }
         }
 
-        public virtual void Start(TcpClient client, Server server)
+        public virtual void Start(TcpClient client, IServer server)
         {
             Owner = server;
             Status = ConnectionStatus.Connecting;

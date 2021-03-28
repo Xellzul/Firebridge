@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,20 +10,41 @@ using System.Threading.Tasks;
 
 namespace FireBridgeCore.Networking
 {
-    public class TCPServer : Server
+    public class TCPServer : IServer
     {
-        private TcpListener _tcpListener;
+        protected ConcurrentDictionary<Guid, Connection> Connections = new ConcurrentDictionary<Guid, Connection>();
+        protected Thread ListenerThread;
+        protected bool _end = false;
+        protected TcpListener _tcpListener;
+        public event EventHandler<ClientConnectedEventArgs> ClientConnected;
 
-        public override bool Start(int port)
+        private void Connection_ConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
+        {
+            if (sender == null)
+                return;
+
+            if (e.Now == ConnectionStatus.Disconnected && sender is TCPConnection)
+                Connections.TryRemove(((TCPConnection)sender).Id, out _);
+
+        }
+
+        public void SendAll(Packet packet)
+        {
+            foreach (var conn in this.Connections)
+                conn.Value.Send(packet);
+        }
+
+        public bool Start(int port)
         {
             _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Any, port));
 
-            try {
+            try
+            {
                 _tcpListener.Start();
             }
-            catch(SocketException e)
+            catch (SocketException e)
             {
-                if(e.SocketErrorCode == SocketError.AddressAlreadyInUse)
+                if (e.SocketErrorCode == SocketError.AddressAlreadyInUse)
                 {
                     _tcpListener = null;
                     return false;
@@ -36,13 +58,7 @@ namespace FireBridgeCore.Networking
             return true;
         }
 
-        public override void Stop()
-        {
-            this._end = true;
-            _tcpListener.Stop();
-        }
-
-        protected override void AcceptConenction()
+        void AcceptConenction()
         {
             while (!_end)
             {
@@ -78,20 +94,18 @@ namespace FireBridgeCore.Networking
 
         }
 
-        private void Connection_ConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
+        public void Stop()
         {
-            if (sender == null)
-                return;
-
-            if (e.Now == ConnectionStatus.Disconnected && sender is TCPConnection)
-                Connections.TryRemove(((TCPConnection)sender).Id, out _);
-
+            this._end = true;
+            _tcpListener.Stop();
         }
 
-        public void SendAll(Packet packet)
+        public Connection GetConnection(Guid id)
         {
-            foreach (var conn in this.Connections)
-                conn.Value.Send(packet);
+            Connections.TryGetValue(id, out Connection conn);
+            return conn;
         }
+
+        void OnClientConnected(ClientConnectedEventArgs e) => ClientConnected?.Invoke(this, e);
     }
 }
