@@ -16,19 +16,7 @@ namespace FireBridgeCore.Kernel
             _processes = new ConcurrentDictionary<Guid, UserProcess>();
         }
 
-        public bool StartProcessAttached(UserProgram program, Connection connection, Guid localID, Guid remoteID)
-        {
-            var process = new AttachedUserProcess(program, connection, localID, remoteID);
-            return _startProcess(process);
-        }
-
-        public bool StartProcessDetached(StartProgramModel startProgramModel, Connection connection)
-        {
-            var process = new DetachedUserProcess(startProgramModel, connection);
-            return _startProcess(process);
-        }
-
-        private bool _startProcess(UserProcess process)
+        public bool StartProcess(UserProcess process)
         {
             if (!_processes.TryAdd(process.Id, process))
                 return false;
@@ -36,34 +24,42 @@ namespace FireBridgeCore.Kernel
             process.Completed += Process_Completed;
             if (!process.Start())
             {
-                process.Completed -= Process_Completed;
-                _processes.TryRemove(process.Id, out _);
+                removeProcess(process);
                 return false;
             }
+
             return true;
         }
 
         private void Process_Completed(object sender, EventArgs e)
         {
             UserProcess up = sender as UserProcess;
+
             if (up == null)
                 return;
 
-            RemoveProcess(up);
+            removeProcess(up);
         }
 
-        public bool RemoveProcess(UserProcess process)
+        private bool removeProcess(UserProcess process)
+        {
+            process.Completed -= Process_Completed;
+            return _processes.TryRemove(process.Id, out _);
+        }
+
+        public bool StopProcess(UserProcess process)
         {
             process.Completed -= Process_Completed;
             process.Stop();
-            return _processes.TryRemove(process.Id, out _);
+            var removed = _processes.TryRemove(process.Id, out _);
+            return removed;
         }
 
         public void Stop()
         {
             foreach (var item in _processes)
             {
-                RemoveProcess(item.Value);
+                StopProcess(item.Value);
             }
         }
     }

@@ -9,8 +9,10 @@ namespace FireBridgeCore.Kernel
     {
         public Connection Connection { get; private set; }
         public Guid Id { get; private set; }
-        public UserProcess(Guid id, Connection connection)
+        public Guid RemoteId { get; private set; }
+        public UserProcess(Guid id, Guid remoteId, Connection connection)
         {
+            RemoteId = remoteId;
             Id = id;
             Connection = connection;
         }

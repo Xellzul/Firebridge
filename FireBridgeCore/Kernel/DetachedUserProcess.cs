@@ -10,17 +10,16 @@ namespace FireBridgeCore.Kernel
 {
     public class DetachedUserProcess : UserProcess
     {
-        public uint SessionID { get; private set; }
-        public IIntegrityLevel IntegrityLevel { get; private set; }
+        public uint SessionID => _spm.SessionId;
+        public IIntegrityLevel IntegrityLevel => _spm.IntegrityLevel;
         public Process Process { get; private set; }
         public ConsoleConnection ProgramConnetion { get; private set; }
 
-        public StartProgramModel StartProgramModel { get; private set; }
-        public DetachedUserProcess(StartProgramModel startProgramModel, Connection connection) : base(startProgramModel.ProcessId, connection)
+        private StartProgramModel _spm;
+
+        public DetachedUserProcess(StartProgramModel spm, Connection connection) : base(spm.ProcessId, spm.RemoteId, connection)
         {
-            SessionID = startProgramModel.SessionId;
-            IntegrityLevel = startProgramModel.IntegrityLevel;
-            StartProgramModel = startProgramModel;
+            _spm = spm;
         }
 
         public override bool Start()
@@ -58,7 +57,7 @@ namespace FireBridgeCore.Kernel
 
             ProgramConnetion.Start(result.read, result.write);
 
-            ProgramConnetion.Send(new Packet(Guid.Empty, Guid.Empty, StartProgramModel));
+            ProgramConnetion.Send(new Packet(Guid.Empty, Guid.Empty, _spm));
 
             return true;
         }
@@ -92,6 +91,11 @@ namespace FireBridgeCore.Kernel
 
         public override void Stop()
         {
+            Connection?.Send(new Packet(Id, RemoteId, new RemoteProcessStatusChangedModel()
+            {
+                Status = Status.Stopping
+            }));
+
             Process?.Kill();
             base.Stop();
         }

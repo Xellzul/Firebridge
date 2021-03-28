@@ -94,12 +94,14 @@ namespace FireBridgeCore.Kernel
             Program.OnEnding();
             OnCompleted(EventArgs.Empty);
 
+            //TODO: ERROR
+            /*
             RespondRaw(new RemoteProcessStatusChangedModel()
             {
                 Status = Status.Stopping,
                 Errored = error,
                 ErrorMessage = errorMsg
-            });
+            });*/
 
             Connection.Flush();
         }

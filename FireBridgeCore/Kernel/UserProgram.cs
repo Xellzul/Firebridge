@@ -3,7 +3,6 @@ using System;
 
 namespace FireBridgeCore.Kernel
 {
-    [Serializable]
     public abstract class UserProgram
     {
         public abstract void Main(UserProgramContainer container, object args);

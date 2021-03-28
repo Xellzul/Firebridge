@@ -13,7 +13,7 @@ namespace FireBridgeCore.Kernel
         private Guid remoteID;
         UserProgramContainer userProgramContainer;
 
-        public AttachedUserProcess(UserProgram program, Connection connection, Guid localID, Guid remoteID) : base(localID, connection)
+        public AttachedUserProcess(UserProgram program, Connection connection, Guid localID, Guid remoteID) : base(localID, remoteID, connection)
         {
             this.program = program;
             this.remoteID = remoteID;

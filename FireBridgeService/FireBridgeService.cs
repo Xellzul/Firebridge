@@ -110,11 +110,20 @@ namespace FireBridgeService
                 case StartProgramModel spm:
                     if (spm.SessionId == uint.MaxValue)
                         spm.SessionId = ApplicationLoader.GetActiveSession();
-                    Kernel.StartProcessDetached(spm, e.Connection);
+
+                    var procc = new DetachedUserProcess(spm, e.Connection);
+                    Kernel.StartProcess(procc);
                     break;
                 default:
                     break;
             }    
+        }
+
+        private void Process_Completed(object sender, EventArgs e)
+        {
+            DetachedUserProcess process = sender as DetachedUserProcess;
+            if (process == null)
+                return;
         }
 
         public ServiceInfo GetServiceInfo()

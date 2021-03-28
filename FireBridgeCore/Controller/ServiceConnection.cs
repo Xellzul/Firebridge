@@ -99,7 +99,7 @@ namespace FireBridgeCore.Controller
 
             if (localProgram != null)
             {
-                _kernel.StartProcessAttached(localProgram, this, localGuid, remoteGuid);
+                _kernel.StartProcess(new AttachedUserProcess(localProgram, this, localGuid, remoteGuid));
             }
 
             Send(toSend);
