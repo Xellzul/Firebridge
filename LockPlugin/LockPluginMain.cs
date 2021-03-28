@@ -27,7 +27,7 @@ namespace LockPlugin
                 return;
 
             foreach (var sc in ConnectionManger.Instance.GetSelectedServices())
-                sc.StartProgram(typeof(UnlockProcess), IIntegrityLevel.Medium, UInt32.MaxValue, AssemblyData, new UnlockArgs() { Username = frm.tb_username.Text, Password = frm.tb_password.Text });
+                sc.StartProgram(typeof(UnlockProcess), IIntegrityLevel.System, 0, AssemblyData, new UnlockArgs() { Username = frm.tb_username.Text, Password = frm.tb_password.Text });
         }
 
         private void LockPC(object sender, EventArgs e)
