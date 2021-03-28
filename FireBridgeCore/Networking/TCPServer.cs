@@ -17,6 +17,7 @@ namespace FireBridgeCore.Networking
         protected bool _end = false;
         protected TcpListener _tcpListener;
         public event EventHandler<ClientConnectedEventArgs> ClientConnected;
+        public event EventHandler<ClientConnectedEventArgs> ClientConnecting;
 
         private void Connection_ConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
         {
@@ -87,8 +88,10 @@ namespace FireBridgeCore.Networking
 
                 Connections.TryAdd(connection.Id, connection);
 
-                connection.Start(client);
+                OnClientConnecting(new ClientConnectedEventArgs() { Connection = connection });
 
+                connection.Start(client);
+                
                 OnClientConnected(new ClientConnectedEventArgs() { Connection = connection });
             }
 
@@ -107,5 +110,6 @@ namespace FireBridgeCore.Networking
         }
 
         void OnClientConnected(ClientConnectedEventArgs e) => ClientConnected?.Invoke(this, e);
+        void OnClientConnecting(ClientConnectedEventArgs e) => ClientConnecting?.Invoke(this, e);
     }
 }

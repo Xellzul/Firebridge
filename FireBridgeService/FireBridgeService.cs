@@ -83,7 +83,7 @@ namespace FireBridgeService
             TCPServer = new TCPServer();
             DiscoveryServer = new DiscoveryServer(settings.Guid);
 
-            TCPServer.ClientConnected += TCPServer_ClientConnected;
+            TCPServer.ClientConnecting += TCPServer_ClientConnecting;
             TCPServer.Start(6969);
             DiscoveryServer.Run();
         }
@@ -94,7 +94,7 @@ namespace FireBridgeService
             base.OnStart(args);
         }
 
-        private void TCPServer_ClientConnected(object sender, ClientConnectedEventArgs e)
+        private void TCPServer_ClientConnecting(object sender, ClientConnectedEventArgs e)
         {
             e.Connection.MessageRecieved += Connection_MessageRecieved;
         }
