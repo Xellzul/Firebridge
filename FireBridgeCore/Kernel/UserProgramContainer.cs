@@ -71,6 +71,8 @@ namespace FireBridgeCore.Kernel
 
         private void main(object args)
         {
+            Console.WriteLine("Starting - " + Program.GetType());
+
             RespondRaw(new RemoteProcessStatusChangedModel()
             {
                 Status = Status.Starting
