@@ -20,7 +20,7 @@ namespace LockPlugin
 
             using (NamedPipeClientStream pipe = new NamedPipeClientStream(".", "MyPipe", PipeDirection.InOut))
             {
-                pipe.Connect();
+                pipe.Connect(1000);
                 if (pipe.IsConnected)
                 {
                     using (StreamWriter sw = new StreamWriter(pipe))
