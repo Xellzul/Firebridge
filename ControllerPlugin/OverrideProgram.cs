@@ -9,6 +9,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,9 +17,20 @@ using System.Windows.Forms;
 
 namespace ControllerPlugin
 {
+
     [Serializable]
     public class OverrideProgram : UserProgram
     {
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void mouse_event(long dwFlags, long dx, long dy, long cButtons, long dwExtraInfo);
+
+        [DllImport("User32.dll")]
+        private static extern bool SetCursorPos(int X, int Y);
+
+        private const int MOUSEEVENTF_LEFTDOWN = 0x02;
+        private const int MOUSEEVENTF_LEFTUP = 0x04;
+        private const int MOUSEEVENTF_MOVE = 0x0001;
+
         int WaitTime = 1000;
         int quality = 70;
         int width = 720;
@@ -77,6 +89,25 @@ namespace ControllerPlugin
                     this.WaitTime = ops.WaitTime;
                     this.quality = ops.Quality;
                     this.takeScreenShot = ops.TakeScreenShot;
+                    break;
+                case MouseEvent me:
+                    int screenLeft = SystemInformation.VirtualScreen.Left;
+                    int screenTop = SystemInformation.VirtualScreen.Top;
+                    int screenWidth = SystemInformation.VirtualScreen.Width;
+                    int screenHeight = SystemInformation.VirtualScreen.Height;
+
+                    var a = (int)((screenLeft + screenWidth) * me.X);
+                    var b = (int)((screenTop + screenHeight) * me.Y);
+
+                    SetCursorPos(a, b);
+
+                    if (me.Left) { 
+                        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+                        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+                    }
+
+                    break;
+                case KeyboardEvent ke:
                     break;
                 default:
                     break;

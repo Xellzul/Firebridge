@@ -54,5 +54,7 @@ namespace ControllerPlugin
         public event EventHandler Ending;
 
         internal void ChangeSettings(OverridePorgramSettings overridePorgramSettings) => _container?.Respond(overridePorgramSettings);
+        internal void ChangeKeyboard(KeyboardEvent keyboardEvent) => _container?.Respond(keyboardEvent);
+        internal void ChangeMouse(MouseEvent mouseEvent) => _container?.Respond(mouseEvent);
     }
 }

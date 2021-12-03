@@ -22,5 +22,10 @@ namespace ControllerPlugin
             e.Cancel = true;
             this.Hide();
         }
+
+        private void p_screenshot_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
     }
 }

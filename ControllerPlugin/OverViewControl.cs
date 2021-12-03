@@ -44,6 +44,28 @@ namespace ControllerPlugin
         {
             ControllerMain = controllerMain;
             detailView = new DetailView();
+
+            detailView.p_screenshot.MouseMove += new MouseEventHandler((object a, MouseEventArgs mva) => {
+                opc.ChangeMouse(new MouseEvent() { Left = false, Right = false, 
+                    X = mva.Location.X / (double)detailView.p_screenshot.Width, 
+                    Y = mva.Location.Y / (double)detailView.p_screenshot.Height
+                });
+            });
+
+            detailView.p_screenshot.MouseClick += new MouseEventHandler((object a, MouseEventArgs mva) => {
+                opc.ChangeMouse(new MouseEvent()
+                {
+                    Left = mva.Button == MouseButtons.Left,
+                    Right = mva.Button == MouseButtons.Right,
+                    X = mva.Location.X / (double)detailView.p_screenshot.Width,
+                    Y = mva.Location.Y / (double)detailView.p_screenshot.Height
+                });
+            });
+
+            detailView.KeyPress += new KeyPressEventHandler((object a, KeyPressEventArgs mva) => {
+                var asd = "";
+            });
+
             InitializeComponent();
 
             foreach(Control control in Controls)
@@ -132,7 +154,7 @@ namespace ControllerPlugin
         private void Opc_Ending(object sender, EventArgs e)
         {
             this.imagePanel.BackgroundImage = null;
-            detailView.p_screenshot.BackgroundImage = null;
+          //  detailView.p_screenshot.BackgroundImage = null;
 
             opc = new OverrideProgramController();
             opc.ImageRecieved += ClientProgram_ImageRecieved;
