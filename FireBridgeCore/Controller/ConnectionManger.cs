@@ -36,7 +36,7 @@ namespace FireBridgeCore.Controller
 
         public bool SelectService(Guid serviceID)
         {
-            ServiceConnection sc = null;
+            ServiceConnection sc;
             if(_services.TryGetValue(serviceID, out sc))
             {
                 if (sc.Status == ConnectionStatus.Connected)
@@ -74,7 +74,7 @@ namespace FireBridgeCore.Controller
             if(_services.TryAdd(e.Id, conn))
             {
                 conn.ConnectionStatusChanged += Conn_ConnectionStatusChanged;
-                conn.Start(e.Address, 6969); 
+                conn.Start(e.Address, Constants.DiscoveryPort); 
             }
         }
 

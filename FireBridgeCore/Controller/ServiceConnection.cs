@@ -7,16 +7,14 @@ using System.Net.Sockets;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using FireBridgeCore.Kernel;
-using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FireBridgeCore.Controller
 {
     public class ServiceConnection : TCPConnection
     {
-        public ServiceInfo ServiceInfo { private set; get; }
+        public ServiceInfo ServiceInfo { private set; get; } = new ServiceInfo();
 
         private UserKernel _kernel;
 
@@ -75,8 +73,6 @@ namespace FireBridgeCore.Controller
 
             var remoteGuid = Guid.NewGuid();
             var localGuid = localProgram == null ? Guid.Empty : Guid.NewGuid();
-
-            
 
             var toSend = new Packet(localGuid, remoteGuid, new StartProgramModel()
             {

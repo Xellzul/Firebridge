@@ -39,7 +39,7 @@ namespace ControllerPlugin
         bool shouldEnd = false;
         public override void Main(UserProgramContainer container, object args)
         {
-            if(args is OverridePorgramSettings)
+            if (args is OverridePorgramSettings)
             {
                 OverridePorgramSettings ops = (OverridePorgramSettings)args;
                 this.heigth = ops.Heigth;

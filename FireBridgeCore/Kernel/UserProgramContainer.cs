@@ -81,6 +81,14 @@ namespace FireBridgeCore.Kernel
             bool error = false;
             string errorMsg = "";
 
+            Connection.Send(new Packet(Id, Guid.Empty, new AgentInfo()
+            {
+                AgentID = Id,
+                IntegrityLevel = IntegrityLevelHelper.GetCurrentIntegrity().ToString(),
+                SessionID = ApplicationLoader.GetActiveSession(),
+                ProcessID = Process.GetCurrentProcess().Id
+            }));
+
             try
             {
                 Program.Main(this, args);

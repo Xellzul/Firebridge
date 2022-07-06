@@ -32,6 +32,7 @@ namespace ControllerPlugin
             this.p_screenshot = new System.Windows.Forms.Panel();
             this.cb_keyboard = new System.Windows.Forms.CheckBox();
             this.cb_mouse = new System.Windows.Forms.CheckBox();
+            this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.SuspendLayout();
             // 
             // p_screenshot
@@ -40,9 +41,9 @@ namespace ControllerPlugin
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.p_screenshot.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.p_screenshot.Location = new System.Drawing.Point(94, 12);
+            this.p_screenshot.Location = new System.Drawing.Point(384, 12);
             this.p_screenshot.Name = "p_screenshot";
-            this.p_screenshot.Size = new System.Drawing.Size(1284, 715);
+            this.p_screenshot.Size = new System.Drawing.Size(994, 715);
             this.p_screenshot.TabIndex = 0;
             this.p_screenshot.MouseClick += new System.Windows.Forms.MouseEventHandler(this.p_screenshot_MouseClick);
             // 
@@ -66,12 +67,20 @@ namespace ControllerPlugin
             this.cb_mouse.Text = "Mouse";
             this.cb_mouse.UseVisualStyleBackColor = true;
             // 
+            // propertyGrid1
+            // 
+            this.propertyGrid1.Location = new System.Drawing.Point(10, 62);
+            this.propertyGrid1.Name = "propertyGrid1";
+            this.propertyGrid1.Size = new System.Drawing.Size(368, 435);
+            this.propertyGrid1.TabIndex = 3;
+            // 
             // DetailView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1390, 784);
+            this.Controls.Add(this.propertyGrid1);
             this.Controls.Add(this.cb_mouse);
             this.Controls.Add(this.cb_keyboard);
             this.Controls.Add(this.p_screenshot);
@@ -88,5 +97,6 @@ namespace ControllerPlugin
         public System.Windows.Forms.Panel p_screenshot;
         public System.Windows.Forms.CheckBox cb_keyboard;
         public System.Windows.Forms.CheckBox cb_mouse;
+        public System.Windows.Forms.PropertyGrid propertyGrid1;
     }
 }

@@ -1,12 +1,11 @@
 ﻿using FireBridgeCore.Networking;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FireBridgeCore.Kernel
 {
     public abstract class UserProcess
     {
+        public AgentInfo AgentInfo { get; protected set; }
         public Connection Connection { get; private set; }
         public Guid Id { get; private set; }
         public Guid RemoteId { get; private set; }
@@ -22,7 +21,6 @@ namespace FireBridgeCore.Kernel
         {
             Completed?.Invoke(this, e);
         }
-
 
         public virtual void Stop()
         {

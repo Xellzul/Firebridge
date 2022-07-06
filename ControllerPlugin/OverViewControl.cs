@@ -108,6 +108,7 @@ namespace ControllerPlugin
                 }
             }
 
+            detailView.propertyGrid1.SelectedObject = serviceConnection.ServiceInfo;
             l_ip.Text = serviceConnection.IPAddress.ToString();
             Selected = false;
         }

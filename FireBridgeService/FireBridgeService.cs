@@ -1,25 +1,22 @@
 ﻿using FireBridgeCore;
 using FireBridgeCore.Kernel;
 using FireBridgeCore.Networking;
-using Microsoft.Win32;
 using NetFwTypeLib;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Reflection;
-using System.Security.Principal;
 using System.ServiceProcess;
-using System.Threading;
 
 namespace FireBridgeService
 {
     class FireBridgeService : ServiceBase
     {
-        Settings settings;
         UserKernel Kernel;
         TCPServer TCPServer;
         DiscoveryServer DiscoveryServer;
+
+        Guid MachineId = MachineFingerprintGenerator.GetFingerprint();
 
         public FireBridgeService()
         {
@@ -71,20 +68,14 @@ namespace FireBridgeService
 
         public void Starting()
         {
-            settings = Settings.Load("FireBridgeSettings.json");
-            if (settings == null) { 
-                settings = new Settings();
-                settings.Save("FireBridgeSettings.json");
-            }
-
             AddFirewallException();
 
             Kernel = new UserKernel();
             TCPServer = new TCPServer();
-            DiscoveryServer = new DiscoveryServer(settings.Guid);
+            DiscoveryServer = new DiscoveryServer(MachineId);
 
             TCPServer.ClientConnecting += TCPServer_ClientConnecting;
-            TCPServer.Start(6969);
+            TCPServer.Start(Constants.DiscoveryPort);
             DiscoveryServer.Run();
         }
 
@@ -104,7 +95,7 @@ namespace FireBridgeService
             switch(e.Message.Payload)
             {
                 case RequestInfo:
-                    e.Connection.Send(new Packet(this.settings.Guid, Guid.Empty, GetServiceInfo()));
+                    e.Connection.Send(new Packet(MachineId, Guid.Empty, GetServiceInfo()));
                     break;
 
                 case StartProgramModel spm:
@@ -130,9 +121,12 @@ namespace FireBridgeService
         {
             return new ServiceInfo()
             {
+                Agents = Kernel.GetReport(),
+                Controllers = TCPServer.GetReport(),
                 ActiveSession = ApplicationLoader.GetActiveSession(), 
-                ServiceRevision = Assembly.GetEntryAssembly().GetName().Version,
-                ID = this.settings.Guid
+                ServiceVersion = Assembly.GetEntryAssembly().GetName().Version,
+                IntegrityLevel = IntegrityLevelHelper.GetCurrentIntegrity().ToString(),
+                Id = MachineId
             };
         }
     }

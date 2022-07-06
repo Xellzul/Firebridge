@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FireBridgeCore.Networking.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,13 @@ namespace FireBridgeCore.Networking
         protected TcpListener _tcpListener;
         public event EventHandler<ClientConnectedEventArgs> ClientConnected;
         public event EventHandler<ClientConnectedEventArgs> ClientConnecting;
+
+        //Todo: Move somewhere else?
+        public List<ControllerInfo> GetReport()
+        {
+            return Connections.Select(x => ((TCPConnection)x.Value).GetReport()).ToList();
+        }
+
 
         private void Connection_ConnectionStatusChanged(object sender, ConnectionStatusChangedEventArgs e)
         {

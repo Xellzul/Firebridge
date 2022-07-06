@@ -1,17 +1,15 @@
-﻿using FireBridgeCore;
-using FireBridgeCore.Kernel;
+﻿using FireBridgeCore.Kernel;
 using FireBridgeCore.Networking;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Runtime.Loader;
-using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
+using FireBridgeCore;
 
 namespace FireBridgeAgent
 {
@@ -20,21 +18,28 @@ namespace FireBridgeAgent
         private bool _completed = false;
         private UserProgramContainer _userProgramContainer;
 
+        //log writer
         private StreamWriter sw;
         private ConsoleConnection _connection;
 
-        public Agent()
+        public Agent(string [] args)
         {
-            // Thread.Sleep(10000);
-            var filename = $"C://FireBridge/Agent-{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}-{Process.GetCurrentProcess().Id}.txt";
-            Directory.CreateDirectory("C://FireBridge/");
+            Directory.CreateDirectory("./Logs/Agent");
+            var filename = $"./Logs/Agent/Agent-{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}-{Process.GetCurrentProcess().Id}.txt";
+            
+            
             sw = new StreamWriter(filename, true);
+            //TODO: move this
+            sw.WriteLine("DEBUG START");
+            sw.WriteLine(IntegrityLevelHelper.GetCurrentIntegrity().ToString());
+            sw.WriteLine(string.Join(';', args));
+            sw.WriteLine("DEBUG STOP");
 
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            //TODO: check if needed, leave it to plugins?
+            //Application.SetHighDpiMode(HighDpiMode.SystemAware);
 
             _connection = new ConsoleConnection();
             _connection.MessageRecieved += _connection_MessageRecieved;
-
 
             _userProgramContainer = new UserProgramContainer();
             _userProgramContainer.Completed += _userProgramContainer_Completed;
@@ -49,7 +54,7 @@ namespace FireBridgeAgent
         {
             lock (_userProgramContainer)
             {
-                Console.WriteLine("Recieved: " + e.Message.Payload.GetType());
+                Console.WriteLine("AGENT - Recieved: " + e.Message.Payload.GetType());
                 switch (e.Message.Payload)
                 {
                     case StartProgramModel spm:
@@ -89,10 +94,12 @@ namespace FireBridgeAgent
             Console.SetIn(new StreamReader(new MemoryStream()));
             Console.SetOut(sw);
 
-            Console.WriteLine("Started!");
+            Console.WriteLine("AGENT - Agent is Starting!");
             
             while (!_completed)
                 Thread.Sleep(100);
+
+            Console.WriteLine("AGENT - Agent is Stopping!");
         }
     }
 }

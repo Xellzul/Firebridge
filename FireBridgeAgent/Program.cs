@@ -1,14 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Windows.Forms;
+﻿namespace FireBridgeAgent;
 
-namespace FireBridgeAgent
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            new Agent().Start();
-        }
+        new Agent(args).Start();
     }
 }

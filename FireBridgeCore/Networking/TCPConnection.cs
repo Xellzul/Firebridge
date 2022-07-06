@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FireBridgeCore.Networking.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -11,7 +12,9 @@ namespace FireBridgeCore.Networking
 {
     public class TCPConnection : Connection
     {
-        protected TcpClient _client; 
+        protected TcpClient _client;
+
+        //TODO: maybe not here
         public Guid Id { get; } 
         public IServer Owner { get; private set; }
         public TCPConnection(Guid guid)
@@ -44,6 +47,17 @@ namespace FireBridgeCore.Networking
 
                 return ((IPEndPoint)_client.Client.RemoteEndPoint).Port;
             }
+        }
+
+        //TODO: not here
+        public ControllerInfo GetReport()
+        {
+            return new ControllerInfo() 
+            {
+                Port = Port,
+                IpAddress = IPAddress.ToString(),
+                Connected = Status == ConnectionStatus.Connected
+            };
         }
 
         public virtual void Start(TcpClient client, IServer server)

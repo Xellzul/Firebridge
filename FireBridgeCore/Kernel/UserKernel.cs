@@ -3,8 +3,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FireBridgeCore.Kernel
 {
@@ -14,6 +12,11 @@ namespace FireBridgeCore.Kernel
         public UserKernel()
         {
             _processes = new ConcurrentDictionary<Guid, UserProcess>();
+        }
+
+        public List<AgentInfo> GetReport()
+        {
+            return _processes.Select(x => x.Value.AgentInfo).ToList();
         }
 
         public bool StartProcess(UserProcess process)

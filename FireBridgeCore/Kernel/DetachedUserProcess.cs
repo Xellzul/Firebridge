@@ -70,6 +70,11 @@ namespace FireBridgeCore.Kernel
 
         private void ProgramConnetion_MessageRecieved(object sender, MessageRecievedEventArgs e)
         {
+            if(e.Message.Payload is AgentInfo)
+            {
+                AgentInfo = (AgentInfo)e.Message.Payload;
+            }
+
             Connection.Send(e.Message);
         }
 
