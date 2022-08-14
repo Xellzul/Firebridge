@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Linq;
+using Firebridge.Core.Networking;
 
 namespace FireBridgeCore.Controller
 {
@@ -30,8 +31,8 @@ namespace FireBridgeCore.Controller
         {
             _services = new ConcurrentDictionary<Guid, ServiceConnection>();
             _selectedServices = new ConcurrentDictionary<Guid, ServiceConnection>();
-            _discoveryClient = new DiscoveryClient();
-            _discoveryClient.ClientResponded += _discoveryClient_ClientResponded;
+           // _discoveryClient = new DiscoveryClient();
+          //  _discoveryClient.ClientResponded += _discoveryClient_ClientResponded;
         }
 
         public bool SelectService(Guid serviceID)

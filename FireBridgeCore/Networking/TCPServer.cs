@@ -37,12 +37,6 @@ namespace FireBridgeCore.Networking
 
         }
 
-        public void SendAll(Packet packet)
-        {
-            foreach (var conn in this.Connections)
-                conn.Value.Send(packet);
-        }
-
         public bool Start(int port)
         {
             _tcpListener = new TcpListener(new IPEndPoint(IPAddress.Any, port));
