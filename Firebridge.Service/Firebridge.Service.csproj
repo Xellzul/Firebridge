@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Exec Command="taskkill /f /fi &quot;imagename eq Firebridge.Service.Win.exe&quot;" />
+	</Target>
+
+	<ItemGroup>
+		<PackageReference Include="MessagePack" Version="2.5.108" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Firebridge.Common.Models\Firebridge.Common.Models.csproj" />
+		<ProjectReference Include="..\Firebridge.Common\Firebridge.Common.csproj" />
+		<ProjectReference Include="..\Firebridge.Service.Models\Firebridge.Service.Models.csproj" />
+	</ItemGroup>
+
+</Project>

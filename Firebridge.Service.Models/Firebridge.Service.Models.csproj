@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Exec Command="taskkill /f /fi &quot;imagename eq Firebridge.Service.Win.exe&quot;" />
+	</Target>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Firebridge.Common.Models\Firebridge.Common.Models.csproj" />
+	</ItemGroup>
+</Project>
