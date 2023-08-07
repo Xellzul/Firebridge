@@ -6,6 +6,9 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using Firebridge.Common.Models.Services;
+using Firebridge.Common;
+using Firebridge.Common.Models;
+using Firebridge.Common.Models.Packets;
 
 namespace Firebridge.Service;
 
@@ -38,7 +41,14 @@ public class DiscoveryService : BackgroundService
         ArgumentNullException.ThrowIfNull(udpClient);
 
         var secret = configuration.Value.DiscoveryServerSecret;
-        var responseData = new ReadOnlyMemory<byte>(Encoding.ASCII.GetBytes(configuration.Value.DiscoveryServerSecret + fingerprintService.GetFingerprint().ToString()));
+
+        var responseData = new ReadOnlyMemory<byte>(
+            StreamSerializer.Serialize(new DiscoveryPacket() 
+            { 
+                Secret = configuration.Value.DiscoveryServerSecret, 
+                Sender = fingerprintService.GetFingerprint(),
+                SenderPort = configuration.Value.AgentServerPort
+            }));
 
         while (!stoppingToken.IsCancellationRequested && udpClient.Client.IsBound)
         {
@@ -47,7 +57,7 @@ public class DiscoveryService : BackgroundService
                 var data = await udpClient.ReceiveAsync(stoppingToken);
                 var ASNCIIResponse = Encoding.ASCII.GetString(data.Buffer);
 
-                logger.LogDebug("Got {0} from {1}", ASNCIIResponse, data.RemoteEndPoint.ToString());
+                logger.LogTrace("Got {0} from {1}", ASNCIIResponse, data.RemoteEndPoint.ToString());
 
                 if (ASNCIIResponse.StartsWith(secret))
                 {

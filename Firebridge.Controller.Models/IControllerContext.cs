@@ -4,5 +4,11 @@ namespace Firebridge.Controller.Models;
 
 public interface IControllerContext
 {
-    Task TryConnectService(IPAddress address, Guid id);
+    ICollection<string> GetActions();
+
+    ICollection<string> GetGlobalActions();
+
+    ICollection<IServiceConnection> GetServices();
+
+    Task TryConnectService(IPAddress address, int port, Guid id);
 }

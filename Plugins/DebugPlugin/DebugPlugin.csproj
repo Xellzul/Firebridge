@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+	<OutputPath>$(SolutionDir)\bin\Controller\$(Configuration)\Plugins\$(AssemblyName)\</OutputPath>
+	<OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Firebridge.Agent\Firebridge.Agent.csproj" />
+    <ProjectReference Include="..\..\Firebridge.Common.Models\Firebridge.Common.Models.csproj" />
+    <ProjectReference Include="..\..\Firebridge.Controller.Models\Firebridge.Controller.Models.csproj" />
+  </ItemGroup>
+
+</Project>

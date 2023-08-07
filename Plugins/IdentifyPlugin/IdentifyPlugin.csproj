@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		
+		<TargetFramework>net7.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		
+		<UseWindowsForms>true</UseWindowsForms>
+		
+		<Nullable>enable</Nullable>
+		<OutputPath>$(SolutionDir)\bin\Controller\$(Configuration)\Plugins\$(AssemblyName)\</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+		<!--<UseWindowsForms>true</UseWindowsForms>
+		<RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
+		
+		<SelfContained>false</SelfContained>
+		<IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
+		<CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+		<AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+		<CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
+		
+		<CopyRefAssembliesToPublishDirectory>true</CopyRefAssembliesToPublishDirectory>
+				<SelfContained>true</SelfContained>
+		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		 <FrameworkReference Include="Microsoft.WindowsDesktop.App.WindowsForms" />
+		Don't transitively copy output files, since everything builds to the same folder. -->
+		<!-- <UseCommonOutputDirectory>True</UseCommonOutputDirectory>  -->
+
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="MediatR" Version="12.0.1" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+	 
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Firebridge.Agent\Firebridge.Agent.csproj" />
+	  <ProjectReference Include="..\..\Firebridge.Controller.Models\Firebridge.Controller.Models.csproj" />
+	</ItemGroup>
+
+</Project>

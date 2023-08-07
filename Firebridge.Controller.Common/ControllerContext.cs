@@ -9,29 +9,47 @@ namespace Firebridge.Controller.Common;
 public class ControllerContext : IControllerContext
 {
     private readonly IServiceScopeFactory serviceScopeFactory;
+    private readonly IPluginService pluginService;
     private readonly ILogger<ControllerContext> logger;
 
     private readonly ConcurrentDictionary<Guid, IServiceConnection> services = new ConcurrentDictionary<Guid, IServiceConnection>();
 
-    public ControllerContext(IServiceScopeFactory serviceScopeFactory, ILogger<ControllerContext> logger)
+    public ControllerContext(IServiceScopeFactory serviceScopeFactory, ILogger<ControllerContext> logger, IPluginService pluginService)
     {
         this.serviceScopeFactory = serviceScopeFactory;
         this.logger = logger;
+        this.pluginService = pluginService;
     }
 
-    public async Task TryConnectService(IPAddress address, Guid id)
+    public ICollection<string> GetActions()
+    {
+        return pluginService.GetActions();
+    }
+
+    public ICollection<string> GetGlobalActions()
+    {
+        return pluginService.GetGlobalActions();
+    }
+
+    public ICollection<IServiceConnection> GetServices()
+    {
+        return services.Values;
+    }
+
+    public async Task TryConnectService(IPAddress address, int port, Guid id)
     {
         try
         {
-
-            using IServiceScope scope = serviceScopeFactory.CreateScope();
+            await using var scope = serviceScopeFactory.CreateAsyncScope();
             var serviceConnection = scope.ServiceProvider.GetRequiredService<IServiceConnection>();
+            serviceConnection.ServiceId = id;
+            serviceConnection.Scope = scope;
 
             if (services.TryAdd(id, serviceConnection))
             {
                 try
                 {
-                    await serviceConnection.Connect(new IPEndPoint(address, 47001)); //TODO NOT HARCODED 47001
+                    await serviceConnection.Connect(new IPEndPoint(address, port));
                 }
                 catch (Exception ex)
                 {

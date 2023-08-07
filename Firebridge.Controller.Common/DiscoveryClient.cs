@@ -5,6 +5,8 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
+using Firebridge.Common;
+using Firebridge.Common.Models.Packets;
 
 namespace Firebridge.Controller.Common;
 
@@ -82,24 +84,25 @@ public class DiscoveryClient : IDiscoveryClient
             {
                 response = await PingerResponseClient.ReceiveAsync(cancellationToken);
             }
-            catch (SocketException)
+            catch (SocketException e)
             {
+                logger.LogDebug(e, "Error in discovery data recieving");
                 continue;
             }
 
             //Get id and return
             try
             {
-                var ASCII = Encoding.ASCII.GetString(response.Buffer);
 
-                if (!ASCII.StartsWith(configuration.Value.DiscoveryServerSecret))
-                    continue;
+                var packet = StreamSerializer.Deserialize<DiscoveryPacket>(response.Buffer);
 
-                Guid id;
-                if (Guid.TryParse(ASCII.Substring(configuration.Value.DiscoveryServerSecret.Length), out id))
+                if (configuration.Value.DiscoveryServerSecret != packet.Secret)
                 {
-                    _ = context.TryConnectService(response.RemoteEndPoint.Address, id);
+                    logger.LogDebug($"Discovery secret doesnt match got:{packet.Secret}, should have {configuration.Value.DiscoveryServerSecret}, from {response.RemoteEndPoint}");
+                    continue;
                 }
+
+                _ = context.TryConnectService(response.RemoteEndPoint.Address, packet.SenderPort, packet.Sender);
             }
             catch (Exception e)
             {
@@ -114,8 +117,9 @@ public class DiscoveryClient : IDiscoveryClient
         {
             try
             {
-                var addresses = GetBroadcastAddresses();
-                addresses.Select(x => SendPingAsync(x, cancellationToken)).ToList();
+                var addresses = GetBroadcastAddresses(); 
+                //TODO: Allow IPv6
+                addresses.Where(x=>x.AddressFamily == AddressFamily.InterNetwork).Select(x => SendPingAsync(x, cancellationToken)).ToList();
                 await Task.Delay(configuration.Value.DiscoveryDelay);
             }
             catch (OperationCanceledException)

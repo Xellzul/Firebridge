@@ -6,7 +6,6 @@ using System.Net;
 using Microsoft.Extensions.Hosting;
 using Firebridge.Service.Models.Services;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Concurrent;
 
 namespace Firebridge.Service;
 
@@ -16,15 +15,12 @@ public class ControllerService : BackgroundService
     private readonly ILogger<ControllerService> logger;
     private readonly IFirewallService firewallService;
     private readonly IServiceScopeFactory serviceScopeFactory;
+    private readonly IServiceContext serviceContext;
 
-    public BlockingCollection<IControllerConnection> ControllerConnections { get; init; } = new BlockingCollection<IControllerConnection>();
-    //    private readonly IHostApplicationLifetime hostApplicationLifetime;
-
-    //public int Port => ((IPEndPoint)Listener.LocalEndpoint).Port;
-
-    public ControllerService(IOptions<FirebridgeServiceSettings> configuration, ILogger<ControllerService> logger, IFirewallService firewallService, IServiceScopeFactory serviceScopeFactory)
+    public ControllerService(IOptions<FirebridgeServiceSettings> configuration, IServiceContext serviceContext, ILogger<ControllerService> logger, IFirewallService firewallService, IServiceScopeFactory serviceScopeFactory)
     {
         this.configuration = configuration;
+        this.serviceContext = serviceContext;
         this.logger = logger;
         this.firewallService = firewallService;
         this.serviceScopeFactory = serviceScopeFactory;
@@ -62,11 +58,11 @@ public class ControllerService : BackgroundService
                     using IServiceScope scope = serviceScopeFactory.CreateScope();
                     var controllerConnection = scope.ServiceProvider.GetRequiredService<IControllerConnection>();
 
-                    ControllerConnections.Add(controllerConnection);
-
                     try
                     {
                         await controllerConnection.Connect(client);
+
+                        serviceContext.RegisterController(controllerConnection);
 
                         await controllerConnection.ExecuteAsync();
                     }
@@ -85,9 +81,10 @@ public class ControllerService : BackgroundService
                     {
                         logger.LogError(ex, "controllerConnection.ExecuteAsync");
                     }
-
-                    if (!ControllerConnections.TryTake(out controllerConnection))
-                        throw new Exception("Cant take out controller");
+                    finally
+                    {
+                        serviceContext.UnregisterController(controllerConnection);
+                    }
 
                 }, TaskCreationOptions.LongRunning).Start();
             }

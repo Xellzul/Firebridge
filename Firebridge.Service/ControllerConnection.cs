@@ -1,16 +1,17 @@
 ﻿using Firebridge.Common;
-using Firebridge.Common.Models;
+using Firebridge.Common.Models.Packets;
 using Firebridge.Common.Models.Services;
 using Firebridge.Service.Models.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Net.Sockets;
 
 namespace Firebridge.Service;
 
 internal class ControllerConnection : IControllerConnection
 {
-    public Guid ControllerGuid { get; private set; }
+    public Guid ControllerGuid { get; private set; } = Guid.Empty;
 
     private readonly ILogger<ControllerConnection> logger;
     private readonly IFingerprintService fingerprintService;
@@ -32,20 +33,20 @@ internal class ControllerConnection : IControllerConnection
         logger.LogInformation($"Controller connecting {tcpClient.Client.RemoteEndPoint}");
         client = tcpClient;
 
-        var handshake = new Handshake() { Guid = fingerprintService.GetFingerprint() };
+        var handshake = new HandshakePacket() { Guid = fingerprintService.GetFingerprint() };
 
-        await SendPacket(handshake, cancellationToken);
+        await Send(handshake, Guid.Empty, cancellationToken);
 
         var resopnse = await ReadPacket(cancellationToken);
-        var handshakeResponse = resopnse as Packet<Handshake>;
+        var handshakeResponse = resopnse.Payload as HandshakePacket;
 
         if (handshakeResponse == null)
             throw new InvalidOperationException($"Wrong data type {resopnse.GetType()}");
 
-        if (handshakeResponse.Payload.Guid != handshakeResponse.Sender)
-            throw new InvalidOperationException($"Missmatched guid {handshakeResponse.Payload.Guid} - {handshakeResponse.Sender}");
+        if (handshakeResponse.Guid != resopnse.Sender)
+            throw new InvalidOperationException($"Missmatched guid {handshakeResponse.Guid} - {resopnse.Sender}");
 
-        ControllerGuid = handshakeResponse.Payload.Guid;
+        ControllerGuid = handshakeResponse.Guid;
     }
 
     public async Task ExecuteAsync(CancellationToken cancellationToken = default)
@@ -56,20 +57,19 @@ internal class ControllerConnection : IControllerConnection
         {
             var packet = await ReadPacket(cancellationToken);
 
-            switch (packet)
-            {
-                case Packet<object> p:
-                    logger.LogWarning($"TODO5555");
-                    //ROUTE
-                    break;
+            logger.LogDebug("Reading packet from {owner} of {@packet}", ControllerGuid, packet);
 
-                case Packet<StartProgramModel> p:
-                    logger.LogInformation($"Starting program {p.Payload.Type}");
-                    StartProgram(p.Payload);
+            switch (packet.Payload)
+            {
+                case StartProgramModelPacket p:
+                    logger.LogInformation($"Starting program {p.Type}");
+                    StartProgram(p);
                     break;
 
                 default:
-                    logger.LogWarning($"Recieved unknown packet type of {packet.GetType()}");
+                    //Todo handle invalid address
+                    var program = serviceContext.GetAgent(packet.TargetProgram);
+                    await program.SendData(packet.Payload, packet.Sender, packet.SenderProgram, cancellationToken);
                     break;
             }
 
@@ -77,17 +77,19 @@ internal class ControllerConnection : IControllerConnection
         }
     }
 
-    private void StartProgram(StartProgramModel startProgramModel)
+    private void StartProgram(StartProgramModelPacket startProgramModel)
     {
         var AgentCancellationTokenSource = new CancellationTokenSource();
-
+        
         var agentTask = new Task(async () =>
         {
+            IAgent? agent = null;
             try
             {
-                var agent = provider.GetRequiredService<IAgent>();
-
+                agent = provider.GetRequiredService<IAgent>();
+                agent.PrepareAgent(startProgramModel);
                 serviceContext.RegisterAgent(agent);
+
                 await agent.ExecuteAsync(startProgramModel, AgentCancellationTokenSource.Token);
             }
             catch(Exception e) 
@@ -96,7 +98,9 @@ internal class ControllerConnection : IControllerConnection
             }
             finally
             {
-                serviceContext.UnregisterAgent(agent);
+                if(agent != null)
+                    serviceContext.UnregisterAgent(agent);
+
                 AgentCancellationTokenSource.Cancel();
             }
         }, AgentCancellationTokenSource.Token, TaskCreationOptions.LongRunning);
@@ -104,26 +108,26 @@ internal class ControllerConnection : IControllerConnection
         agentTask.Start();
     }
 
-    private async Task<object> ReadPacket(CancellationToken cancellationToken = default)
+    private async Task<Packet> ReadPacket(CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(client);
 
         var packet = await StreamSerializer.RecieveAsync(client.GetStream(), cancellationToken);
-        ArgumentNullException.ThrowIfNull(packet);
 
-        logger.LogDebug($"Recieving packet: {packet}");
-
+        logger.LogTrace($"Recieving packet: {packet} ({packet.Payload.GetType()})");
         return packet;
     }
 
-    private Task SendPacket<T>(T data, CancellationToken cancellationToken = default)
+    public Task Send<T>(T data, Guid ToProgram, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(client);
 
-        var packet = new Packet<T> { Payload = data, Sender = fingerprintService.GetFingerprint() };
-        logger.LogDebug($"Sending packet: {packet}");
+        var packet = new Packet { Payload = data, SenderProgram = Guid.Empty, Target = ControllerGuid, TargetProgram = ToProgram, Sender = fingerprintService.GetFingerprint() };
+        logger.LogTrace($"Sending packet: {packet}");
 
         return StreamSerializer.SendAsync(client.GetStream(), packet, cancellationToken);
     }
+
+    public Guid GetId() => ControllerGuid;
 }

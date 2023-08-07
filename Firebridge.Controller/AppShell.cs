@@ -8,9 +8,8 @@ public class AppShell : Shell
 
         this.CurrentItem = new ShellContent()
         {
-            Title = "Hello there",
             ContentTemplate = new DataTemplate(typeof(Dashboard)),
-            Route = "Dashboard" 
+            Route = "Dashboard"
         };
 
         Routing.RegisterRoute(nameof(Dashboard), typeof(Dashboard));

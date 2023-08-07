@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Firebridge.Controller.Dashboard">
 
-    <Grid x:Name="ServicesGrid" Margin="20,20,20,20" HorizontalOptions="Center" VerticalOptions="Center">
-    </Grid>
+    <VerticalStackLayout>
+        <HorizontalStackLayout x:Name="GlobalActions"></HorizontalStackLayout>
+        <Grid x:Name="ServicesGrid" Margin="20,20,20,20" HorizontalOptions="Center" VerticalOptions="Center"></Grid>
+    </VerticalStackLayout>
 </ContentPage>
