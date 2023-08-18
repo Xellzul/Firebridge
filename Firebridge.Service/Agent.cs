@@ -7,20 +7,20 @@ using System.Diagnostics;
 
 namespace Firebridge.Service;
 
-public class Agent : IAgent
+public class Agent : IAgent, IAsyncDisposable
 {
     private readonly IApplicationLoader applicationLoader;
     private readonly IServiceContext serviceContext;
     private readonly ILogger<Agent> logger;
 
     //Stream to Agent
-    private Stream? writeStream;
+    private PacketStream writeStream = null!;
     //Incoming stream
-    private Stream? readStream;
+    private PacketStream readStream = null!;
     //Incoming error stream
-    private Stream? errorStream;
+    private Stream errorStream = null!;
 
-    private Process? proccess;
+    private Process process = null!;
 
     public Guid agentId { get; private set; }
 
@@ -41,20 +41,27 @@ public class Agent : IAgent
 
     public async Task ExecuteAsync(StartProgramModelPacket startProgramModel, CancellationToken token = default)
     {
+        logger.LogInformation("Starting Agent {agentId}", agentId);
+
         agentName = startProgramModel.Type.Split('.').Last();
 
         var sessionId = startProgramModel.SessionId == StartProgramModelPacket.ActiveSessionId ? applicationLoader.GetActiveSessionId() : startProgramModel.SessionId;
         var integrityLevel = IIntegrityLevel.Medium; // TODO
 
-        logger.LogInformation($"Starting Agent {agentId}");
-
-        (proccess, writeStream, errorStream, readStream) = applicationLoader.StartProcess(
+        var startResult = applicationLoader.StartProcess(
             AppDomain.CurrentDomain.BaseDirectory + "Firebridge.Agent.exe",
             new[] { agentId.ToString(), startProgramModel.OwnerGuid.ToString() },
             integrityLevel);
-
-        if (proccess == null || writeStream == null || readStream == null || errorStream == null)
+        
+        if (startResult.process == null || startResult.writeStream == null || startResult.readStream == null || startResult.errorStream == null)
             throw new InvalidProgramException($"Failed to start process");
+
+        process = startResult.process;
+        readStream = new PacketStream(startResult.readStream);
+        writeStream = new PacketStream(startResult.writeStream);
+        errorStream = startResult.errorStream;
+
+        process.Exited += AgentProcess_Exited;
 
         errorReader = ReadErrorOutput(token);
 
@@ -62,7 +69,7 @@ public class Agent : IAgent
 
         while (readStream.CanRead && !token.IsCancellationRequested)
         {
-            var data = await StreamSerializer.RecieveAsync(readStream, token);
+            var data = await readStream.ReadAsync(token);
 
             logger.LogDebug("Agent>Service: {agentId}({agentName}) <{@packet}>", agentId, agentName, data);
 
@@ -70,6 +77,11 @@ public class Agent : IAgent
                 await ReturnData(data.Payload, token);
             // TODo HANDLE DATA
         }
+    }
+
+    private void AgentProcess_Exited(object? sender, EventArgs e)
+    {
+
     }
 
     private async Task ReadErrorOutput(CancellationToken token = default)
@@ -85,7 +97,7 @@ public class Agent : IAgent
             if (errorLine == null)
                 continue;
 
-            logger.LogWarning($"Recieved error from {agentId}({agentName}) <{errorLine}>");
+            logger.LogWarning($"Received error from {agentId}({agentName}) <{errorLine}>");
             await ReturnData(new AgentErrorPacket { Line = errorLine });
         }
     }
@@ -96,7 +108,7 @@ public class Agent : IAgent
 
         var packet = new Packet() { Payload = data, Sender = sender, SenderProgram = senderProgram, Target = ownerControllerId, TargetProgram = agentId };
 
-        return sendRawInternal(packet);
+        return SendRaw(packet);
     }
 
     public Guid GetId() => agentId;
@@ -109,6 +121,18 @@ public class Agent : IAgent
         logger.LogWarning("PREP::{agentId} {ownerProcessId} {ownerControllerId}", agentId, ownerProcessId, ownerControllerId);
     }
 
+    private async Task EndAgent(CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("Ending agent {agentid}", agentId);
+
+        if (process == null)
+            throw new InvalidOperationException("Agent is not running");
+
+        await SendData(new EndAgentPacket(), Guid.Empty, Guid.Empty, cancellationToken);
+
+        await process.WaitForExitAsync(cancellationToken);
+    }
+
     private async Task ReturnData<T>(T data, CancellationToken cancellationToken = default)
     {
         var owner = serviceContext.GetController(ownerControllerId);
@@ -118,16 +142,12 @@ public class Agent : IAgent
         await owner.Send(data, ownerProcessId, cancellationToken);
     }
 
-    public Task SendRaw(Packet data, CancellationToken token = default)
-    {
-        return sendRawInternal(data, token);
-    }
+    public Task SendRaw(Packet data, CancellationToken token = default) => writeStream.SendAsync(data, token);
 
-    private async Task sendRawInternal(Packet packet, CancellationToken token = default)
+    public ValueTask DisposeAsync()
     {
-        ArgumentNullException.ThrowIfNull(writeStream);
+        process.Kill(true);
 
-        logger.LogTrace($"Sending packet to Agent: {packet}");
-        await StreamSerializer.SendAsync(writeStream, packet, token);
+        return ValueTask.CompletedTask;
     }
 }

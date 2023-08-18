@@ -14,12 +14,10 @@ using System.Runtime.Loader;
 
 namespace Firebridge.Controller.Common;
 
-public class ServiceConnection : IServiceConnection
+public class ServiceConnection : IServiceConnection, IDisposable
 {
-    public Guid ServiceGuid { get; private set; }
-
+    public Guid ServiceGuid { get; set; }
     public Guid ServiceId { get; set; }
-
     public AsyncServiceScope Scope { get; set; }
 
     private readonly ILogger<ServiceConnection> logger;
@@ -28,6 +26,7 @@ public class ServiceConnection : IServiceConnection
     private readonly ConcurrentDictionary<Guid, Agent> agents = new ConcurrentDictionary<Guid, Agent>();
 
     private TcpClient client;
+    private PacketStream packetStream = null!;
 
     public ServiceConnection(ILogger<ServiceConnection> logger, IFingerprintService fingerprintService, IMediator mediator)
     {
@@ -40,24 +39,25 @@ public class ServiceConnection : IServiceConnection
 
     public async Task Connect(IPEndPoint iPEndPoint, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("Connecting to serivce {@address}:{@ip}", iPEndPoint.Address.ToString(), iPEndPoint.Port);
+        logger.LogInformation("Connecting to service {@address}:{@ip}", iPEndPoint.Address.ToString(), iPEndPoint.Port);
 
         try
         {
             await mediator.Publish(new ServiceStatusChangedNotification(this, ServiceConnectionState.Connecting), cancellationToken);
             await client.ConnectAsync(iPEndPoint);
+            packetStream = new PacketStream(client.GetStream());
 
             var handshake = new HandshakePacket() { Guid = fingerprintService.GetFingerprint() };
             await Send(handshake, Guid.Empty, Guid.Empty, cancellationToken);
 
-            var resopnse = await ReadPacket(cancellationToken);
-            var handshakeResponse = resopnse.Payload as HandshakePacket; //TODO
+            var response = await packetStream.ReadAsync(cancellationToken);
+            var handshakeResponse = response.Payload as HandshakePacket; //TODO
 
             if (handshakeResponse == null)
-                throw new InvalidOperationException($"Wrong data type {resopnse.GetType()}");
+                throw new InvalidOperationException($"Wrong data type {response.GetType()}");
 
-            if (handshakeResponse.Guid != resopnse.Sender)
-                throw new InvalidOperationException($"Missmatched guid {handshakeResponse.Guid} - {resopnse.Sender}");
+            if (handshakeResponse.Guid != response.Sender)
+                throw new InvalidOperationException($"Mismatched guid {handshakeResponse.Guid} - {response.Sender}");
 
             ServiceGuid = handshakeResponse.Guid;
             await mediator.Publish(new ServiceStatusChangedNotification(this, ServiceConnectionState.Connected), cancellationToken);
@@ -66,18 +66,16 @@ public class ServiceConnection : IServiceConnection
 
             while (!cancellationToken.IsCancellationRequested && client.Connected)
             {
-                var packet = await this.ReadPacket(cancellationToken);
+                var packet = await packetStream.ReadAsync(cancellationToken);
 
                 await mediator.Publish(new AgentMessageNotification(packet, this));
-
-                logger.LogCritical("TODO HERE" + packet.GetType());
             }
         }
         catch (IOException e) when (e.InnerException is SocketException)
         {
             if(((SocketException)e.InnerException).SocketErrorCode == SocketError.ConnectionReset)
             {
-                logger.LogInformation($"Forcibly dissconnected: {ServiceGuid}");
+                logger.LogInformation($"Forcibly disconnected: {ServiceGuid}");
             }
             else
             {
@@ -119,7 +117,7 @@ public class ServiceConnection : IServiceConnection
 
         var programFullName = program + ", " + program.Assembly.FullName;
 
-        var paylaod = new StartProgramModelPacket() {
+        var payload = new StartProgramModelPacket() {
             AgentGuid = agentGuid, 
             SessionId = StartProgramModelPacket.ActiveSessionId, 
             Type = programFullName, 
@@ -128,7 +126,7 @@ public class ServiceConnection : IServiceConnection
             ControllerGuid = fingerprintService.GetFingerprint()
         };
 
-        await Send(paylaod, ownerProgramId, agentGuid, cancellationToken);
+        await Send(payload, ownerProgramId, agentGuid, cancellationToken);
     }
 
     //private IEnumerable<string> GetAssembliesLocations(Assembly assembly, AssemblyLoadContext context)
@@ -150,16 +148,6 @@ public class ServiceConnection : IServiceConnection
     //    yield return asmLoc;
     //}
 
-    private async Task<Packet> ReadPacket(CancellationToken cancellationToken = default)
-    {
-        var packet = await StreamSerializer.RecieveAsync(client.GetStream(), cancellationToken);
-        ArgumentNullException.ThrowIfNull(packet);
-
-        logger.LogDebug("Recieving packet: {@packet}", packet);
-
-        return packet;
-    }
-
     public Task Send<T>(T data, Guid senderProgram, Guid targetProgram, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(data);
@@ -168,5 +156,10 @@ public class ServiceConnection : IServiceConnection
         logger.LogDebug("Sending packet: {@packet}", packet);
 
         return StreamSerializer.SendAsync(client.GetStream(), packet, cancellationToken);
+    }
+
+    public void Dispose()
+    {
+       // throw new NotImplementedException();
     }
 }

@@ -1,8 +1,7 @@
-﻿using Firebridge.Common;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Firebridge.Service.Tests;
+namespace Firebridge.Common.Tests;
 
 public class FingerprintServiceTests
 {

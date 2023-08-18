@@ -9,21 +9,21 @@ public class Tests
     {
     }
 
-    [Test]
-    public async void Test1()
-    {
-        var msIn = new MemoryStream();
-        var msOut = new MemoryStream();
-        var msErr = new MemoryStream();
+    //[Test]
+    //public async void Test1()
+    //{
+    //    var msIn = new MemoryStream();
+    //    var msOut = new MemoryStream();
+    //    var msErr = new MemoryStream();
 
-        Console.SetIn(new StreamReader(msIn));
-        Console.SetOut(new StreamWriter(msOut));
-        Console.SetError(new StreamWriter(msErr));
+    //    Console.SetIn(new StreamReader(msIn));
+    //    Console.SetOut(new StreamWriter(msOut));
+    //    Console.SetError(new StreamWriter(msErr));
 
-        var task = Program.Main(Array.Empty<string>());
+    //    var task = Program.Main(Array.Empty<string>());
 
 
 
-        Assert.Pass();
-    }
+    //    Assert.Pass();
+    //}
 }

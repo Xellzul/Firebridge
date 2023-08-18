@@ -6,8 +6,6 @@ using Firebridge.Controller.Models;
 using Firebridge.Controller.Models.Notifications;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Media;
-using System.Windows.Forms;
 
 namespace OverridePluginMaui;
 
@@ -22,10 +20,6 @@ public class OverridePlugin : INotificationHandler<ServiceStatusChangedNotificat
     public OverridePlugin(ServiceMiniView serviceView, OverridePluginContext overridePluginContext, ILogger<OverridePlugin> logger)
     {
         logger.LogWarning("OverridePlugin CTOOOORaaa {owner}", overridePluginContext.owner);
-        logger.LogWarning("BB {owner}", overridePluginContext.owner);
-        logger.LogWarning("CC {owner}", overridePluginContext.agent);
-        
-
         this.serviceView = serviceView;
         this.overridePluginContext = overridePluginContext;
     }

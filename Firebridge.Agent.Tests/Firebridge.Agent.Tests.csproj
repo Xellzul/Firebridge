@@ -18,7 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Firbridge.Agent\Firbridge.Agent.csproj" />
+		<ProjectReference Include="..\Firebridge.Agent\Firebridge.Agent.csproj" />
 	</ItemGroup>
 
 </Project>

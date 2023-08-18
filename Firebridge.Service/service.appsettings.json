@@ -5,7 +5,7 @@
   "AgentServerPort": 47001,
   "Serilog": {
     "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
-    "MinimumLevel": "Debug",
+    "MinimumLevel": "Information",
     "WriteTo": [
       {
         "Name": "Console",

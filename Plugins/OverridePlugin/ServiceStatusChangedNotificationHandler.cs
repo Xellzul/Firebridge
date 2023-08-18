@@ -13,12 +13,9 @@ internal class ServiceStatusChangedNotificationHandler : INotificationHandler<Ag
     {
         this.overridePluginContext = overridePluginContext;
         this.logger = logger;
-
-        logger.LogError("CTOR {owner}", overridePluginContext.agent);
     }
 
     public async Task Handle(AgentMessageNotification notification, CancellationToken cancellationToken)
     {
-        logger.LogError("Handle {owner}", overridePluginContext.agent);
     }
 }

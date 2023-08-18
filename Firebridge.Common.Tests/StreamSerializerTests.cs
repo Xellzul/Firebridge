@@ -1,4 +1,5 @@
 using Firebridge.Common.Models.Packets;
+using MessagePack;
 
 namespace Firebridge.Common.Tests;
 
@@ -26,14 +27,16 @@ public class StreamSerializerTests
             TargetProgram = Guid.NewGuid()
         };
 
-        await StreamSerializer.SendAsync(new StreamReader(ms).BaseStream, data);
-        await StreamSerializer.SendAsync(new StreamReader(ms).BaseStream, data2);
+        await StreamSerializer.SendAsync(new StreamReader(ms).BaseStream, data, default);
+        await StreamSerializer.SendAsync(new StreamReader(ms).BaseStream, data2, default);
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        var dataDeserialized = await StreamSerializer.RecieveAsync(ms);
-        var dataDeserialized2 = await StreamSerializer.RecieveAsync(ms);
-
+        using var messagePackStreamReader = new MessagePackStreamReader(ms, true);
+        
+        var dataDeserialized = await StreamSerializer.ReceiveAsync(messagePackStreamReader);
+        var dataDeserialized2 = await StreamSerializer.ReceiveAsync(messagePackStreamReader);
+        
         Assert.That(dataDeserialized.GetType(), Is.EqualTo(data.GetType()));
         Assert.That(dataDeserialized.Payload.GetType(), Is.EqualTo(data.Payload.GetType()));
         Assert.That((string)dataDeserialized.Payload, Is.EqualTo((string)data.Payload));
@@ -59,11 +62,12 @@ public class StreamSerializerTests
             TargetProgram = Guid.NewGuid() 
         };
 
-        await StreamSerializer.SendAsync(ms, data);
+        await StreamSerializer.SendAsync(ms, data, default);
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        var dataDeserialized = await StreamSerializer.RecieveAsync(ms);
+        using var messagePackStreamReader = new MessagePackStreamReader(ms, true);
+        var dataDeserialized = await StreamSerializer.ReceiveAsync(messagePackStreamReader);
 
         Assert.That(dataDeserialized.GetType(), Is.EqualTo(data.GetType()));
         Assert.That(dataDeserialized.Payload.GetType(), Is.EqualTo(data.Payload.GetType()));
@@ -89,11 +93,12 @@ public class StreamSerializerTests
             TargetProgram = Guid.NewGuid() 
         };
 
-        await StreamSerializer.SendAsync(ms, data);
+        await StreamSerializer.SendAsync(ms, data, default);
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        var dataDeserialized = await StreamSerializer.RecieveAsync(ms);
+        using var messagePackStreamReader = new MessagePackStreamReader(ms, true);
+        var dataDeserialized = await StreamSerializer.ReceiveAsync(messagePackStreamReader);
 
         Assert.That(dataDeserialized.GetType(), Is.EqualTo(data.GetType()));
         Assert.That(dataDeserialized.Payload.GetType(), Is.EqualTo(data.Payload.GetType()));
@@ -103,7 +108,7 @@ public class StreamSerializerTests
     }
 
     [Test]
-    public async Task CanSendSerialziedPacket()
+    public async Task CanSendSerializedPacket()
     {
         var payloadOriginal = new HandshakePacket() { Guid = Guid.NewGuid() };
 
@@ -124,11 +129,12 @@ public class StreamSerializerTests
             TargetProgram = Guid.NewGuid()
         };
 
-        await StreamSerializer.SendAsync(ms, data);
+        await StreamSerializer.SendAsync(ms, data, default);
 
         ms.Seek(0, SeekOrigin.Begin);
 
-        var dataDeserialized = await StreamSerializer.RecieveAsync(ms);
+        using var messagePackStreamReader = new MessagePackStreamReader(ms, true);
+        var dataDeserialized = await StreamSerializer.ReceiveAsync(messagePackStreamReader);
 
         Assert.That(dataDeserialized.GetType(), Is.EqualTo(data.GetType()));
         Assert.That(dataDeserialized.Payload.GetType(), Is.EqualTo(data.Payload.GetType()));

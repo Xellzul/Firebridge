@@ -91,7 +91,7 @@ public class ImageCapturerAgent : AgentBackgroundService
         return bmpResized;
     }
 
-    private static Image GetScreenshot(int width, int heigth, int quality)
+    private static Image GetScreenshot(int width, int height, int quality)
     {
         int screenLeft = SystemInformation.VirtualScreen.Left;
         int screenTop = SystemInformation.VirtualScreen.Top;
@@ -105,7 +105,7 @@ public class ImageCapturerAgent : AgentBackgroundService
             g.CopyFromScreen(screenLeft, screenTop, 0, 0, bmp.Size);
         }
 
-        var resized = ImageResize(bmp, width, heigth);
+        var resized = ImageResize(bmp, width, height);
         bmp.Dispose();
 
         ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);

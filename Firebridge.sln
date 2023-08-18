@@ -31,11 +31,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{FCC9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentifyPlugin", "Plugins\IdentifyPlugin\IdentifyPlugin.csproj", "{CA00669B-C42E-4813-8EB0-89EEA232B0F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firebridge.Agent.Tests", "Firebridge.Agent.Tests\Firebridge.Agent.Tests.csproj", "{7114AD6A-7F9B-49BD-A604-A37F2DA6CB71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Firebridge.Agent.Tests", "Firebridge.Agent.Tests\Firebridge.Agent.Tests.csproj", "{7114AD6A-7F9B-49BD-A604-A37F2DA6CB71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugPlugin", "Plugins\DebugPlugin\DebugPlugin.csproj", "{DB801CFF-2C99-4122-A52B-727083AD563F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugPlugin", "Plugins\DebugPlugin\DebugPlugin.csproj", "{DB801CFF-2C99-4122-A52B-727083AD563F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OverridePlugin", "Plugins\OverridePlugin\OverridePlugin.csproj", "{8E594F9B-C1BB-4E01-A5EA-CE58CC65037C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OverridePlugin", "Plugins\OverridePlugin\OverridePlugin.csproj", "{8E594F9B-C1BB-4E01-A5EA-CE58CC65037C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firebridge.Agent.Models", "Firebridge.Agent.Models\Firebridge.Agent.Models.csproj", "{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -159,6 +161,14 @@ Global
 		{8E594F9B-C1BB-4E01-A5EA-CE58CC65037C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8E594F9B-C1BB-4E01-A5EA-CE58CC65037C}.Release|x64.ActiveCfg = Release|Any CPU
 		{8E594F9B-C1BB-4E01-A5EA-CE58CC65037C}.Release|x64.Build.0 = Release|Any CPU
+		{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}.Debug|x64.Build.0 = Debug|Any CPU
+		{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}.Release|x64.ActiveCfg = Release|Any CPU
+		{4F487B99-B1C5-4D01-9131-50EAB6A9BDF9}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,6 +3,7 @@ using MessagePack;
 using MessagePack.Formatters;
 using MessagePack.Resolvers;
 using System.Buffers;
+using System.Net.Sockets;
 
 namespace Firebridge.Common;
 
@@ -20,22 +21,24 @@ public static class StreamSerializer
         MessagePackSerializer.DefaultOptions = options;
     }
 
-    public static async Task SendAsync(Stream stream, Packet packet, CancellationToken cancellationToken = default)
+    public static async Task SendAsync(Stream stream, Packet packet, CancellationToken cancellationToken)
     {
         await MessagePackSerializer.SerializeAsync(stream, packet, cancellationToken: cancellationToken);
-
-        await stream.FlushAsync();
+        
+        await stream.FlushAsync(cancellationToken);
     }
 
-    public static async Task<Packet> RecieveAsync(Stream stream, CancellationToken cancellationToken = default)
+    public static async Task<Packet> ReceiveAsync(MessagePackStreamReader messagePackStreamReader, CancellationToken cancellationToken = default)
     {
-        using (var messagePackStreamReader = new MessagePackStreamReader(stream, true))
-        {
-            var rawData = await messagePackStreamReader.ReadAsync(cancellationToken);
-            ArgumentNullException.ThrowIfNull(rawData);
+        var rawData = await messagePackStreamReader.ReadAsync(cancellationToken);
+        ArgumentNullException.ThrowIfNull(rawData);
 
-            return MessagePackSerializer.Deserialize<Packet>((ReadOnlySequence<byte>)rawData, cancellationToken: cancellationToken);
-        }
+        return MessagePackSerializer.Deserialize<Packet>((ReadOnlySequence<byte>)rawData, cancellationToken: cancellationToken);
+
+        //using (var messagePackStreamReader = new MessagePackStreamReader(stream, true))
+        //{
+
+        //}
         //var streamReader = new MessagePackStreamReader(stream, true, new SequencePool(1));
         //var rawData = await streamReader.ReadAsync(cancellationToken);
 

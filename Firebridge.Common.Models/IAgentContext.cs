@@ -1,8 +1,10 @@
-﻿namespace Firebridge.Common.Models;
+﻿using Firebridge.Common.Models.Packets;
+
+namespace Firebridge.Common.Models;
 
 public interface IAgentContext
 {
-    public Task<object> Recieve(CancellationToken cancellationToken = default);
+    public Task<Packet> Receive(CancellationToken cancellationToken = default);
 
     public Task Send<T>(T data, Guid targetController, Guid targetProgram, CancellationToken cancellationToken = default);
 

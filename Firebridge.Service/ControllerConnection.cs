@@ -19,6 +19,7 @@ internal class ControllerConnection : IControllerConnection
     private readonly IServiceProvider provider;
 
     private TcpClient? client;
+    private PacketStream packetStream = null!;
 
     public ControllerConnection(ILogger<ControllerConnection> logger, IFingerprintService fingerprintService, IServiceContext serviceContext, IServiceProvider provider)
     {
@@ -32,6 +33,7 @@ internal class ControllerConnection : IControllerConnection
     {
         logger.LogInformation($"Controller connecting {tcpClient.Client.RemoteEndPoint}");
         client = tcpClient;
+        packetStream = new PacketStream(tcpClient.GetStream());
 
         var handshake = new HandshakePacket() { Guid = fingerprintService.GetFingerprint() };
 
@@ -44,7 +46,7 @@ internal class ControllerConnection : IControllerConnection
             throw new InvalidOperationException($"Wrong data type {resopnse.GetType()}");
 
         if (handshakeResponse.Guid != resopnse.Sender)
-            throw new InvalidOperationException($"Missmatched guid {handshakeResponse.Guid} - {resopnse.Sender}");
+            throw new InvalidOperationException($"Mismatched guid {handshakeResponse.Guid} - {resopnse.Sender}");
 
         ControllerGuid = handshakeResponse.Guid;
     }
@@ -111,8 +113,9 @@ internal class ControllerConnection : IControllerConnection
     private async Task<Packet> ReadPacket(CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(packetStream);
 
-        var packet = await StreamSerializer.RecieveAsync(client.GetStream(), cancellationToken);
+        var packet = await packetStream.ReadAsync(cancellationToken);
 
         logger.LogTrace($"Recieving packet: {packet} ({packet.Payload.GetType()})");
         return packet;
@@ -122,11 +125,12 @@ internal class ControllerConnection : IControllerConnection
     {
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(packetStream);
 
         var packet = new Packet { Payload = data, SenderProgram = Guid.Empty, Target = ControllerGuid, TargetProgram = ToProgram, Sender = fingerprintService.GetFingerprint() };
         logger.LogTrace($"Sending packet: {packet}");
 
-        return StreamSerializer.SendAsync(client.GetStream(), packet, cancellationToken);
+        return packetStream.SendAsync(packet, cancellationToken);
     }
 
     public Guid GetId() => ControllerGuid;

@@ -180,7 +180,7 @@ public class ApplicationLoader : IApplicationLoader
                 hStdOutProcessWrite.DangerousAddRef(ref succ); // :(
 
                 si.dwFlags = STARTUPINFOW_FLAGS.STARTF_USESTDHANDLES | STARTUPINFOW_FLAGS.STARTF_USESHOWWINDOW;
-
+                
                 Span<char> commandLine = new Span<char>((name + " " + string.Join(" ", parameters) + '\0').ToCharArray());
                 if (!PInvoke.CreateProcessAsUser(tokenHandle,        // client's access token
                             null,                   // file to execute
